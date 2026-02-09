@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Microsoft.SemanticKernel;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace AIConsoleApp
 {
@@ -20,11 +17,13 @@ namespace AIConsoleApp
             var builder = Host.CreateApplicationBuilder(args);
             using var host = builder.ConfigureAIApp().Build();
 
-            var aikey = host.Services.GetRequiredService<IOptions<AIKey>>().Value;
-            Console.WriteLine("Using LLM model : {0}", aikey.ModelName);
+            // Get default model config
+            var aiModel = host.GetAIModel();
+            Console.WriteLine("Using LLM model : {0}", aiModel!.Name);
 
-            host.Services
-                .GetRequiredService<Kernel>()
+            // Create Kernel for the AIModel and start a chat session
+            host.CreateKernel(aiModel)
+                .LogKernel()
                 .StartChat()
                 .Wait();
         }

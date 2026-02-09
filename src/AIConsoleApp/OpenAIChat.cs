@@ -8,7 +8,6 @@ namespace AIConsoleApp
     {
         public static async Task StartChat(this Kernel kernel)
         {
-            //var kernel = fact.Create(modelName);
             var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
             // Create a history store the conversation
@@ -29,16 +28,22 @@ namespace AIConsoleApp
                 };
 
                 // Get the response from the AI
-                var result = await chatCompletionService.GetChatMessageContentAsync(
-                        history,
-                        executionSettings: openAIPromptExecutionSettings,
-                        kernel: kernel);
+                IAsyncEnumerable<StreamingChatMessageContent> response = chatCompletionService.GetStreamingChatMessageContentsAsync(
+                        chatHistory: history,
+                        kernel: kernel
+                    );
 
                 // Print the results
-                Console.WriteLine("Assistant > " + result);
+                var result = new ChatResult();
+                await foreach (StreamingChatMessageContent chunk in response)
+                {
+                    Console.Write(chunk);
+                    result.Append(chunk);
+                }
+                Console.WriteLine();
 
                 // Add the message from the agent to the chat history
-                history.AddMessage(result.Role, result.Content ?? string.Empty);
+                history.AddMessage(result.Role, result.Content);
 
                 // Collect user input
                 Console.Write("User > ");
