@@ -33,7 +33,6 @@ namespace AIConsoleApp.Example
             public async Task<int> Checkout() => await Task.FromResult(0);
         }
 
-
         public static void EX1()
         {
             IKernelBuilder kernelBuilder = Kernel.CreateBuilder();

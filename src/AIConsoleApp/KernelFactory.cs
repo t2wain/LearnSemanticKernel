@@ -4,7 +4,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Services;
 
 namespace AIConsoleApp
 {
@@ -69,6 +68,9 @@ namespace AIConsoleApp
             return kernelBuilder.Build();
         }
 
+        /// <summary>
+        /// Explore components of a Kernel
+        /// </summary>
         public static Kernel LogKernel(this Kernel kernel)
         {
             var services = kernel.GetAllServices<IChatCompletionService>();
