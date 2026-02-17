@@ -15,7 +15,12 @@ namespace AIConsoleApp
 
             builder.Logging.AddConsole();
 
-            builder.Services.Configure<AIProviders>(builder.Configuration.GetSection("AIProviders"));
+            var cfg = builder.Configuration.GetSection("AIProviders");
+            builder.Services.Configure<AIProviders>(options =>
+            {
+                ConfigurationBinder.Bind(cfg, options);
+                options.Init();
+            });
 
             return builder;
         }

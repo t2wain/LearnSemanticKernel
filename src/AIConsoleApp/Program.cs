@@ -18,13 +18,14 @@ namespace AIConsoleApp
             using var host = builder.ConfigureAIApp().Build();
 
             // Get default model config
-            var aiModel = host.GetAIModel();
+            var aiProviders = host.GetAIProviders();
+            var aiModel = aiProviders.GetAIModel();
             Console.WriteLine("Using LLM model : {0}", aiModel!.Name);
 
             // Create Kernel for the AIModel and start a chat session
             host.CreateKernel(aiModel)
                 .LogKernel()
-                .StartChat()
+                .StartChat(aiModel)
                 .Wait();
         }
     }

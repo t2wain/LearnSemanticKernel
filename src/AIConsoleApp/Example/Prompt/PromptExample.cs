@@ -99,7 +99,7 @@ namespace AIConsoleApp.Example.Prompt
             return function;
         }
 
-        public async static Task InvokePromptEX(Kernel kernel, KernelFunction function, KernelArguments arguments)
+        public async static Task InvokePrompt(Kernel kernel, KernelFunction function, KernelArguments arguments)
         {
             // Invoke the prompt function
             FunctionResult response = await kernel.InvokeAsync(function, arguments);

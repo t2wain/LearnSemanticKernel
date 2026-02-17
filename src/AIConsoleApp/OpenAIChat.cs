@@ -6,7 +6,7 @@ namespace AIConsoleApp
 {
     public static class OpenAIChat
     {
-        public static async Task StartChat(this Kernel kernel)
+        public static async Task StartChat(this Kernel kernel, AIModel aIModel)
         {
             var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
 
@@ -24,12 +24,15 @@ namespace AIConsoleApp
                 // Enable planning
                 OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
                 {
-                    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
+                    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+                    ServiceId = aIModel.ProviderName,
+                    ModelId = aIModel.ModelId,
                 };
 
                 // Get the response from the AI
                 IAsyncEnumerable<StreamingChatMessageContent> response = chatCompletionService.GetStreamingChatMessageContentsAsync(
                         chatHistory: history,
+                        executionSettings: openAIPromptExecutionSettings,
                         kernel: kernel
                     );
 

@@ -1,5 +1,4 @@
-﻿using Google.Apis.Auth.OAuth2;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using System.ComponentModel;
