@@ -7,6 +7,7 @@
         public string ModelId { get; set; }
         public string EndPoint { get; set; }
         public string APIKey { get; set; }
+        public string ServiceId { get; set; }
         public string ProviderName { get; set; }
         public IEnumerable<string> PluginDirectories { get; set; } = [];
         public IEnumerable<string> YamlPluginDirectories { get; set; } = [];
@@ -36,6 +37,7 @@
             foreach (var m in q) {
                 var (provider, model) = m;
                 model.ProviderName = provider.Name;
+                model.ServiceId = string.Format("{0}::{1}", provider.Name, model.Name);
 
                 if (PluginDirectories.Count > 0 )
                     model.PluginDirectories =  

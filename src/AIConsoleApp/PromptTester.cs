@@ -1,4 +1,6 @@
-﻿using Microsoft.SemanticKernel;
+﻿using HandlebarsDotNet;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
 
 namespace AIConsoleApp
 {
@@ -10,11 +12,18 @@ namespace AIConsoleApp
         public PromptExecutionSettings? DefaultPromptExecutionSettings => 
             PromptTemplateConfig.DefaultExecutionSettings;
 
+        #region Create
+
         public static PromptTemplateConfig CreatePromptTemplateConfigFromJson(string json) =>
             PromptTemplateConfig.FromJson(json);
 
-        public static PromptTemplateConfig SetPromptTemplateConfigFromTemplate(string template) =>
+        public static PromptTemplateConfig CreatePromptTemplateConfigFromTemplate(string template) =>
             new(template);
+
+        public static PromptTemplateConfig CreatePromptTemplateConfig(string yaml) =>
+            KernelFunctionYaml.ToPromptTemplateConfig(yaml);
+
+        #endregion
 
         #region Properties
 
@@ -77,17 +86,157 @@ namespace AIConsoleApp
         public Kernel Kernel { get; set; }
         public PromptTemplateConfig PromptTemplateConfig { get; set; }
 
+        public async Task<string> RenderPrompt(IPromptTemplate promptTemplate, 
+            KernelArguments kernelArguments) =>
+                await promptTemplate.RenderAsync(Kernel, kernelArguments);
+
+        public static void ExplorePromptTemplateConfig(PromptTemplateConfig promptTemplateConfig)
+        {
+            var c = promptTemplateConfig;
+            bool a = c.AllowDangerouslySetContent;
+            PromptExecutionSettings? e = c.DefaultExecutionSettings;
+            string? d = c.Description;
+            Dictionary<string, PromptExecutionSettings> e2 = c.ExecutionSettings;
+            List<InputVariable> i = c.InputVariables;
+            string? n = c.Name;
+            OutputVariable? o = c.OutputVariable;
+            string f = PromptTemplateConfig.SemanticKernelTemplateFormat;
+            string t = c.Template;
+            string f2 = c.TemplateFormat;
+
+            // InputVariable
+            foreach (var iv in c.InputVariables)
+            {
+                bool a2 = iv.AllowDangerouslySetContent;
+                object? v = iv.Default;
+                string d2 = iv.Description;
+                bool r = iv.IsRequired;
+                string? s = iv.JsonSchema;
+                string n2 = iv.Name;
+            }
+
+            // OutputVariable
+            if (c.OutputVariable is OutputVariable o2)
+            {
+                string d3 = o2.Description;
+                string? s3 = o2.JsonSchema;
+            }
+        }
+
+        #region Invoke Prompt
+
+        public async Task<FunctionResult> InvokePromptAsync(string promptTemplate, 
+            KernelArguments kernelArguments, PromptTemplateConfig promptTemplateConfig, 
+            IPromptTemplateFactory promptTemplateFactory)
+        {
+            FunctionResult res = await Kernel.InvokePromptAsync(
+                    promptTemplate: promptTemplate, 
+                    arguments: kernelArguments,
+                    promptTemplateConfig: promptTemplateConfig,
+                    promptTemplateFactory: promptTemplateFactory
+                );
+            return res; 
+        }
+
+        public async Task<T?> InvokePromptAsync<T>(string promptTemplate,
+            KernelArguments kernelArguments, PromptTemplateConfig promptTemplateConfig,
+            IPromptTemplateFactory promptTemplateFactory)
+        {
+            T? res = await Kernel.InvokePromptAsync<T>(
+                    promptTemplate: promptTemplate,
+                    arguments: kernelArguments,
+                    promptTemplateConfig: promptTemplateConfig,
+                    promptTemplateFactory: promptTemplateFactory
+                );
+            return res;
+        }
+
+        public IAsyncEnumerable<StreamingKernelContent> InvokePromptStreamingAsync(string promptTemplate,
+            KernelArguments kernelArguments, PromptTemplateConfig promptTemplateConfig,
+            IPromptTemplateFactory promptTemplateFactory) =>
+                Kernel.InvokePromptStreamingAsync(
+                        promptTemplate: promptTemplate,
+                        arguments: kernelArguments,
+                        promptTemplateConfig: promptTemplateConfig,
+                        promptTemplateFactory: promptTemplateFactory
+                    );
+
+        public IAsyncEnumerable<T> InvokePromptStreamingAsync<T>(string promptTemplate,
+            KernelArguments kernelArguments, PromptTemplateConfig promptTemplateConfig,
+            IPromptTemplateFactory promptTemplateFactory) =>
+                Kernel.InvokePromptStreamingAsync<T>(
+                        promptTemplate: promptTemplate,
+                        arguments: kernelArguments,
+                        promptTemplateConfig: promptTemplateConfig,
+                        promptTemplateFactory: promptTemplateFactory
+                    );
+
+        public async Task<FunctionResult> InvokeHandlebarsPromptAsync(
+            string yamlPromptTemplate, 
+            KernelArguments kernelArguments) => 
+                await Kernel.InvokeHandlebarsPromptAsync(yamlPromptTemplate, kernelArguments);
+
+        #endregion
+
+        #region Kernel Function
+
         public KernelFunction CreateKernelFunction() =>
             Kernel.CreateFunctionFromPrompt(PromptTemplateConfig);
 
         public KernelFunction CreateKernelFunction(string template) =>
             Kernel.CreateFunctionFromPrompt(template);
 
-        public IPromptTemplate CreatetPromptTemplate() =>
-            new KernelPromptTemplateFactory().Create(PromptTemplateConfig);
+        public static KernelFunction CreateKernelFunction(
+            IPromptTemplate promptTemplate, 
+            PromptTemplateConfig promptTemplateConfig) =>
+                KernelFunctionFactory.CreateFromPrompt(promptTemplate, promptTemplateConfig);
 
-        public async Task<string> RenderPrompt(IPromptTemplate promptTemplate, KernelArguments kernelArguments) =>
-            await promptTemplate.RenderAsync(Kernel, kernelArguments);
+        public static KernelFunction CreateKernelFunction(PromptTemplateConfig promptTemplateConfig) =>
+            KernelFunctionFactory.CreateFromPrompt(promptTemplateConfig);
 
+        public static KernelFunction CreateKernelFunctionFromYaml(string yamlTemplate) =>
+            KernelFunctionYaml.FromPromptYaml(yamlTemplate);
+
+        #endregion
+
+        #region Plugin
+
+        public KernelPlugin ImportPluginFromDirectory(string folderPath) =>
+            Kernel.ImportPluginFromPromptDirectory(folderPath);
+
+        #endregion
+
+        #region YAML
+
+        public KernelPlugin CreatePluginFromYamlDirectory(string folderPath) =>
+            Kernel.CreatePluginFromPromptDirectoryYaml(folderPath);
+
+        public KernelPlugin ImportPluginFromYamlDirectory(string folderPath) =>
+            Kernel.ImportPluginFromPromptDirectoryYaml(folderPath);
+
+        public KernelFunction CreateKernelFunctionFromYamlTemplate(string yamlTemplate) =>
+            Kernel.CreateFunctionFromPromptYaml(yamlTemplate);
+
+        public static KernelFunction CreateKernelFunctionFromYamlTemplateStatic(string yamlTemplate) =>
+            KernelFunctionYaml.FromPromptYaml(yamlTemplate);
+
+        #endregion
+
+        #region Prompt Template
+
+        public static IPromptTemplate CreatetPromptTemplate(PromptTemplateConfig promptTemplateConfig) =>
+            DefaultPromptTemplateFactory.Create(promptTemplateConfig);
+
+        #endregion
+
+        #region Prompt Template Factory
+
+        public static IPromptTemplateFactory DefaultPromptTemplateFactory { get; protected set; } =
+            new KernelPromptTemplateFactory();
+
+        public static IPromptTemplateFactory HandlebarsTemplateFactory { get; protected set; } =
+            new HandlebarsPromptTemplateFactory();
+
+        #endregion
     }
 }

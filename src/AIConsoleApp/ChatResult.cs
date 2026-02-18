@@ -15,5 +15,9 @@ namespace AIConsoleApp
             if (chunk.Role.HasValue)
                 Role = chunk.Role.Value;
         }
+        public void Clear()
+        {
+            Response.Clear();
+        }
     }
 }

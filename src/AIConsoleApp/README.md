@@ -264,6 +264,8 @@ API associated with coding concepts
 		- description : string
 		- templateFormat : string
 		- IPromptTemplateFactory
+	- CreateFunctionFromPrompt : **KernelFunction**
+		- **PromptTemplateConfig**
 	- ImportPluginFromPromptDirectory : KernelPlugin
 		- **pluginDirectory** : string
 		- pluginName : string

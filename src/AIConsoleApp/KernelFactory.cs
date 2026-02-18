@@ -9,8 +9,12 @@ namespace AIConsoleApp
 {
     public static class KernelFactory
     {
+
         public static AIProviders GetAIProviders(this IHost host) =>
             host.Services.GetRequiredService<IOptions<AIProviders>>().Value;
+
+        public static AIModel GetDefaultAIModel(this IHost host) =>
+            host.GetAIProviders().GetAIModel();
 
         public static Kernel CreateKernel(this IHost host, AIModel model)
         {
@@ -70,7 +74,7 @@ namespace AIConsoleApp
                          deploymentName: aiModel.Name,
                          apiKey: aiModel.APIKey,
                          endpoint: aiModel.EndPoint,
-                         serviceId: aiModel.ProviderName,
+                         serviceId: aiModel.ServiceId,
                          modelId: aiModel.ModelId
                     ),
                     _ => services

@@ -1,6 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.Services;
 
 namespace AIConsoleApp
 {
@@ -8,36 +9,43 @@ namespace AIConsoleApp
     {
         public static async Task StartChat(this Kernel kernel, AIModel aIModel)
         {
-            var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>();
+            var serviceId = aIModel.ServiceId;
+            var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>(serviceId);
+
+            var modelId = chatCompletionService.GetModelId() ?? aIModel.ModelId;
+            Console.WriteLine("Using LLM model : {0} ( {1} )", modelId, serviceId);
 
             // Create a history store the conversation
             var history = new ChatHistory();
+            var result = new ChatResult();
 
-            // Initiate a back-and-forth chat
-            Console.Write("User > ");
-            string? userInput = Console.ReadLine();
-            while (!string.IsNullOrWhiteSpace(userInput))
+            // Enable planning
+            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
             {
+                FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
+                ServiceId = serviceId,
+                ModelId = modelId,
+            };
+
+            while (true)
+            {
+                Console.Write("User > ");
+                string? userInput = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(userInput))
+                    break;
+
                 // Add user input
                 history.AddUserMessage(userInput);
 
-                // Enable planning
-                OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
-                {
-                    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
-                    ServiceId = aIModel.ProviderName,
-                    ModelId = aIModel.ModelId,
-                };
-
                 // Get the response from the AI
-                IAsyncEnumerable<StreamingChatMessageContent> response = chatCompletionService.GetStreamingChatMessageContentsAsync(
-                        chatHistory: history,
-                        executionSettings: openAIPromptExecutionSettings,
-                        kernel: kernel
-                    );
+                IAsyncEnumerable<StreamingChatMessageContent> response = 
+                    chatCompletionService.GetStreamingChatMessageContentsAsync(
+                            chatHistory: history,
+                            executionSettings: openAIPromptExecutionSettings,
+                            kernel: kernel
+                        );
 
                 // Print the results
-                var result = new ChatResult();
                 await foreach (StreamingChatMessageContent chunk in response)
                 {
                     Console.Write(chunk);
@@ -47,10 +55,7 @@ namespace AIConsoleApp
 
                 // Add the message from the agent to the chat history
                 history.AddMessage(result.Role, result.Content);
-
-                // Collect user input
-                Console.Write("User > ");
-                userInput = Console.ReadLine();
+                result.Clear();
             }
         }
     }
