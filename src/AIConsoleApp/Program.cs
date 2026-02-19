@@ -23,7 +23,7 @@ namespace AIConsoleApp
 
             // Create Kernel for the AIModel and start a chat session
             host.CreateKernel(aiModel)
-                .LogKernel()
+                .ExploreKernel()
                 .StartChat(aiModel)
                 .Wait();
         }

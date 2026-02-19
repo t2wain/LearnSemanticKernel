@@ -409,19 +409,21 @@ namespace AIConsoleApp
         {
             KernelFunction f = kernelFunction;
             string d = f.Description;
-            IReadOnlyDictionary<string, PromptExecutionSettings>? e = f.ExecutionSettings;
             JsonElement s = f.JsonSchema;
             JsonSerializerOptions o = f.JsonSerializerOptions;
             string n = f.Name;
             string? pn = f.PluginName;
+
             MethodInfo? m = f.UnderlyingMethod;
 
             //PromptExecutionSettings
+            IReadOnlyDictionary<string, PromptExecutionSettings>? e = f.ExecutionSettings;
             if (f.ExecutionSettings != null)
             {
-                foreach (PromptExecutionSettings pe in f.ExecutionSettings.Values)
+                foreach (KeyValuePair<string, PromptExecutionSettings> kv in f.ExecutionSettings)
                 {
-                    ExplorePromptExecutionSettings(pe);
+                    string serviceId = kv.Key;
+                    ExplorePromptExecutionSettings(kv.Value);
                 }
             }
 
@@ -467,11 +469,10 @@ namespace AIConsoleApp
             IDictionary<string, object?> p = mt.AdditionalProperties;
             string d2 = mt.Description;
             string n2a = mt.Name;
-            IReadOnlyList<KernelParameterMetadata> pm = mt.Parameters;
             string? pn2 = mt.PluginName;
-            KernelReturnParameterMetadata rp = mt.ReturnParameter;
 
             // KernelParameterMetadata
+            IReadOnlyList<KernelParameterMetadata> pm = mt.Parameters;
             foreach (KernelParameterMetadata p2 in mt.Parameters)
             {
                 object? v = p2.DefaultValue;
@@ -485,6 +486,7 @@ namespace AIConsoleApp
             }
 
             // KernelReturnParameterMetadata
+            KernelReturnParameterMetadata rp = mt.ReturnParameter;
             string d2b = rp.Description;
             Type? t2 = rp.ParameterType;
             KernelJsonSchema? s2a = rp.Schema;
@@ -492,7 +494,7 @@ namespace AIConsoleApp
             string? s2c = r2a?.GetRawText();
         }
 
-        public static void ExporeKernelArguments(KernelArguments kernelArguments)
+        public static void ExploreKernelArguments(KernelArguments kernelArguments)
         {
             var ka = kernelArguments;
             IReadOnlyDictionary<string, PromptExecutionSettings>? e = ka.ExecutionSettings;

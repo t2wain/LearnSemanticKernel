@@ -1,5 +1,4 @@
-﻿using HandlebarsDotNet;
-using Microsoft.SemanticKernel;
+﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
 
 namespace AIConsoleApp
@@ -20,7 +19,7 @@ namespace AIConsoleApp
         public static PromptTemplateConfig CreatePromptTemplateConfigFromTemplate(string template) =>
             new(template);
 
-        public static PromptTemplateConfig CreatePromptTemplateConfig(string yaml) =>
+        public static PromptTemplateConfig CreatePromptTemplateConfigFromYaml(string yaml) =>
             KernelFunctionYaml.ToPromptTemplateConfig(yaml);
 
         #endregion
@@ -86,25 +85,24 @@ namespace AIConsoleApp
         public Kernel Kernel { get; set; }
         public PromptTemplateConfig PromptTemplateConfig { get; set; }
 
-        public async Task<string> RenderPrompt(IPromptTemplate promptTemplate, 
-            KernelArguments kernelArguments) =>
-                await promptTemplate.RenderAsync(Kernel, kernelArguments);
-
         public static void ExplorePromptTemplateConfig(PromptTemplateConfig promptTemplateConfig)
         {
             var c = promptTemplateConfig;
+
             bool a = c.AllowDangerouslySetContent;
+
             PromptExecutionSettings? e = c.DefaultExecutionSettings;
-            string? d = c.Description;
             Dictionary<string, PromptExecutionSettings> e2 = c.ExecutionSettings;
-            List<InputVariable> i = c.InputVariables;
+
+            string? d = c.Description;
             string? n = c.Name;
-            OutputVariable? o = c.OutputVariable;
             string f = PromptTemplateConfig.SemanticKernelTemplateFormat;
+
             string t = c.Template;
             string f2 = c.TemplateFormat;
 
             // InputVariable
+            List<InputVariable> i = c.InputVariables;
             foreach (var iv in c.InputVariables)
             {
                 bool a2 = iv.AllowDangerouslySetContent;
@@ -116,6 +114,7 @@ namespace AIConsoleApp
             }
 
             // OutputVariable
+            OutputVariable? o = c.OutputVariable;
             if (c.OutputVariable is OutputVariable o2)
             {
                 string d3 = o2.Description;
@@ -194,9 +193,6 @@ namespace AIConsoleApp
         public static KernelFunction CreateKernelFunction(PromptTemplateConfig promptTemplateConfig) =>
             KernelFunctionFactory.CreateFromPrompt(promptTemplateConfig);
 
-        public static KernelFunction CreateKernelFunctionFromYaml(string yamlTemplate) =>
-            KernelFunctionYaml.FromPromptYaml(yamlTemplate);
-
         #endregion
 
         #region Plugin
@@ -217,8 +213,14 @@ namespace AIConsoleApp
         public KernelFunction CreateKernelFunctionFromYamlTemplate(string yamlTemplate) =>
             Kernel.CreateFunctionFromPromptYaml(yamlTemplate);
 
+        public static KernelFunction CreateKernelFunctionFromYaml(string yamlTemplate) =>
+            KernelFunctionYaml.FromPromptYaml(yamlTemplate);
+
         public static KernelFunction CreateKernelFunctionFromYamlTemplateStatic(string yamlTemplate) =>
             KernelFunctionYaml.FromPromptYaml(yamlTemplate);
+
+        public static PromptTemplateConfig CreatePromptTemplateConfigFromYaml(string yamlTemplate) =>
+            PromptTemplateConfigBuilder.CreatePromptTemplateConfigFromYaml(yamlTemplate);
 
         #endregion
 
@@ -226,6 +228,17 @@ namespace AIConsoleApp
 
         public static IPromptTemplate CreatetPromptTemplate(PromptTemplateConfig promptTemplateConfig) =>
             DefaultPromptTemplateFactory.Create(promptTemplateConfig);
+
+        public static IPromptTemplate CreatetPromptTemplateFromYaml(string yamlTemplate)
+        {
+            PromptTemplateConfig c = CreatePromptTemplateConfigFromYaml(yamlTemplate);
+            return CreatetPromptTemplate(c);
+        }
+
+        public async Task<string> RenderPrompt(
+            IPromptTemplate promptTemplate, 
+            KernelArguments kernelArguments) =>
+                await promptTemplate.RenderAsync(Kernel, kernelArguments);
 
         #endregion
 

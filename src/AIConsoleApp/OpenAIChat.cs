@@ -7,17 +7,18 @@ namespace AIConsoleApp
 {
     public static class OpenAIChat
     {
-        public static async Task StartChat(this Kernel kernel, AIModel aIModel)
+        public static async Task<ChatHistory> StartChat(this Kernel kernel, AIModel aIModel)
         {
-            var serviceId = aIModel.ServiceId;
-            var chatCompletionService = kernel.GetRequiredService<IChatCompletionService>(serviceId);
+            string serviceId = aIModel.ServiceId;
+            IChatCompletionService chatCompletionService = 
+                kernel.GetRequiredService<IChatCompletionService>(serviceId);
 
-            var modelId = chatCompletionService.GetModelId() ?? aIModel.ModelId;
+            string modelId = chatCompletionService.GetModelId() ?? aIModel.ModelId;
             Console.WriteLine("Using LLM model : {0} ( {1} )", modelId, serviceId);
 
             // Create a history store the conversation
-            var history = new ChatHistory();
-            var result = new ChatResult();
+            ChatHistory history = new();
+            ChatResult result = new();
 
             // Enable planning
             OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
@@ -57,6 +58,8 @@ namespace AIConsoleApp
                 history.AddMessage(result.Role, result.Content);
                 result.Clear();
             }
+
+            return history;
         }
     }
 }

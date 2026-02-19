@@ -3,7 +3,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AIConsoleApp
 {
@@ -85,18 +84,9 @@ namespace AIConsoleApp
         /// <summary>
         /// Explore components of a Kernel
         /// </summary>
-        public static Kernel LogKernel(this Kernel kernel)
+        public static Kernel ExploreKernel(this Kernel kernel)
         {
-            var services = kernel.GetAllServices<IChatCompletionService>();
-            var cnt = services.Count();
-
-            foreach (var service in services)
-                foreach (var kv in service.Attributes)
-                {
-                    var k = kv.Key;
-                    var value = kv.Value;
-                }
-
+            KernelTester.ExploreKernel(kernel);
             return kernel;
         }
 
