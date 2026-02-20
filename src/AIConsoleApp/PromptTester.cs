@@ -1,5 +1,6 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
+using Microsoft.SemanticKernel.Prompty;
 
 namespace AIConsoleApp
 {
@@ -222,18 +223,38 @@ namespace AIConsoleApp
         public static PromptTemplateConfig CreatePromptTemplateConfigFromYaml(string yamlTemplate) =>
             PromptTemplateConfigBuilder.CreatePromptTemplateConfigFromYaml(yamlTemplate);
 
+        public static IPromptTemplate CreatePromptTemplateFromYaml(string yamlTemplate) =>
+            CreatePromptTemplate(CreatePromptTemplateConfigFromYaml(yamlTemplate));
+
+        #endregion
+
+        #region Prompty
+
+        #pragma warning disable SKEXP0040
+
+        public KernelFunction CreateKernelFunctionPrompty(string promptyTemplate) =>
+            Kernel.CreateFunctionFromPrompty(promptyTemplate, AggregateTemplateFactory);
+
+        public KernelFunction CreateKernelFunctionPromptyFromFile(string promptyFilePath) =>
+            Kernel.CreateFunctionFromPromptyFile(promptyFilePath, AggregateTemplateFactory);
+
+        public static KernelFunction CreateKernelFunctionPromptyStatic(string promptyTemplate) =>
+            KernelFunctionPrompty.FromPrompty(promptyTemplate, AggregateTemplateFactory);
+
+        public static PromptTemplateConfig CreatePromptTemplateConfigFromPrompty(string promptyTemplate) =>
+            KernelFunctionPrompty.ToPromptTemplateConfig(promptyTemplate);
+
+        public static IPromptTemplate CreatePromptTemplateFromPrompty(string promptyTemplate) =>
+            CreatePromptTemplate(CreatePromptTemplateConfigFromPrompty(promptyTemplate));
+
+        #pragma warning restore SKEXP0040
+
         #endregion
 
         #region Prompt Template
 
-        public static IPromptTemplate CreatetPromptTemplate(PromptTemplateConfig promptTemplateConfig) =>
-            DefaultPromptTemplateFactory.Create(promptTemplateConfig);
-
-        public static IPromptTemplate CreatetPromptTemplateFromYaml(string yamlTemplate)
-        {
-            PromptTemplateConfig c = CreatePromptTemplateConfigFromYaml(yamlTemplate);
-            return CreatetPromptTemplate(c);
-        }
+        public static IPromptTemplate CreatePromptTemplate(PromptTemplateConfig promptTemplateConfig) =>
+            AggregateTemplateFactory.Create(promptTemplateConfig);
 
         public async Task<string> RenderPrompt(
             IPromptTemplate promptTemplate, 
@@ -249,6 +270,9 @@ namespace AIConsoleApp
 
         public static IPromptTemplateFactory HandlebarsTemplateFactory { get; protected set; } =
             new HandlebarsPromptTemplateFactory();
+
+        public static IPromptTemplateFactory AggregateTemplateFactory { get; protected set; } =
+            new AggregatorPromptTemplateFactory(DefaultPromptTemplateFactory, HandlebarsTemplateFactory);
 
         #endregion
     }

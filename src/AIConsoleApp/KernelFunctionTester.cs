@@ -1,5 +1,4 @@
-﻿using Azure.AI.Projects;
-using Microsoft.Extensions.AI;
+﻿using Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -379,6 +378,9 @@ namespace AIConsoleApp
             {
                 KernelPlugin p = pc["pluginName"];
             }
+
+            foreach (var p in kernelPluginCollection)
+                ExplorePlugin(p);
         }
 
         public static void ExplorePlugin(KernelPlugin kernelPlugin)
@@ -403,6 +405,8 @@ namespace AIConsoleApp
                 bool c2 = p.Contains(f);
             }
 
+            foreach (KernelFunction f in kernelPlugin)
+                ExploreFunction(f);
         }
 
         public static void ExploreFunction(KernelFunction kernelFunction)
@@ -410,6 +414,7 @@ namespace AIConsoleApp
             KernelFunction f = kernelFunction;
             string d = f.Description;
             JsonElement s = f.JsonSchema;
+            string s1 = s.GetRawText();
             JsonSerializerOptions o = f.JsonSerializerOptions;
             string n = f.Name;
             string? pn = f.PluginName;
@@ -443,7 +448,9 @@ namespace AIConsoleApp
             // AIFunctionDeclaration
             AIFunctionDeclaration f4 = f;
             JsonElement s3 = f4.JsonSchema;
+            string s3a = s3.GetRawText();
             JsonElement? r3 = f4.ReturnJsonSchema;
+            string? r3a = r3?.GetRawText();
 
             // AITool
             AITool f5 = f;
@@ -482,7 +489,7 @@ namespace AIConsoleApp
                 Type? t = p2.ParameterType;
                 KernelJsonSchema? s2 = p2.Schema;
                 JsonElement? r2 = s2?.RootElement;
-                string? s2b = r2?.GetRawText();
+                string? r2b = r2?.GetRawText();
             }
 
             // KernelReturnParameterMetadata

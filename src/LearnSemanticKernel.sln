@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36212.18
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIConsoleApp", "AIConsoleApp\AIConsoleApp.csproj", "{967D9BE6-A55B-4166-8702-6DAC20A62180}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAI", "TestAI\TestAI.csproj", "{12F7317F-4BB0-458C-AC3C-4221E4A6706B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{967D9BE6-A55B-4166-8702-6DAC20A62180}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{967D9BE6-A55B-4166-8702-6DAC20A62180}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{967D9BE6-A55B-4166-8702-6DAC20A62180}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12F7317F-4BB0-458C-AC3C-4221E4A6706B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12F7317F-4BB0-458C-AC3C-4221E4A6706B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12F7317F-4BB0-458C-AC3C-4221E4A6706B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12F7317F-4BB0-458C-AC3C-4221E4A6706B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

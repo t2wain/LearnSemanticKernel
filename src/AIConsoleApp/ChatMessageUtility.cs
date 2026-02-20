@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
-using System.Data;
 using System.Text;
 
 namespace AIConsoleApp

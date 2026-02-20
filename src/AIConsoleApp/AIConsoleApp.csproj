@@ -9,18 +9,23 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.2" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.70.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.70.0-preview" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.70.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Orchestration" Version="1.70.0-preview" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Yaml" Version="1.70.0-beta" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Chroma" Version="1.70.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.70.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.70.0-preview" />
-    <PackageReference Include="Microsoft.SemanticKernel.Connectors.SqliteVec" Version="1.70.0-preview" />
-    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.70.0" />
-    <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.70.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.72.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Orchestration" Version="1.72.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Yaml" Version="1.72.0-beta" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Chroma" Version="1.72.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.Google" Version="1.72.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" Version="1.72.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Connectors.SqliteVec" Version="1.72.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.AI" Version="1.72.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.72.0-preview" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Document" Version="1.72.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.72.0-alpha" />
+    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Prompty" Version="1.72.0-beta" />
+    <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.72.0" />
   </ItemGroup>
 
   <ItemGroup>

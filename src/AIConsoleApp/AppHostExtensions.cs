@@ -7,6 +7,13 @@ namespace AIConsoleApp
 {
     public static class AppHostExtensions
     {
+        public static IHost GetHost(string[] args)
+        {
+            var builder = Host.CreateApplicationBuilder(args);
+            var host = builder.ConfigureAIApp().Build();
+            return host;
+        }
+
         public static HostApplicationBuilder ConfigureAIApp(this HostApplicationBuilder builder)
         {
             builder.Configuration

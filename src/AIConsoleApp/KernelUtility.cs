@@ -4,18 +4,52 @@ using Microsoft.SemanticKernel.Services;
 
 namespace AIConsoleApp
 {
-    public class KernelTester
+    public class KernelUtility
     {
-
         public Kernel Kernel { get; set; }
+
+        #region Create
+
+        public static Kernel Create(
+            KernelPluginCollection plugins, 
+            IEnumerable<AIModel> aIModels)
+        {
+            IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
+            foreach (var model in aIModels)
+            {
+                kernelBuilder = model.ProviderName switch
+                {
+                    "AzureOpenAI" => kernelBuilder.AddAzureOpenAIChatCompletion(
+                            deploymentName: model.Name,
+                            endpoint: model.EndPoint,
+                            apiKey: model.APIKey,
+                            serviceId: model.ServiceId,
+                            modelId: model.ModelId
+                        ),
+                    _ => kernelBuilder
+                };
+            }
+            
+            foreach (KernelPlugin p in  plugins)
+                kernelBuilder.Plugins.Add(p);
+
+            return kernelBuilder.Build();
+        }
+
+        public static Kernel Create(
+            IServiceProvider services, 
+            KernelPluginCollection plugins) =>
+                new Kernel(services, plugins);
+
+        #endregion
+
+        #region Explore
 
         public static void ExploreKernel(Kernel kernel)
         {
             ExploreServices(kernel);
             ExplorePlugin(kernel);
         }
-
-        #region Services
 
         public static void ExploreServices(Kernel kernel)
         {
@@ -49,12 +83,12 @@ namespace AIConsoleApp
             }
         }
 
-        #endregion
-
         public static void ExplorePlugin(Kernel kernel)
         {
             KernelPluginCollection plugins = kernel.Plugins;
             KernelFunctionTester.ExploreKernelPluginCollection(plugins);
         }
+
+        #endregion
     }
 }

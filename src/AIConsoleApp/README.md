@@ -165,9 +165,8 @@ API associated with coding concepts
 	- CreateFromObject
 	- CreateFromType
 - KernelFunctionFromMethodOptions
-- KernelFunctionMetadataFactory
+- **KernelFunctionMetadataFactory**
 	- CreateFromType : KernelFunctionMetadata
-- StreamingMethodContent 
 
 ### Assembly : Microsoft.Extensions.AI
 
@@ -252,9 +251,10 @@ API associated with coding concepts
 
 **Microsoft.SemanticKernel**
 
-- KernelPromptTemplateFactory (IPromptTemplateFactory)
-	- TryCreate : **IPromptTemplate**
+- **KernelPromptTemplateFactory** (IPromptTemplateFactory)
+	- TryCreate : bool
 		- **PromptTemplateConfig**
+		- **IPromptTemplate** (out)
 - KernelExtensions (Kernel)
 	- CreateFunctionFromPrompt : **KernelFunction**
 		- **promptTemplate** : string
@@ -281,6 +281,11 @@ API associated with coding concepts
 	- CreateFromPrompt : KernelFunction
 		- **PromptTemplateConfig**
 		- IPromptTemplateFactory
+- AggregatorPromptTemplateFactory
+	- ctor (IPromptTemplateFactory[])
+	- TryCreate : bool
+		- PromptTemplateConfig
+		- IPromptTemplate (out)
 
 ### Assembly : Microsoft.SemanticKernel.Yaml
 
@@ -338,7 +343,9 @@ API associated with coding concepts
 	- FunctionChoiceBehavior
 	- Clone()
 	- Freeze()
-- PromptExecutionSettingsExtensions
+- PromptExecutionSettingsExtensions (PromptExecutionSettings)
+	- ToChatOptions : Extensions.AI.**ChatOptions**
+		- Kernel
 - **FunctionChoiceBehavior**
 	- **Auto**()
 		- **functions** : [KernelFunction]
@@ -351,6 +358,9 @@ API associated with coding concepts
 		- **functions** : [KernelFunction]
 		- autoInvoke : bool
 		- options : FunctionChoiceBehaviorOptions
+- **RequiredFunctionChoiceBehavior** (FunctionChoiceBehavior)
+	- Functions : IList\<string>
+	- Options : FunctionChoiceBehaviorOptions
 - FunctionChoiceBehaviorOptions
 	- AllowConcurrentInvocation : bool
 	- AllowParallelCalls : bool
@@ -358,7 +368,7 @@ API associated with coding concepts
 - IAIServiceSelector
 - IChatClientSelector
 	- TrySelectChatClient\<T>
-		- T : type of Microsoft.Extensions.AI.IChatClient
+		- T : type of Extensions.AI.**IChatClient**
 		- kernel : Kernel
 		- function: KernelFunction
 		- arguments: KernelArguments
@@ -388,6 +398,10 @@ API associated with coding concepts
 		- PromptExecutionSettings
 		- Kernel
 		- CancelationToken
+	- AsChatClient : Extensions.AI.**IChatClient**
+- ChatClientExtensions (Extensions.AI.**IChatClient**)
+	- AsChatCompletionService : IChatCompletionService
+		- IServiceProvider
 - **IChatCompletionService**
 	- implement
 		- AzureOpenAIChatCompletionService (Connector) 
@@ -419,6 +433,13 @@ API associated with coding concepts
 	- ChatHistorySummarizationReducer
 	- ChatHistoryTruncationReducer
 
+### Assembly : Microsoft.Extensions.AI.Abstractions
+
+**Microsoft.Extensions.AI**
+
+- ChatOptions
+- IChatClient
+
 ## Chat Messages
 
 ### Assembly : Microsoft.SemanticKernel.Abstractions
@@ -430,19 +451,36 @@ API associated with coding concepts
 	- **Content** : string
 	- **Items** : ChatMessageContentItemCollection 
 - ChatMessageContentExtensions
-	- ToChatMessage : ChatMessage
+	- ToChatMessage :  Extensions.AI.**ChatMessage**
 - **StreamingChatMessageContent** (StreamingKernelContent)
 	- Role : AuthorRole
 	- Content : string
 	- Items : StreamingKernelContentItemCollection
 - StreamingChatMessageContentExtensions
-	- ToChatResponseUpdate : ChatResponseUpdate 
-- KernelContent
+	- ToChatResponseUpdate : Extensions.AI.**ChatResponseUpdate** 
+- **KernelContent**
+	- implement
+		- ChatMessageContent
+		- TextContent
+		- ImageContent
+		- BinaryContent
+		- ReasoningContent
+		- FunctionCallContent
+		- FunctionResultContent
+		- FileReferenceContent
 	- InnerContent : object
 	- ModelId : string
 	- Metadata : IReadOnlyDictionary<string, object>
 	- MimeType : string
-- StreamingKernelContent
+- **StreamingKernelContent**
+	- implement
+		- StreamingActionContent
+		- StreamingChatMessageContent
+		- StreamingFileReferenceContent
+		- StreamingFunctionCallUpdateContent
+		- StreamingReasoningContent
+		- StreamingTextContent
+		- StreamingMethodContent (SemanticKernel.Core)
 	- InnerContent : object
 	- Metadata : IReadOnlyDictionary<string, object>
 - **TextContent** (KernelContent)
@@ -452,13 +490,15 @@ API associated with coding concepts
 	- ctor(dataUri : string) 
 	- ctor(data: System.ReadOnlyMemory\<byte>, mimeType : string)
 	- ctor(uri : System.Uri)
-- **BinaryContent** (KernelContent)
+- BinaryContent (KernelContent)
 	- Content
 	- Data
 	- DataUri
 	- Uri
-- FunctionCallContent (KernelContent)
-- FunctionResultContent (KernelContent)
+- **ReasoningContent** (KernelContent)
+- **FunctionCallContent** (KernelContent)
+- **FunctionResultContent** (KernelContent)
+- **FileReferenceContent** (KernelContent)
 
 **Microsoft.SemanticKernel.ChatCompletion**
 
@@ -493,6 +533,14 @@ API associated with coding concepts
 	- ReduceAsync
 	- ReduceInPlaceAsync
 - StreamingKernelContentItemCollection
+	- Add : StreamingKernelContent
+
+
+### Assembly : Microsoft.SemanticKernel.Core
+
+**Microsoft.SemanticKernel**
+
+- StreamingMethodContent (StreamingKernelContent)
 
 ### Assembly : Microsoft.Extensions.AI.Abstractions
 

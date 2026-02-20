@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using Microsoft.SemanticKernel;
-
-namespace AIConsoleApp
+﻿namespace AIConsoleApp
 {
     internal class Program
     {
@@ -15,8 +12,7 @@ namespace AIConsoleApp
         /// </summary>
         public static void Run(string[] args)
         {
-            var builder = Host.CreateApplicationBuilder(args);
-            using var host = builder.ConfigureAIApp().Build();
+            using var host = AppHostExtensions.GetHost(args);
 
             //// Get default model config
             var aiModel = host.GetDefaultAIModel();

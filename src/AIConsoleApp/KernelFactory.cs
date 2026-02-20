@@ -62,6 +62,8 @@ namespace AIConsoleApp
         public static IKernelBuilder AddAIModel(this IKernelBuilder kernelBuilder, AIModel model) =>
             kernelBuilder.AddAIModel([model]);
 
+        public static IKernelBuilder AddAIModel(this IKernelBuilder kernelBuilder, AIProviders providers) =>
+            kernelBuilder.AddAIModel(providers.Providers.SelectMany(p => p.AIModels));
 
         public static IKernelBuilder AddAIModel(this IKernelBuilder kernelBuilder, IEnumerable<AIModel> models)
         {
@@ -86,7 +88,7 @@ namespace AIConsoleApp
         /// </summary>
         public static Kernel ExploreKernel(this Kernel kernel)
         {
-            KernelTester.ExploreKernel(kernel);
+            KernelUtility.ExploreKernel(kernel);
             return kernel;
         }
 
