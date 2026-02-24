@@ -1,4 +1,6 @@
-﻿namespace AIConsoleApp
+﻿using AIConsoleApp.Example;
+
+namespace AIConsoleApp
 {
     internal class Program
     {
@@ -18,9 +20,10 @@
             var aiModel = host.GetDefaultAIModel();
 
             // Create Kernel for the AIModel and start a chat session
-            host.CreateKernel(aiModel)
-                .ExploreKernel()
-                .StartChat(aiModel)
+            var kernel = host.CreateKernel(aiModel);
+
+            kernel.ExploreKernel()
+                .StartChat(aiModel, new PromptExample().EX1(kernel))
                 .Wait();
         }
     }

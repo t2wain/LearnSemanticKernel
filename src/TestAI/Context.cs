@@ -6,6 +6,11 @@ namespace TestAI
 {
     public class Context
     {
+        public Context()
+        {
+            var kernel = this.Kernel;
+        }
+
         IHost _host = null!;
         public IHost Host 
         { 
@@ -43,6 +48,8 @@ namespace TestAI
                 return _kernel;
             }
         }
+
+        public Kernel CreateKernel(AIModel model) => Host.CreateKernel(model);
 
         public string GetPromptDirectory(string folderName) =>
             Path.Combine(RootPromptDirectory, folderName);

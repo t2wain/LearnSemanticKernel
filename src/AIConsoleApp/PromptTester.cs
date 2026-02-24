@@ -23,6 +23,21 @@ namespace AIConsoleApp
         public static PromptTemplateConfig CreatePromptTemplateConfigFromYaml(string yaml) =>
             KernelFunctionYaml.ToPromptTemplateConfig(yaml);
 
+        public static PromptTemplateConfig? CreatePromptTemplateConfigSKFolder(string folderPath)
+        {
+            var configPath = Path.Combine(folderPath, "config.json");
+            if (!File.Exists(configPath))
+                return null;
+            var promptConfig = PromptTemplateConfig.FromJson(File.ReadAllText(configPath));
+
+            var templatePath = Path.Combine(folderPath, "skprompt.txt");
+            if (!File.Exists(templatePath))
+                return null;
+            promptConfig.Template = File.ReadAllText(templatePath);
+
+            return promptConfig;
+        }
+
         #endregion
 
         #region Properties
@@ -93,7 +108,12 @@ namespace AIConsoleApp
             bool a = c.AllowDangerouslySetContent;
 
             PromptExecutionSettings? e = c.DefaultExecutionSettings;
+            if (e != null)
+                KernelFunctionTester.ExplorePromptExecutionSettings(e);
+
             Dictionary<string, PromptExecutionSettings> e2 = c.ExecutionSettings;
+            foreach (var kv in e2)
+                KernelFunctionTester.ExplorePromptExecutionSettings(kv.Value);
 
             string? d = c.Description;
             string? n = c.Name;
@@ -194,6 +214,13 @@ namespace AIConsoleApp
         public static KernelFunction CreateKernelFunction(PromptTemplateConfig promptTemplateConfig) =>
             KernelFunctionFactory.CreateFromPrompt(promptTemplateConfig);
 
+        public static KernelFunction CreateKernelFunctionFromSkFolder(string folderPath)
+        {
+            PromptTemplateConfig promptConfig = PromptTemplateConfigBuilder.CreatePromptTemplateConfigSKFolder(folderPath)!;
+            KernelFunction kernelFunction = PromptTester.CreateKernelFunction(promptConfig);
+            return kernelFunction;
+        }
+
         #endregion
 
         #region Plugin
@@ -256,10 +283,19 @@ namespace AIConsoleApp
         public static IPromptTemplate CreatePromptTemplate(PromptTemplateConfig promptTemplateConfig) =>
             AggregateTemplateFactory.Create(promptTemplateConfig);
 
-        public async Task<string> RenderPrompt(
+        public static IPromptTemplate? CreatePromtTemplateFromSKFolder(string folderPath)
+        {
+            PromptTemplateConfig? promptConfig = PromptTemplateConfigBuilder.CreatePromptTemplateConfigSKFolder(folderPath);
+            if (promptConfig == null)
+                return null;
+            return CreatePromptTemplate(promptConfig);
+        }
+
+        public static string RenderPromptTemplate(
             IPromptTemplate promptTemplate, 
+            Kernel kernel, 
             KernelArguments kernelArguments) =>
-                await promptTemplate.RenderAsync(Kernel, kernelArguments);
+                promptTemplate.RenderAsync(kernel, kernelArguments).Result;
 
         #endregion
 

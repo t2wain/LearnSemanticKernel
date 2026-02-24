@@ -7,7 +7,9 @@ namespace AIConsoleApp
 {
     public static class OpenAIChat
     {
-        public static async Task<ChatHistory> StartChat(this Kernel kernel, AIModel aIModel)
+        public static async Task<ChatHistory> StartChat(this Kernel kernel, 
+            AIModel aIModel, 
+            string? initialPrompt = null)
         {
             string serviceId = aIModel.ServiceId;
             IChatCompletionService chatCompletionService = 
@@ -28,13 +30,14 @@ namespace AIConsoleApp
                 ModelId = modelId,
             };
 
-            while (true)
-            {
-                Console.Write("User > ");
-                string? userInput = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(userInput))
-                    break;
+            string? userInput = initialPrompt;
+            Console.WriteLine("User > ");
+            if (!string.IsNullOrEmpty(userInput))
+                Console.WriteLine(userInput);
+            else userInput = Console.ReadLine();
 
+            while (!string.IsNullOrEmpty(userInput))
+            {
                 // Add user input
                 history.AddUserMessage(userInput);
 
@@ -47,6 +50,8 @@ namespace AIConsoleApp
                         );
 
                 // Print the results
+                Console.WriteLine();
+                Console.WriteLine("Assistant >");
                 await foreach (StreamingChatMessageContent chunk in response)
                 {
                     Console.Write(chunk);
@@ -57,6 +62,9 @@ namespace AIConsoleApp
                 // Add the message from the agent to the chat history
                 history.AddMessage(result.Role, result.Content);
                 result.Clear();
+
+                Console.WriteLine("User > ");
+                userInput = Console.ReadLine();
             }
 
             return history;

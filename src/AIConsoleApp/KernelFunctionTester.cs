@@ -466,6 +466,15 @@ namespace AIConsoleApp
             bool f = e.IsFrozen;
             string? m = e.ModelId;
             string? s = e.ServiceId;
+            IDictionary<string, object>? d = e.ExtensionData;
+            if (e != null)
+            {
+                foreach (var kv in d)
+                {
+                    var k = kv.Key;
+                    var v = kv.Value;
+                }
+            }
         }
 
         public static void ExploreKernelFunctionMetaData(KernelFunctionMetadata kernelFunctionMetadata)
