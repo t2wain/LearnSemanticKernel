@@ -7,7 +7,7 @@ namespace AIUtilityLib.Chat
 {
     public record ChatSession
     {
-        public static ChatSession Create(Kernel kernel, AIModel model)
+        public static ChatSession Create(Kernel kernel, string serviceId, string modelId)
         {
             var session = new ChatSession
             {
@@ -15,10 +15,10 @@ namespace AIUtilityLib.Chat
                 ExecutionSettings = new()
                 {
                     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
-                    ServiceId = model.ServiceId,
-                    ModelId = model.ModelId,
+                    ServiceId = serviceId,
+                    ModelId = modelId,
                 },
-                AIChat = kernel.GetRequiredService<IChatCompletionService>(model.ServiceId),
+                AIChat = kernel.GetRequiredService<IChatCompletionService>(serviceId),
                 TextWriter = Console.Out,
                 TextReader = Console.In,
             };
@@ -33,9 +33,12 @@ namespace AIUtilityLib.Chat
         public TextWriter? TextWriter { get; set; }
         public TextReader? TextReader { get; set; }
 
-        public ChatMessageContent AddChatResponseToHistory(StreamingKernelContentItemCollection chunks)
+        public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingChatMessageContent> chunks)
         {
-            throw new NotImplementedException();
+            ChatMessageUtility.ExploreStreamingContentCollection(chunks);
+            var message = ChatMessageUtility.ConvertToChatMessage(chunks);
+            History.Add(message);
+            return message;
         }
 
         public IChatCompletionService GetAIChat()

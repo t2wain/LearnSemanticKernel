@@ -185,36 +185,71 @@ namespace AIUtilityLib.Utility
                     || chunk?.Items?.OfType<T>().Any() == true;
 
         public static bool IsFunctionCallChunk(StreamingChatMessageContent chunk) =>
-            IsChunkType<FunctionCallContent>(chunk);
-
-        public static bool IsFunctionResultChunk(StreamingChatMessageContent chunk) =>
-                // Most providers set role=Tool for results,
-                // but also check the Items collection.
-                IsChunkType<FunctionCallContent>(chunk, AuthorRole.Tool);
+            IsChunkType<StreamingFunctionCallUpdateContent>(chunk);
 
         public static AI.ChatResponse ConvertToChatResponse(
-            StreamingKernelContentItemCollection chunks)
+            IEnumerable<StreamingChatMessageContent> chunks)
         {
             var q = chunks
-                .OfType<StreamingChatMessageContent>()
-                .Select(c => c.ToChatResponseUpdate());
+                .Select(c => c.ToChatResponseUpdate())
+                .ToList();
 
             AI.ChatResponse response = AI.ChatResponseExtensions.ToChatResponse(q);
             return response;
         }
 
-        public static IEnumerable<Type> GetContentType(
-            StreamingKernelContentItemCollection chunks) =>
+        public static ChatMessageContent ConvertToChatMessage(
+            IEnumerable<StreamingChatMessageContent> chunks)
+        {
+            string? content = GetMessageFromStreamingContent(chunks);
+            AuthorRole role = GetRoleFromStreamingContent(chunks) ?? AuthorRole.Assistant;
+            return new(role, content);
+        }
+
+        public static IEnumerable<StreamingKernelContent> GetInnerContent(
+            IEnumerable<StreamingChatMessageContent> chunks) =>
                 chunks
-                    .Select(i => i.InnerContent)
-                    .OfType<KernelContent>()
-                    .Select(c => c.GetType())
+                    .SelectMany(i => i.Items)
+                    .ToList();
+
+        public static IEnumerable<Type> GetStreamingKernelContentType(
+            IEnumerable<StreamingKernelContent> chunks) =>
+                chunks
+                    .Select(i => i.GetType())
                     .Distinct()
                     .ToList();
+
+        public static AuthorRole? GetRoleFromStreamingContent(IEnumerable<StreamingChatMessageContent> chunks) =>
+            chunks.FirstOrDefault(c => c.Role != null)?.Role;
+
+        public static string? GetMessageFromStreamingContent(IEnumerable<StreamingChatMessageContent> chunks) =>
+            string.Join(null, chunks.Select(c => c.Content));
 
         #endregion
 
         #region Explore
+
+        public static void ExploreStreamingContentCollection(IEnumerable<StreamingChatMessageContent> chunks)
+        {
+            var cnt = chunks.Count();
+
+            var emptyContent = chunks.Where(c => c.Items.Count() == 0).ToList();
+            cnt = emptyContent.Count;
+
+            var withRole = chunks.Where(c => c.Role != null).ToList();
+            cnt = withRole.Count;
+
+            IEnumerable<StreamingKernelContent> withContents = GetInnerContent(chunks);
+            cnt = withContents.Count();
+
+            IEnumerable<Type> contentTypes = GetStreamingKernelContentType(chunks);
+            cnt = contentTypes.Count();
+
+            ChatMessageContent message = ConvertToChatMessage(chunks);
+            AI.ChatResponse response = ConvertToChatResponse(chunks);
+
+            bool t = chunks.Where(IsFunctionCallChunk).Any();
+        }
 
         public static void ExploreChatMessageContent(ChatMessageContent chatMessageContent)
         {

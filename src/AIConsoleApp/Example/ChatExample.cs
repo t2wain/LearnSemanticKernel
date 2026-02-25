@@ -27,7 +27,10 @@ namespace AIConsoleApp.Example
             IKernelBuilder builder = host.CreateKernelBuilder();
             Kernel kernel = KernelUtility.ConfigureKernel(
                 builder, new(), [aiModel]).Build();
-            ChatSession session = ChatSession.Create(kernel, aiModel);
+            ChatSession session = ChatSession.Create(
+                kernel: kernel, 
+                serviceId: aiModel.ServiceId, 
+                modelId: aiModel.ModelId);
             session.StartChat(GetPrompt(session.Kernel)).Wait();
             return session.History;
         }

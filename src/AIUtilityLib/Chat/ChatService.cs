@@ -43,7 +43,7 @@ namespace AIUtilityLib
                         kernel: session.Kernel
                     );
 
-            StreamingKernelContentItemCollection chunks = new();
+            List<StreamingChatMessageContent> chunks = new();
             await foreach (StreamingChatMessageContent chunk in response)
             {
                 session.TextWriter?.Write(chunk);
