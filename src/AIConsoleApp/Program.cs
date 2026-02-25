@@ -1,4 +1,5 @@
 ﻿using AIConsoleApp.Example;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AIConsoleApp
 {
@@ -15,16 +16,8 @@ namespace AIConsoleApp
         public static void Run(string[] args)
         {
             using var host = AppHostExtensions.GetHost(args);
-
-            //// Get default model config
-            var aiModel = host.GetDefaultAIModel();
-
-            // Create Kernel for the AIModel and start a chat session
-            var kernel = host.CreateKernel(aiModel);
-
-            kernel.ExploreKernel()
-                .StartChat(aiModel, new PromptExample().EX1(kernel))
-                .Wait();
+            ChatExample example = new();
+            ChatHistory history = example.EX1(host);
         }
     }
 }

@@ -5,7 +5,7 @@ using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Reflection;
 using System.Text.Json;
 
-namespace AIConsoleApp
+namespace AIUtilityLib.Utility
 {
     #region Execution Settings
 
@@ -176,7 +176,7 @@ namespace AIConsoleApp
 
     #endregion
 
-    public class KernelFunctionTester
+    public class KernelFunctionUtility
     {
         public Kernel Kernel { get; set; }
         public KernelFunction KernelFunction { get; set; }
@@ -337,7 +337,7 @@ namespace AIConsoleApp
             T target, 
             JsonSerializerOptions jsonSerializerOptions, 
             string pluginName) =>
-                KernelPluginFactory.CreateFromObject<T>(target, jsonSerializerOptions, pluginName);
+                KernelPluginFactory.CreateFromObject(target, jsonSerializerOptions, pluginName);
 
         public static KernelPlugin CreatePluginWithFactory(
             Type type, 

@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
+using AI = Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System.Text;
 
-namespace AIConsoleApp
+namespace AIUtilityLib.Utility
 {
     public class ChatMessageUtility
     {
@@ -173,6 +174,46 @@ namespace AIConsoleApp
 
         #endregion
 
+        #region Message Streaming
+
+        public static bool IsChunkType<T>(StreamingChatMessageContent chunk) =>
+            chunk?.Items?.OfType<T>().Any() == true;
+
+        public static bool IsChunkType<T>(
+            StreamingChatMessageContent chunk, AuthorRole role) =>
+                chunk?.Role == AuthorRole.Tool
+                    || chunk?.Items?.OfType<T>().Any() == true;
+
+        public static bool IsFunctionCallChunk(StreamingChatMessageContent chunk) =>
+            IsChunkType<FunctionCallContent>(chunk);
+
+        public static bool IsFunctionResultChunk(StreamingChatMessageContent chunk) =>
+                // Most providers set role=Tool for results,
+                // but also check the Items collection.
+                IsChunkType<FunctionCallContent>(chunk, AuthorRole.Tool);
+
+        public static AI.ChatResponse ConvertToChatResponse(
+            StreamingKernelContentItemCollection chunks)
+        {
+            var q = chunks
+                .OfType<StreamingChatMessageContent>()
+                .Select(c => c.ToChatResponseUpdate());
+
+            AI.ChatResponse response = AI.ChatResponseExtensions.ToChatResponse(q);
+            return response;
+        }
+
+        public static IEnumerable<Type> GetContentType(
+            StreamingKernelContentItemCollection chunks) =>
+                chunks
+                    .Select(i => i.InnerContent)
+                    .OfType<KernelContent>()
+                    .Select(c => c.GetType())
+                    .Distinct()
+                    .ToList();
+
+        #endregion
+
         #region Explore
 
         public static void ExploreChatMessageContent(ChatMessageContent chatMessageContent)
@@ -248,7 +289,7 @@ namespace AIConsoleApp
             string? p = f.PluginName;
 
             if (f.Arguments != null)
-                KernelFunctionTester.ExploreKernelArguments(f.Arguments);
+                KernelFunctionUtility.ExploreKernelArguments(f.Arguments);
             ExploreKernelContent(functionCallContent);
         }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AIUtilityLib.Config;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ namespace AIConsoleApp
             builder.Logging.AddConsole();
 
             var cfg = builder.Configuration.GetSection("AIProviders");
-            builder.Services.Configure<AIProviders>(options =>
+            builder.Services.Configure<AIProviderCollection>(options =>
             {
                 ConfigurationBinder.Bind(cfg, options);
                 options.Init();

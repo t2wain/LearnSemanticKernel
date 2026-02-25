@@ -482,6 +482,14 @@ API associated with coding concepts
 		- StreamingTextContent
 		- StreamingMethodContent (SemanticKernel.Core)
 	- InnerContent : object
+		- ChatMessageContent
+		- TextContent
+		- ImageContent
+		- BinaryContent
+		- ReasoningContent
+		- FunctionCallContent
+		- FunctionResultContent
+		- FileReferenceContent
 	- Metadata : IReadOnlyDictionary<string, object>
 - **TextContent** (KernelContent)
 	- Text
@@ -546,8 +554,14 @@ API associated with coding concepts
 
 **Microsoft.Extensions.AI**
 
+- ChatResponse
 - ChatMessage
 - ChatResponseUpdate
+- ChatResponseExtensions
+	- ToChatResponse : ChatResponse
+		- IEnumerable\<ChatResponseUpdate>
+	- ToChatResponseAsync : ChatResponse
+		- IAsyncEnumerable\<ChatResponseUpdate> 
 
 # Microsoft.SemanticKernel.Connectors.AzureOpenAI
 

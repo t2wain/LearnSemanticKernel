@@ -1,28 +1,9 @@
-﻿namespace AIConsoleApp
+﻿namespace AIUtilityLib.Config
 {
-
-    public record AIModel
+    public record AIProviderCollection
     {
-        public string Name { get; set; }
-        public string ModelId { get; set; }
-        public string EndPoint { get; set; }
-        public string APIKey { get; set; }
-        public string ServiceId { get; set; }
-        public string ProviderName { get; set; }
-        public IEnumerable<string> PluginDirectories { get; set; } = [];
-        public IEnumerable<string> YamlPluginDirectories { get; set; } = [];
-    }
+        public const string AZureOpenAI = "AzureOpenAI";
 
-    public record AIProvider
-    {
-        public string Name { get; set; }
-        public ICollection<AIModel> AIModels { get; set; } = [];
-        public IEnumerable<string> PluginDirectories { get; set; } = [];
-        public IEnumerable<string> YamlPluginDirectories { get; set; } = [];
-    }
-
-    public record AIProviders
-    {
         public string UseProvider { get; set; }
         public string UseModel { get; set; }
         public ICollection<string> PluginDirectories { get; set; } = [];
@@ -32,23 +13,24 @@
         {
             var q = from p in Providers
                     from m in p.AIModels
-                    select ( p, m );
-            
-            foreach (var m in q) {
+                    select (p, m);
+
+            foreach (var m in q)
+            {
                 var (provider, model) = m;
                 model.ProviderName = provider.Name;
                 model.ServiceId = string.Format("{0}::{1}", provider.Name, model.Name);
 
-                if (PluginDirectories.Count > 0 )
-                    model.PluginDirectories =  
+                if (PluginDirectories.Count > 0)
+                    model.PluginDirectories =
                         model.PluginDirectories.Concat(PluginDirectories)
                             .Where(d => !string.IsNullOrWhiteSpace(d))
                             .Where(Directory.Exists)
                             .Distinct()
                             .ToList();
-                
-                if (YamlPluginDirectories.Count > 0 )
-                    model.YamlPluginDirectories = 
+
+                if (YamlPluginDirectories.Count > 0)
+                    model.YamlPluginDirectories =
                         model.YamlPluginDirectories.Concat(YamlPluginDirectories)
                             .Where(d => !string.IsNullOrWhiteSpace(d))
                             .Where(Directory.Exists)
@@ -57,7 +39,7 @@
             }
         }
 
-        public AIModel GetAIModel() =>  GetAIModel(null, null);
+        public AIModel GetAIModel() => GetAIModel(null, null);
 
         public AIModel GetAIModel(string? modelName, string? providerName)
         {
@@ -76,5 +58,6 @@
 
             return models.FirstOrDefault()?.Model;
         }
+
     }
 }

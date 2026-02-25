@@ -32,20 +32,20 @@ namespace TestAI
             string configPath = Context.GetPromptDirectory("GroundingPlugin\\ExtractEntities");
             PromptTemplateConfig promptConfig = PromptTemplateConfigBuilder.CreatePromptTemplateConfigSKFolder(configPath)!;
 
-            PromptTester.ExplorePromptTemplateConfig(promptConfig);
+            PromptUtility.ExplorePromptTemplateConfig(promptConfig);
 
-            IPromptTemplate promptTemplate = PromptTester.CreatePromptTemplate(promptConfig);
+            IPromptTemplate promptTemplate = PromptUtility.CreatePromptTemplate(promptConfig);
 
-            KernelFunction kernelFunction = PromptTester.CreateKernelFunction(promptConfig);
-            KernelFunctionTester.ExploreFunction(kernelFunction);
+            KernelFunction kernelFunction = PromptUtility.CreateKernelFunction(promptConfig);
+            KernelFunctionUtility.ExploreFunction(kernelFunction);
         }
 
         [Fact]
         public void RenderPrompt()
         {
             string configPath = Context.GetPromptDirectory("FunPlugin\\Excuses");
-            IPromptTemplate promptTemplate = PromptTester.CreatePromtTemplateFromSKFolder(configPath)!;
-            string prompt = PromptTester.RenderPromptTemplate(promptTemplate, Context.Kernel, new() {
+            IPromptTemplate promptTemplate = PromptUtility.CreatePromtTemplateFromSKFolder(configPath)!;
+            string prompt = PromptUtility.RenderPromptTemplate(promptTemplate, Context.Kernel, new() {
                 ["input"] = "I don't have the rent for this month" 
             });
         }
@@ -54,7 +54,7 @@ namespace TestAI
         public async Task InvokePrompt()
         {
             string configPath = Context.GetPromptDirectory("FunPlugin\\Excuses");
-            KernelFunction kernelFunction = PromptTester.CreateKernelFunctionFromSkFolder(configPath)!;
+            KernelFunction kernelFunction = PromptUtility.CreateKernelFunctionFromSkFolder(configPath)!;
             KernelArguments arg = new() { ["input"] = "I don't have the rent for this month" };
             var aiModel = Context.AIProviders.GetAIModel();
             Kernel kernel = Context.CreateKernel(aiModel);

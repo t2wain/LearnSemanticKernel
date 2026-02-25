@@ -2,7 +2,7 @@
 using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
 using Microsoft.SemanticKernel.Prompty;
 
-namespace AIConsoleApp
+namespace AIUtilityLib.Utility
 {
     #region PromptTemplateConfig
 
@@ -96,7 +96,7 @@ namespace AIConsoleApp
 
     #endregion
 
-    public class PromptTester
+    public class PromptUtility
     {
         public Kernel Kernel { get; set; }
         public PromptTemplateConfig PromptTemplateConfig { get; set; }
@@ -109,11 +109,11 @@ namespace AIConsoleApp
 
             PromptExecutionSettings? e = c.DefaultExecutionSettings;
             if (e != null)
-                KernelFunctionTester.ExplorePromptExecutionSettings(e);
+                KernelFunctionUtility.ExplorePromptExecutionSettings(e);
 
             Dictionary<string, PromptExecutionSettings> e2 = c.ExecutionSettings;
             foreach (var kv in e2)
-                KernelFunctionTester.ExplorePromptExecutionSettings(kv.Value);
+                KernelFunctionUtility.ExplorePromptExecutionSettings(kv.Value);
 
             string? d = c.Description;
             string? n = c.Name;
@@ -217,7 +217,7 @@ namespace AIConsoleApp
         public static KernelFunction CreateKernelFunctionFromSkFolder(string folderPath)
         {
             PromptTemplateConfig promptConfig = PromptTemplateConfigBuilder.CreatePromptTemplateConfigSKFolder(folderPath)!;
-            KernelFunction kernelFunction = PromptTester.CreateKernelFunction(promptConfig);
+            KernelFunction kernelFunction = CreateKernelFunction(promptConfig);
             return kernelFunction;
         }
 

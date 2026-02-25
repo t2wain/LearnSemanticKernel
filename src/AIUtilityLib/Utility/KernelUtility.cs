@@ -1,8 +1,9 @@
-﻿using Microsoft.SemanticKernel;
+﻿using AIUtilityLib.Config;
+using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Services;
 
-namespace AIConsoleApp
+namespace AIUtilityLib.Utility
 {
     public class KernelUtility
     {
@@ -10,16 +11,16 @@ namespace AIConsoleApp
 
         #region Create
 
-        public static Kernel Create(
-            KernelPluginCollection plugins, 
+        public static IKernelBuilder ConfigureKernel(
+            IKernelBuilder kernelBuilder,
+            KernelPluginCollection plugins,
             IEnumerable<AIModel> aIModels)
         {
-            IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
             foreach (var model in aIModels)
             {
                 kernelBuilder = model.ProviderName switch
                 {
-                    "AzureOpenAI" => kernelBuilder.AddAzureOpenAIChatCompletion(
+                    AIProviderCollection.AZureOpenAI => kernelBuilder.AddAzureOpenAIChatCompletion(
                             deploymentName: model.Name,
                             endpoint: model.EndPoint,
                             apiKey: model.APIKey,
@@ -33,13 +34,20 @@ namespace AIConsoleApp
             foreach (KernelPlugin p in  plugins)
                 kernelBuilder.Plugins.Add(p);
 
-            return kernelBuilder.Build();
+            return kernelBuilder;
         }
 
         public static Kernel Create(
             IServiceProvider services, 
             KernelPluginCollection plugins) =>
                 new Kernel(services, plugins);
+
+        public static string GetServiceId(IChatCompletionService aiChat)
+        {
+            if (aiChat.Attributes.TryGetValue("serviceId", out var serviceId))
+                return serviceId?.ToString() ?? PromptExecutionSettings.DefaultServiceId;
+            else return PromptExecutionSettings.DefaultServiceId;
+        }
 
         #endregion
 
@@ -86,7 +94,7 @@ namespace AIConsoleApp
         public static void ExplorePlugin(Kernel kernel)
         {
             KernelPluginCollection plugins = kernel.Plugins;
-            KernelFunctionTester.ExploreKernelPluginCollection(plugins);
+            KernelFunctionUtility.ExploreKernelPluginCollection(plugins);
         }
 
         #endregion
