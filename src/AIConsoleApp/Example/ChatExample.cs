@@ -64,6 +64,7 @@ namespace AIConsoleApp.Example
                     "I did not completed my homework"
                 ];
             session.AutoChat(messages).Wait();
+            ChatMessageUtility.ExploreChatHistory(session.History);
             return session.History;
         }
 
@@ -71,11 +72,17 @@ namespace AIConsoleApp.Example
         {
             ChatSession session = CreateSession(host);
             session.Kernel.ImportPluginFromType<TimePlugin>("timepu");
+            string systemPrompt = """
+                You are an AI assistant with access to tools that 
+                can retrieve or calculate local time information.
+                """;
+            session.History.AddSystemMessage(systemPrompt);
             session.AutoChat([
                     "What is the current time?",
                     "What is today's date?",
                     "What is my time zone?"
                 ]).Wait();
+            ChatMessageUtility.ExploreChatHistory(session.History);
             return session.History;
         }
 

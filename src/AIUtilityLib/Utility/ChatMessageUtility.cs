@@ -251,6 +251,13 @@ namespace AIUtilityLib.Utility
             bool t = chunks.Where(IsFunctionCallChunk).Any();
         }
 
+        public static void ExploreChatHistory(ChatHistory chatHistory)
+        {
+            var cnt = chatHistory.Count;
+            var kernelContents = chatHistory.SelectMany(c => c.Items).ToList();
+            ExploreChatMessageContentItemCollection(kernelContents);
+        }
+
         public static void ExploreChatMessageContent(ChatMessageContent chatMessageContent)
         {
             var m = chatMessageContent;
@@ -265,22 +272,25 @@ namespace AIUtilityLib.Utility
         }
 
         public static void ExploreChatMessageContentItemCollection(
-            ChatMessageContentItemCollection chatMessageContentItemCollection)
+            IEnumerable<KernelContent> kernelContentCollection)
         {
-            var c = chatMessageContentItemCollection;
-            ICollection<KernelContent> c2 = c;
-            IEnumerable<KernelContent> c3 = c;
-            IList<KernelContent> c4 = c;
-            IReadOnlyCollection<KernelContent> c5 = c;
-            IReadOnlyList<KernelContent> c6 = c;
+            var contents = kernelContentCollection;
+            var cnt = contents.Count();
+
+            var messageTypes = (
+                    from c in contents
+                    group c by c.GetType() into g
+                    select new
+                    {
+                        MessageType = g.Key,
+                        Count = g.Count(),
+                        Contents = g.Select(m => m).ToList()
+                    }
+                )
+                .ToList();
 
 
-            if (c.Count > 0)
-            {
-                KernelContent a = c[0];
-            }
-
-            foreach (KernelContent i in chatMessageContentItemCollection)
+            foreach (KernelContent i in contents)
             {
                 if (i is TextContent t)
                     ExploreTextContent(t);
@@ -290,6 +300,8 @@ namespace AIUtilityLib.Utility
                     ExploreFunctionCallContent(fc);
                 else if (i is FunctionResultContent r)
                     ExploreFunctionResultContent(r);
+                else if (i is ChatMessageContent m)
+                    ExploreChatMessageContent(m);
                 else
                     ExploreKernelContent(i);
             }

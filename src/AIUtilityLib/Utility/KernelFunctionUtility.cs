@@ -526,7 +526,7 @@ namespace AIUtilityLib.Utility
             AIFunctionArguments ka2 = ka;
             int c = ka2.Count;
             ICollection<string> n2 = ka2.Keys;
-            object? v = ka2["test"];
+            ka2.TryGetValue("test", out object? v);
             ICollection<object?> va = ka2.Values;
         }
 
