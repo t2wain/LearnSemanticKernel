@@ -1,5 +1,4 @@
-﻿using AIUtilityLib.Config;
-using AIUtilityLib.Utility;
+﻿using AIUtilityLib.Utility;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
@@ -7,7 +6,8 @@ namespace AIUtilityLib.Chat
 {
     public record ChatSession
     {
-        public static ChatSession Create(Kernel kernel, string serviceId, string modelId)
+        public static ChatSession Create(Kernel kernel, 
+            string? serviceId = null, string? modelId = null)
         {
             var session = new ChatSession
             {

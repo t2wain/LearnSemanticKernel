@@ -252,42 +252,48 @@ namespace AIUtilityLib.Utility
 
         #endregion
 
-        #region Create with Kernel Collection
+        #region Add To Kernel Collection
 
-        public KernelPlugin AddPluginToCollection<T>() => KernelPluginCollection.AddFromType<T>();
+        public static KernelPlugin AddPluginToCollection<T>(KernelPluginCollection pluginCollection) =>
+            pluginCollection.AddFromType<T>();
 
-        public KernelPlugin AddPluginToCollection(object value, string name) =>
-            KernelPluginCollection.AddFromObject(value, name);
+        public static KernelPlugin AddPluginToCollection(KernelPluginCollection pluginCollection, 
+            object value, string name) =>
+                pluginCollection.AddFromObject(value, name);
 
-        public KernelPlugin AddPluginToCollection(IEnumerable<KernelFunction> values, string name) =>
-            KernelPluginCollection.AddFromFunctions(name, values);
+        public static KernelPlugin AddPluginToCollection(KernelPluginCollection pluginCollection,
+            IEnumerable<KernelFunction> values, string name) =>
+                pluginCollection.AddFromFunctions(name, values);
 
         #endregion
 
         #region Create with Kernel
 
-        public KernelPlugin CreatePlugin(IEnumerable<KernelFunction> values, string name) =>
-            Kernel.CreatePluginFromFunctions(name, values);
+        public static KernelPlugin CreatePlugin(Kernel kernel, IEnumerable<KernelFunction> values, string name) =>
+            kernel.CreatePluginFromFunctions(name, values);
 
-        public KernelPlugin CreatePlugin(object value, string name) =>
-            Kernel.CreatePluginFromObject(value, name);
+        public static KernelPlugin CreatePlugin(Kernel kernel, object value, string name) =>
+            kernel.CreatePluginFromObject(value, name);
 
-        public KernelFunction CreateKernelFunction(Delegate value, string name, string description) =>
-            Kernel.CreateFunctionFromMethod(value, name, description);
+        public static KernelFunction CreateKernelFunction(Kernel kernel, Delegate value, string name, string description) =>
+            kernel.CreateFunctionFromMethod(value, name, description);
 
-        public KernelPlugin CreatePlugin<T>() => Kernel.CreatePluginFromType<T>();
+        public static KernelPlugin CreatePlugin<T>(Kernel kernel) => kernel.CreatePluginFromType<T>();
 
         #endregion
 
         #region Import with Kernel
 
-        public KernelPlugin ImportPlugin(IEnumerable<KernelFunction> values, string name) =>
-            Kernel.ImportPluginFromFunctions(name, values);
+        public static KernelPlugin ImportPlugin(Kernel kernel, 
+            IEnumerable<KernelFunction> values, string name) =>
+                kernel.ImportPluginFromFunctions(name, values);
 
-        public KernelPlugin ImportPlugin(object value, string name) =>
-            Kernel.ImportPluginFromObject(value, name);
+        public static KernelPlugin ImportPlugin(Kernel kernel, 
+            object value, string name) =>
+                kernel.ImportPluginFromObject(value, name);
 
-        public KernelPlugin ImportPlugin<T>() => Kernel.ImportPluginFromType<T>();
+        public static KernelPlugin ImportPlugin<T>(Kernel kernel) => 
+            kernel.ImportPluginFromType<T>();
 
         #endregion
 

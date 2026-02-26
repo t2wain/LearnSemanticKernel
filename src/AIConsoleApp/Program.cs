@@ -1,23 +1,21 @@
 ﻿using AIConsoleApp.Example;
-using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace AIConsoleApp
 {
     internal class Program
     {
-        static void Main(string[] args)
-        {
-            Run(args);
-        }
-
-        /// <summary>
-        /// Use LLM model per AIModel configuration
-        /// </summary>
-        public static void Run(string[] args)
+        static async Task Main(string[] args)
         {
             using var host = AppHostExtensions.GetHost(args);
-            ChatExample example = new();
-            ChatHistory history = example.EX1(host);
+            var cfg = host.Services.GetRequiredService<IOptions<AppConfig>>().Value;
+            foreach (var testNo in cfg.RunExampleNo)
+            {
+                var res = await host.Services
+                    .GetRequiredService<ChatExample>()
+                    .Run(host, testNo);
+            }
         }
     }
 }

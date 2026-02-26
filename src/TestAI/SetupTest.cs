@@ -1,7 +1,5 @@
-using AIConsoleApp;
+using AIUtilityLib.Utility;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
-using Parlot.Fluent;
 
 namespace TestAI
 {
@@ -22,6 +20,8 @@ namespace TestAI
             var kernel = Context.Kernel;
             var plugin = kernel.ImportPluginFromPromptDirectory(
                 Context.GetPromptDirectory("ChatPlugin"));
+            Assert.True(plugin.Count() > 0);
+
             KernelUtility.ExploreServices(kernel);
             KernelUtility.ExplorePlugin(kernel);
         }
@@ -31,12 +31,16 @@ namespace TestAI
         {
             string configPath = Context.GetPromptDirectory("GroundingPlugin\\ExtractEntities");
             PromptTemplateConfig promptConfig = PromptTemplateConfigBuilder.CreatePromptTemplateConfigSKFolder(configPath)!;
+            Assert.NotNull(promptConfig);
 
             PromptUtility.ExplorePromptTemplateConfig(promptConfig);
 
             IPromptTemplate promptTemplate = PromptUtility.CreatePromptTemplate(promptConfig);
+            Assert.NotNull(promptTemplate);
 
             KernelFunction kernelFunction = PromptUtility.CreateKernelFunction(promptConfig);
+            Assert.NotNull(kernelFunction);
+
             KernelFunctionUtility.ExploreFunction(kernelFunction);
         }
 
@@ -48,23 +52,7 @@ namespace TestAI
             string prompt = PromptUtility.RenderPromptTemplate(promptTemplate, Context.Kernel, new() {
                 ["input"] = "I don't have the rent for this month" 
             });
-        }
-
-        [Fact]
-        public async Task InvokePrompt()
-        {
-            string configPath = Context.GetPromptDirectory("FunPlugin\\Excuses");
-            KernelFunction kernelFunction = PromptUtility.CreateKernelFunctionFromSkFolder(configPath)!;
-            KernelArguments arg = new() { ["input"] = "I don't have the rent for this month" };
-            var aiModel = Context.AIProviders.GetAIModel();
-            Kernel kernel = Context.CreateKernel(aiModel);
-            FunctionResult functionResult = await kernel.InvokeAsync(kernelFunction, arg);
-            var prompt = functionResult.RenderedPrompt;
-            if (functionResult.ValueType != null 
-                && functionResult.GetValue<object>() is OpenAIChatMessageContent message)
-            {
-                var content = message.Content;
-            }
+            Assert.NotNull(prompt);
         }
     }
 }

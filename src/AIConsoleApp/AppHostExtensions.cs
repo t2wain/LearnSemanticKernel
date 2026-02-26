@@ -1,4 +1,5 @@
-﻿using AIUtilityLib.Config;
+﻿using AIConsoleApp.Example;
+using AIUtilityLib.Config;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,12 +24,17 @@ namespace AIConsoleApp
 
             builder.Logging.AddConsole();
 
-            var cfg = builder.Configuration.GetSection("AIProviders");
+            var iconfig = builder.Configuration;
+
+            builder.Services.Configure<AppConfig>(iconfig.GetSection("AppConfig"));
+
             builder.Services.Configure<AIProviderCollection>(options =>
             {
-                ConfigurationBinder.Bind(cfg, options);
+                ConfigurationBinder.Bind(iconfig.GetSection("AIProviders"), options);
                 options.Init();
             });
+
+            builder.Services.AddTransient<ChatExample>();
 
             return builder;
         }

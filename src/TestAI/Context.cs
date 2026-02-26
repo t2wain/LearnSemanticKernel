@@ -1,6 +1,10 @@
 ﻿using AIConsoleApp;
+using AIUtilityLib.Config;
+using AIUtilityLib.Utility;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TestAI
 {
@@ -8,7 +12,8 @@ namespace TestAI
     {
         public Context()
         {
-            var kernel = this.Kernel;
+            var cfg = Host.Services.GetRequiredService<IConfiguration>();
+            RootPromptDirectory = cfg["ExamplePluginDirectory"]!;
         }
 
         IHost _host = null!;
@@ -23,8 +28,8 @@ namespace TestAI
                 
         }
 
-        AIProviders _providers = null!;
-        public AIProviders AIProviders 
+        AIProviderCollection _providers = null!;
+        public AIProviderCollection AIProviders 
         { 
             get
             {
@@ -41,20 +46,27 @@ namespace TestAI
             {
                 if (_kernel == null)
                 {
-                    _kernel = Host.CreateKernelBuilder()
-                        .AddAIModel(AIProviders)
-                        .Build();
+                    var aiModels = AIProviders.Providers.SelectMany(p => p.AIModels);
+                    _kernel = KernelUtility.ConfigureKernel(
+                            Host.CreateKernelBuilder(), 
+                            new(), 
+                            aiModels
+                        ).Build();
                 }
                 return _kernel;
             }
         }
 
-        public Kernel CreateKernel(AIModel model) => Host.CreateKernel(model);
+        public Kernel CreateKernel(AIModel model) => 
+            KernelUtility.ConfigureKernel(
+                    Host.CreateKernelBuilder(),
+                    new(),
+                    [model]
+                ).Build();
 
         public string GetPromptDirectory(string folderName) =>
             Path.Combine(RootPromptDirectory, folderName);
 
-        public string RootPromptDirectory =>
-            "C:\\devgit\\Data\\prompt_template_samples";
+        public string RootPromptDirectory { get; init; }
     }
 }
