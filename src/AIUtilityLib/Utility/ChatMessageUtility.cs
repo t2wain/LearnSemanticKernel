@@ -227,6 +227,25 @@ namespace AIUtilityLib.Utility
 
         #endregion
 
+        #region Get Content
+
+        public static bool IsChatMessageContent<T>(ChatMessageContent chatMessageContent) =>
+            chatMessageContent.Items.OfType<T>().Any();
+
+        public static List<T> GetKernelContent<T>(ChatMessageContent chatMessageContent) =>
+            chatMessageContent.Items
+                .OfType<T>()
+                .ToList();
+
+        public static FunctionCallContent? GetFunctionCallContent(
+            ChatMessageContent chatMessageContent, string toolCallId) =>
+                chatMessageContent.Items
+                    .OfType<FunctionCallContent>()
+                    .Where(c => c.Id == toolCallId)
+                    .FirstOrDefault();
+
+        #endregion
+
         #region Explore
 
         public static void ExploreStreamingContentCollection(IEnumerable<StreamingChatMessageContent> chunks)

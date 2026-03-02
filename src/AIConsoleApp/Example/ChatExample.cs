@@ -40,6 +40,11 @@ namespace AIConsoleApp.Example
             return Task.FromResult(res);
         }
 
+        #region ChatWithLLM
+
+        /// <summary>
+        /// Use SK prompt file from a local directory
+        /// </summary>
         public ChatHistory ChatWithLLM(IHost host)
         {
             ChatSession session = CreateSession(host);
@@ -50,6 +55,10 @@ namespace AIConsoleApp.Example
             session.StartChat(initialPrompt).Wait();
             return session.History;
         }
+
+        #endregion
+
+        #region AutoChatWithLLM
 
         public ChatHistory AutoChatWithLLM(IHost host)
         {
@@ -68,10 +77,26 @@ namespace AIConsoleApp.Example
             return session.History;
         }
 
+        #endregion
+
+        #region ChatWithTimePlugin
+
+        /// <summary>
+        /// LLM is provided with the TimePlugin to make
+        /// function calls about the local current time.
+        /// </summary>
         public ChatHistory ChatWithTimePlugin(IHost host)
         {
             ChatSession session = CreateSession(host);
+
+            // Add time plugin to made it available
+            // as tools to the LLM
             session.Kernel.ImportPluginFromType<TimePlugin>("timepu");
+
+            // Filter to capture the function call and result
+            ExploreAutoFunctionCallFilter f = new();
+            session.Kernel.AutoFunctionInvocationFilters.Add(f);
+
             string systemPrompt = """
                 You are an AI assistant with access to tools that 
                 can retrieve or calculate local time information.
@@ -80,11 +105,32 @@ namespace AIConsoleApp.Example
             session.AutoChat([
                     "What is the current time?",
                     "What is today's date?",
-                    "What is my time zone?"
+                    "What is my time zone?",
+                    "My birthday is 01-Jan-1970. How old am I?",
+                    "What is the date when I am 67.5 years old?",
+                    "When did the US declare independence? How long ago was it?",
+                    """
+                    What are the local current time at these locations.
+                    Include both 24 and 12 hour formats.
+                    1. Chennai, India, 
+                    2. Leatherhead, Great Britain
+                    3. Khobar, Saudi Arabia
+                    4. Ho Chi Minh city, Vietnam
+                    """,
                 ]).Wait();
+
+            // Capture the function call result from chat history
+            f.UpdateFunctionCallWithResult(session.History);
+
+            // Explore all the function calls made in this
+            // chat session.
+            var l = f.FunctionCallList;
+
             ChatMessageUtility.ExploreChatHistory(session.History);
             return session.History;
         }
+
+        #endregion
 
         #region Utility
 

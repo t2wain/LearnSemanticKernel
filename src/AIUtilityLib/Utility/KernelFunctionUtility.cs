@@ -3,6 +3,7 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 
 namespace AIUtilityLib.Utility
@@ -473,7 +474,7 @@ namespace AIUtilityLib.Utility
             string? m = e.ModelId;
             string? s = e.ServiceId;
             IDictionary<string, object>? d = e.ExtensionData;
-            if (e != null)
+            if (d != null)
             {
                 foreach (var kv in d)
                 {
@@ -530,17 +531,42 @@ namespace AIUtilityLib.Utility
             ICollection<object?> va = ka2.Values;
         }
 
-        public static void ExploreFunctionResult(FunctionResult functionResult)
+        /// <summary>
+        /// This function still work even if the FunctionResult
+        /// is of streaming call. Call this function repeatedly
+        /// on the same streaming FunctionCall will returned the
+        /// cached value. The original FunctionResult is still valid.
+        /// </summary>
+        public static string? ExploreFunctionResult(FunctionResult functionResult)
         {
             var r = functionResult;
             KernelFunction f = r.Function;
             IReadOnlyDictionary<string, object?>? m = r.Metadata;
             string? p = r.RenderedPrompt;
             Type? t = r.ValueType;
-            if (t != null && t == typeof(string))
+            string? v = r.GetValue<string>();
+            return v;
+        }
+
+        /// <summary>
+        /// Note, streaming can only be called once on a FunctionResult,
+        /// and a new FunctionResult should be provided with the result message 
+        /// to replace the original FunctionResult.
+        /// </summary>
+        public async static Task<FunctionResult> ExploreStreamingFunctionResult(FunctionResult functionResult)
+        {
+            var r = functionResult;
+            KernelFunction f = r.Function;
+            IReadOnlyDictionary<string, object?>? m = r.Metadata;
+            string? p = r.RenderedPrompt;
+            Type? t = r.ValueType;
+            if(r.GetValue<IAsyncEnumerable<string>>() is IAsyncEnumerable<string> data)
             {
-                string? v = r.GetValue<string>();
+                string[] l = await data.ToArrayAsync();
+                var message = string.Join(null, l);
+                return new(functionResult, message);
             }
+            return new(functionResult, null);
         }
 
         #endregion

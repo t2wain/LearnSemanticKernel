@@ -58,12 +58,39 @@ API associated with coding concepts
 
 - Kernel
 	- Plugins : **KernelPluginCollection**
+	- AutoFunctionInvocationFilters : IList\<IAutoFunctionInvocationFilter>
+	- FunctionInvocationFilters : IList\<IFunctionInvocationFilter>
 	- **InvokeAsync** : FunctionResult
 		- KernelFunction
 		- KernelArguments
 	- InvokeStreamingAsync : StreamingKernelContent
 		- KernelFunction
 		- KernelArguments
+- IAutoFunctionInvocationFilter
+	- OnAutoFunctionInvocationAsync
+		- AutoFunctionInvocationContext
+- AutoFunctionInvocationContext (**Extension.AI**.FunctionInvocationContext)
+	- KernelArguments
+	- CancellationToken
+	- ChatHistory
+	- ChatMessageContent
+	- PromptExecutionSettings
+	- KernelFunction
+	- FunctionSequenceIndex
+	- Kernel
+	- RequestSequenceIndex
+	- FunctionResult
+	- ToolCallId : string
+- IFunctionInvocationFilter
+	- OnFunctionInvocationAsync
+		- FunctionInvocationContext
+- FunctionInvocationContext
+	- KernelArguments
+	- CancellationToken
+	- KernelFunction
+	- IsStreaming
+	- Kernel
+	- FunctionResult
 - IKernelBuilder
 	- Plugins : **IKernelBuilderPlugins**
 - IKernelBuilderPlugins
@@ -180,7 +207,9 @@ API associated with coding concepts
 	- FunctionCount 
 	- IsStreaming 
 	- Iteration 
-	- Iteration 
+	- Messages
+	- Options
+	- **Terminate**
 - **AIFunctionArguments**
 	- inherit
 		- ICollection<KeyValuePair<String, Object>>
@@ -216,6 +245,20 @@ API associated with coding concepts
 
 **Microsoft.SemanticKernel**
 
+- Kernel
+	- PromptRenderFilters : IList\<IPromptRenderFilter>
+- IPromptRenderFilter
+	- OnPromptRenderAsync
+		- PromptRenderContext
+- PromptRenderContext
+	- KernelArguments
+	- CancellationToken
+	- PromptExecutionSettings
+	- KernelFunction
+	- IsStreaming : bool
+	- Kernel
+	- RenderedPrompt : string
+	- FunctionResult
 - IPromptTemplate
 	- **RenderAsync** : string
 		- KernelArguments
