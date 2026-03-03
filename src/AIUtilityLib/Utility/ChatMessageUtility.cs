@@ -236,15 +236,16 @@ namespace AIUtilityLib.Utility
             return lstType;
         }
 
+        public static IEnumerable<StreamingChatMessageContent> ConvertToStreamingChatMessageContent(
+            IEnumerable<StreamingKernelContent> chunks) =>
+                chunks
+                    .Cast<StreamingChatMessageContent>()
+                    .OfType<StreamingChatMessageContent>()
+                    .ToList();
+
         public static ChatMessageContent ConvertToChatMessage(
-            IEnumerable<StreamingKernelContent> chunks)
-        {
-            var lst = chunks
-                .Cast<StreamingChatMessageContent>()
-                .OfType<StreamingChatMessageContent>()
-                .ToList();
-            return ConvertToChatMessage(lst);
-        }
+            IEnumerable<StreamingKernelContent> chunks) =>
+                ConvertToChatMessage(ConvertToStreamingChatMessageContent(chunks));
 
         #endregion
 

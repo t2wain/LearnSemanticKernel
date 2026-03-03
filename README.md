@@ -1,10 +1,7 @@
 # Learning Semantic-Kernel Library
 
-The objective of this project is to systematically explore and learn the Semantic-Kernel library. Also, using the library to experiment with the following AI chat concept:
+The objective of this project is to systematically explore and learn the Semantic-Kernel (SK) library.
 
-- Prompt engineering
-- Prompt templating
-- Prompt data structure
-- Tool Calling
-- LLM execution settings
-- AI Agent
+The console application project (**AIConsoleApp**) implements examples that are ready to run.
+
+The library project (**AIUtilityLib**) explores the data structure and methods implemented in the SK library.

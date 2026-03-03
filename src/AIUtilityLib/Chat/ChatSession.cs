@@ -4,6 +4,9 @@ using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AIUtilityLib.Chat
 {
+    /// <summary>
+    /// Maintain state for a given chat session
+    /// </summary>
     public record ChatSession
     {
         public static ChatSession Create(Kernel kernel, 
@@ -33,6 +36,9 @@ namespace AIUtilityLib.Chat
         public TextWriter? TextWriter { get; set; }
         public TextReader? TextReader { get; set; }
 
+        /// <summary>
+        /// Append the LLM response to chat history
+        /// </summary>
         public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingChatMessageContent> chunks)
         {
             ChatMessageUtility.ExploreStreamingChatMessageContent(chunks);
@@ -41,6 +47,9 @@ namespace AIUtilityLib.Chat
             return message;
         }
 
+        /// <summary>
+        /// Append the LLM response to chat history
+        /// </summary>
         public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingKernelContent> chunks)
         {
             ChatMessageUtility.ExploreStreamingKernelContent(chunks);
@@ -49,6 +58,9 @@ namespace AIUtilityLib.Chat
             return message;
         }
 
+        /// <summary>
+        /// Get the LLM model based on the serviceId parameter
+        /// </summary>
         public IChatCompletionService GetAIChat()
         {
             if (ExecutionSettings.ServiceId == PromptExecutionSettings.DefaultServiceId

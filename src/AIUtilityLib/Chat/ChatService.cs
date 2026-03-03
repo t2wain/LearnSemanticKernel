@@ -5,40 +5,55 @@ using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AIUtilityLib
 {
+    /// <summary>
+    /// Send prompt to LLM and receive the response.
+    /// All messages are collected in the chat history.
+    /// </summary>
     public static class ChatService
     {
-        #region Kernel Function
+        #region Prompt Kernel Function
 
-        public async static Task InvokeAsync(this ChatSession session, 
+        /// <summary>
+        /// Call a kernel function that sends a prompt and receives a response 
+        /// </summary>
+        public async static Task InvokeStreamingAsync(this ChatSession session, 
             KernelFunction kernelFunction, KernelArguments kernelArguments)
         {
-            var f = kernelFunction;
-            IAsyncEnumerable<StreamingKernelContent> chunks = f.InvokeStreamingAsync(session.Kernel, kernelArguments);
-
-            void RenderPrompt()
+            // get the original rendered prompt from IPromptRenderFilter
+            void RenderPrompt(string functionName)
             {
-                if (session.Kernel.PromptRenderFilters[0] is ExplorePromptFilter filter && filter.Contents.Count > 0)
+                //var fn = string.Format("{0}-{1}", f.PluginName, f.Name);
+                var filter = session.Kernel.PromptRenderFilters.OfType<ExplorePromptFilter>().FirstOrDefault();
+                if (filter is ExplorePromptFilter && filter.Contents.ContainsKey(functionName))
                 {
                     var c = filter.Contents;
-                    var prompt = c.First().Value;
+                    var prompt = c[functionName];
 
                     session.TextWriter?.WriteLine("<<<< User >>>>");
                     session.TextWriter?.WriteLine();
                     session.TextWriter?.WriteLine(prompt);
                     session.TextWriter?.WriteLine();
 
+                    session.TextWriter?.WriteLine("<<<< Assistant >>>>");
+                    session.TextWriter?.WriteLine();
+
                     session.History.AddUserMessage(prompt);
                 }
             }
+
+            var f = kernelFunction;
+            IAsyncEnumerable<StreamingKernelContent> chunks = 
+                f.InvokeStreamingAsync(session.Kernel, kernelArguments);
 
             List<StreamingKernelContent> lstChunk = new();
             await foreach (var chunk in chunks)
             {
                 if (lstChunk.Count == 0)
                 {
-                    RenderPrompt();
-                    session.TextWriter?.WriteLine("<<<< Assistant >>>>");
-                    session.TextWriter?.WriteLine();
+                    // the rendered prompt only
+                    // available after the function is called
+                    // and the response started.
+                    RenderPrompt(string.Format("{0}-{1}", f.PluginName, f.Name));
                 }
                 lstChunk.Add(chunk);
                 session.TextWriter?.Write(chunk);
@@ -50,6 +65,9 @@ namespace AIUtilityLib
 
         #region Chat
 
+        /// <summary>
+        /// Start a user interactive chat session via the console
+        /// </summary>
         public async static Task StartChat(this ChatSession session, string? message)
         {
             string? userInput = message;
@@ -67,6 +85,9 @@ namespace AIUtilityLib
             }
         }
 
+        /// <summary>
+        /// Send a series of prompts to the LLM
+        /// </summary>
         public async static Task AutoChat(this ChatSession session, IEnumerable<string> messages)
         {
             foreach (var message in messages)
@@ -82,11 +103,17 @@ namespace AIUtilityLib
 
         #region Invoke LLM Chat
 
+        /// <summary>
+        /// Send a prompt and receive a response
+        /// </summary>
         public static async Task<ChatMessageContent> SendMessage(
             this ChatSession session, string message) =>
                 await session.SendMessage(
                     ChatMessageUtility.CreateMessageContent(AuthorRole.User, message));
 
+        /// <summary>
+        /// Send a prompt and receive a response
+        /// </summary>
         public static async Task<ChatMessageContent> SendMessage(
             this ChatSession session, ChatMessageContent message)
         {

@@ -14,7 +14,7 @@ namespace AIConsoleApp
             {
                 var res = await host.Services
                     .GetRequiredService<ChatExample>()
-                    .Run(host, testNo);
+                    .RunAsync(host, testNo);
             }
         }
     }

@@ -225,8 +225,12 @@ namespace AIUtilityLib.Utility
 
         #region Plugin
 
-        public KernelPlugin ImportPluginFromDirectory(string folderPath) =>
-            Kernel.ImportPluginFromPromptDirectory(folderPath, 
+        public static KernelPlugin ImportPluginFromDirectory(Kernel kernel, string folderPath) =>
+            kernel.ImportPluginFromPromptDirectory(folderPath, 
+                promptTemplateFactory: AggregateTemplateFactory);
+
+        public static KernelPlugin CreatePluginFromDirectory(Kernel kernel, string folderPath) =>
+            kernel.CreatePluginFromPromptDirectory(folderPath,
                 promptTemplateFactory: AggregateTemplateFactory);
 
         #endregion

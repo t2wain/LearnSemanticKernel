@@ -1,7 +1,6 @@
 ﻿using AIUtilityLib;
 using AIUtilityLib.Chat;
 using AIUtilityLib.Utility;
-using Fluid.Filters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
@@ -20,27 +19,16 @@ namespace AIConsoleApp.Example
             RootPromptDirectory = _appConfig.ExamplePluginDirectory;
         }
 
-        public Task<object?> Run(IHost host, int mode = 0)
+        public Task<object?> RunAsync(IHost host, int mode = 0)
         {
-            object? res = null;
-            switch(mode)
+            object? res = mode switch
             {
-                case 0:
-                    res = ChatWithLLM(host);
-                    break;
-                case 1:
-                    res = ChatWithTimePlugin(host);
-                    break;
-                case 2:
-                    res = AutoChatWithLLM(host);
-                    break;
-                case 3:
-                    res = InvokePrompt(host);
-                    break;
-                default:
-                    res = null;
-                    break;
-            }
+                0 => ChatWithLLM(host),
+                1 => ChatWithTimePlugin(host),
+                2 => AutoChatWithLLM(host),
+                3 => InvokeStreamingPromptPlugin(host),
+                _ => null
+            };
             return Task.FromResult(res);
         }
 
@@ -136,14 +124,18 @@ namespace AIConsoleApp.Example
 
         #endregion
 
-        #region InvokePrompt
+        #region InvokeStreamingPromptPlugin
 
-        public ChatHistory InvokePrompt(IHost host)
+        /// <summary>
+        /// Call a prompt kernel function 
+        /// and return a response stream
+        /// </summary>
+        public ChatHistory InvokeStreamingPromptPlugin(IHost host)
         {
             ChatSession session = CreateSession(host);
             var kernel = session.Kernel;
             var folder = GetPromptDirectory("FunPlugin");
-            KernelPlugin plugin = kernel.CreatePluginFromPromptDirectory(folder);
+            KernelPlugin plugin = PromptUtility.CreatePluginFromDirectory(kernel, folder);
             var f = new ExplorePromptFilter();
             kernel.PromptRenderFilters.Add(f);
             KernelFunction fn = plugin["Excuses"];
@@ -151,7 +143,7 @@ namespace AIConsoleApp.Example
             {
                 ["input"] = "I don't have the rent for this month"
             };
-            session.InvokeAsync(fn, args).Wait();
+            session.InvokeStreamingAsync(fn, args).Wait();
             return session.History;
         }
 
