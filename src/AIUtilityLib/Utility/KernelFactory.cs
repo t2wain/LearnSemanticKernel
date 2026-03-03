@@ -23,15 +23,9 @@ namespace AIUtilityLib.Utility
         {
             IKernelBuilder kernelBuilder = Kernel.CreateBuilder();
 
-            kernelBuilder.Services
-                .AddLogging(options =>
-                {
-                    // Use the same configured log provider
-                    // from the application host
-                    options.ClearProviders();
-                    foreach (var log in host.Services.GetServices<ILoggerProvider>())
-                        options.AddProvider(log);
-                });
+            // share logging from host to kernel
+            var loggerFactory = host.Services.GetRequiredService<ILoggerFactory>();
+            kernelBuilder.Services.AddSingleton(loggerFactory);
 
             return kernelBuilder;
         }

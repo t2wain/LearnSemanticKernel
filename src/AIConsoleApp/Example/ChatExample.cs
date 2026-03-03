@@ -1,6 +1,7 @@
 ﻿using AIUtilityLib;
 using AIUtilityLib.Chat;
 using AIUtilityLib.Utility;
+using Fluid.Filters;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
@@ -32,6 +33,9 @@ namespace AIConsoleApp.Example
                     break;
                 case 2:
                     res = AutoChatWithLLM(host);
+                    break;
+                case 3:
+                    res = InvokePrompt(host);
                     break;
                 default:
                     res = null;
@@ -127,6 +131,27 @@ namespace AIConsoleApp.Example
             var l = f.FunctionCallList;
 
             ChatMessageUtility.ExploreChatHistory(session.History);
+            return session.History;
+        }
+
+        #endregion
+
+        #region InvokePrompt
+
+        public ChatHistory InvokePrompt(IHost host)
+        {
+            ChatSession session = CreateSession(host);
+            var kernel = session.Kernel;
+            var folder = GetPromptDirectory("FunPlugin");
+            KernelPlugin plugin = kernel.CreatePluginFromPromptDirectory(folder);
+            var f = new ExplorePromptFilter();
+            kernel.PromptRenderFilters.Add(f);
+            KernelFunction fn = plugin["Excuses"];
+            KernelArguments args = new()
+            {
+                ["input"] = "I don't have the rent for this month"
+            };
+            session.InvokeAsync(fn, args).Wait();
             return session.History;
         }
 

@@ -35,7 +35,15 @@ namespace AIUtilityLib.Chat
 
         public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingChatMessageContent> chunks)
         {
-            ChatMessageUtility.ExploreStreamingContentCollection(chunks);
+            ChatMessageUtility.ExploreStreamingChatMessageContent(chunks);
+            var message = ChatMessageUtility.ConvertToChatMessage(chunks);
+            History.Add(message);
+            return message;
+        }
+
+        public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingKernelContent> chunks)
+        {
+            ChatMessageUtility.ExploreStreamingKernelContent(chunks);
             var message = ChatMessageUtility.ConvertToChatMessage(chunks);
             History.Add(message);
             return message;

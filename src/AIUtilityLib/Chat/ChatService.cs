@@ -7,6 +7,49 @@ namespace AIUtilityLib
 {
     public static class ChatService
     {
+        #region Kernel Function
+
+        public async static Task InvokeAsync(this ChatSession session, 
+            KernelFunction kernelFunction, KernelArguments kernelArguments)
+        {
+            var f = kernelFunction;
+            IAsyncEnumerable<StreamingKernelContent> chunks = f.InvokeStreamingAsync(session.Kernel, kernelArguments);
+
+            void RenderPrompt()
+            {
+                if (session.Kernel.PromptRenderFilters[0] is ExplorePromptFilter filter && filter.Contents.Count > 0)
+                {
+                    var c = filter.Contents;
+                    var prompt = c.First().Value;
+
+                    session.TextWriter?.WriteLine("<<<< User >>>>");
+                    session.TextWriter?.WriteLine();
+                    session.TextWriter?.WriteLine(prompt);
+                    session.TextWriter?.WriteLine();
+
+                    session.History.AddUserMessage(prompt);
+                }
+            }
+
+            List<StreamingKernelContent> lstChunk = new();
+            await foreach (var chunk in chunks)
+            {
+                if (lstChunk.Count == 0)
+                {
+                    RenderPrompt();
+                    session.TextWriter?.WriteLine("<<<< Assistant >>>>");
+                    session.TextWriter?.WriteLine();
+                }
+                lstChunk.Add(chunk);
+                session.TextWriter?.Write(chunk);
+            }
+            session.AddChatResponseToHistory(lstChunk);
+        }
+
+        #endregion
+
+        #region Chat
+
         public async static Task StartChat(this ChatSession session, string? message)
         {
             string? userInput = message;
@@ -19,6 +62,7 @@ namespace AIUtilityLib
             {
                 ChatMessageContent response = await session.SendMessage(userInput);
                 session.TextWriter?.WriteLine("<<<< User >>>>");
+                session.TextWriter?.WriteLine();
                 userInput = session.TextReader?.ReadLine();
             }
         }
@@ -28,12 +72,15 @@ namespace AIUtilityLib
             foreach (var message in messages)
             {
                 session.TextWriter?.WriteLine("<<<< User >>>>");
+                session.TextWriter?.WriteLine();
                 session.TextWriter?.WriteLine(message);
                 ChatMessageContent response = await session.SendMessage(message);
             }
         }
 
-        #region Invoke LLM
+        #endregion
+
+        #region Invoke LLM Chat
 
         public static async Task<ChatMessageContent> SendMessage(
             this ChatSession session, string message) =>
@@ -57,12 +104,14 @@ namespace AIUtilityLib
 
             session.TextWriter?.WriteLine();
             session.TextWriter?.WriteLine("<<<< Assistant >>>>");
+            session.TextWriter?.WriteLine();
             List<StreamingChatMessageContent> chunks = new();
             await foreach (StreamingChatMessageContent chunk in response)
             {
                 session.TextWriter?.Write(chunk);
                 chunks.Add(chunk);
             }
+            session.TextWriter?.WriteLine();
             session.TextWriter?.WriteLine();
 
             // Add the message from the agent to the chat history

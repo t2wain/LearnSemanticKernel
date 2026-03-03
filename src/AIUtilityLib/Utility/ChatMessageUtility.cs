@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
-using AI = Microsoft.Extensions.AI;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System.Text;
+using AI = Microsoft.Extensions.AI;
 
 namespace AIUtilityLib.Utility
 {
@@ -174,7 +174,7 @@ namespace AIUtilityLib.Utility
 
         #endregion
 
-        #region Message Streaming
+        #region StreamingChatMessageContent
 
         public static bool IsChunkType<T>(StreamingChatMessageContent chunk) =>
             chunk?.Items?.OfType<T>().Any() == true;
@@ -206,17 +206,10 @@ namespace AIUtilityLib.Utility
             return new(role, content);
         }
 
-        public static IEnumerable<StreamingKernelContent> GetInnerContent(
+        public static IEnumerable<StreamingKernelContent> GetStreamingKernelContent(
             IEnumerable<StreamingChatMessageContent> chunks) =>
                 chunks
                     .SelectMany(i => i.Items)
-                    .ToList();
-
-        public static IEnumerable<Type> GetStreamingKernelContentType(
-            IEnumerable<StreamingKernelContent> chunks) =>
-                chunks
-                    .Select(i => i.GetType())
-                    .Distinct()
                     .ToList();
 
         public static AuthorRole? GetRoleFromStreamingContent(IEnumerable<StreamingChatMessageContent> chunks) =>
@@ -224,6 +217,34 @@ namespace AIUtilityLib.Utility
 
         public static string? GetMessageFromStreamingContent(IEnumerable<StreamingChatMessageContent> chunks) =>
             string.Join(null, chunks.Select(c => c.Content));
+
+        #endregion
+
+        #region StreamingKernelContent
+
+        public static IEnumerable<Type> GetStreamingKernelContentType(
+            IEnumerable<StreamingKernelContent> chunks)
+        {
+            HashSet<Type> lstType = new();
+            foreach (StreamingKernelContent i in chunks)
+            {
+                if (i is StreamingChatMessageContent t)
+                    lstType.Add(typeof(StreamingChatMessageContent));
+                else if (i is StreamingFunctionCallUpdateContent fc)
+                    lstType.Add(typeof(StreamingFunctionCallUpdateContent));
+            }
+            return lstType;
+        }
+
+        public static ChatMessageContent ConvertToChatMessage(
+            IEnumerable<StreamingKernelContent> chunks)
+        {
+            var lst = chunks
+                .Cast<StreamingChatMessageContent>()
+                .OfType<StreamingChatMessageContent>()
+                .ToList();
+            return ConvertToChatMessage(lst);
+        }
 
         #endregion
 
@@ -248,7 +269,27 @@ namespace AIUtilityLib.Utility
 
         #region Explore
 
-        public static void ExploreStreamingContentCollection(IEnumerable<StreamingChatMessageContent> chunks)
+        public static void ExploreStreamingKernelContent(IEnumerable<StreamingKernelContent> chunks)
+        {
+            IEnumerable<Type> lstType = GetStreamingKernelContentType(chunks);
+            if (lstType.Contains(typeof(StreamingChatMessageContent))) 
+            {
+                var lstMessage = chunks
+                    .Cast<StreamingChatMessageContent>()
+                    .OfType<StreamingChatMessageContent>()
+                    .ToList();
+            }
+            else if (lstType.Contains(typeof(StreamingFunctionCallUpdateContent)))
+            {
+                var lstToolCall = chunks
+                    .Cast<StreamingFunctionCallUpdateContent>()
+                    .OfType<StreamingFunctionCallUpdateContent>()
+                    .ToList();
+            }
+        }
+
+        public static void ExploreStreamingChatMessageContent(
+            IEnumerable<StreamingChatMessageContent> chunks)
         {
             var cnt = chunks.Count();
 
@@ -258,7 +299,7 @@ namespace AIUtilityLib.Utility
             var withRole = chunks.Where(c => c.Role != null).ToList();
             cnt = withRole.Count;
 
-            IEnumerable<StreamingKernelContent> withContents = GetInnerContent(chunks);
+            IEnumerable<StreamingKernelContent> withContents = GetStreamingKernelContent(chunks);
             cnt = withContents.Count();
 
             IEnumerable<Type> contentTypes = GetStreamingKernelContentType(chunks);
