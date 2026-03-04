@@ -1,0 +1,143 @@
+﻿# Nuget Packages
+
+- Microsoft.SemanticKernel.Agents.Core
+	- Microsoft.SemanticKernel.Agents.Abstractions
+
+# Agent
+
+### Assembly: Microsoft.SemanticKernel.Agents.Core
+
+**Microsoft.SemanticKernel.Agents**
+
+- ChatCompletionAgent (ChatHistoryAgent)
+	- ctor
+		- PromptTemplateConfig
+		- IPromptTemplateFactory
+	- InvokeAsync : IAsyncEnumerable\<AgentResponseItem\<ChatMessageContent>>
+		- messages : ICollection\<ChatMessageContent> 
+		- thread : AgentThread
+		- options : AgentInvokeOptions
+	- InvokeStreamingAsync : IAsyncEnumerable\<AgentResponseItem\<StreamingChatMessageContent>> 
+		- messages : ICollection\<ChatMessageContent> 
+		- thread : AgentThread
+		- options : AgentInvokeOptions
+- ChatHistoryAgent (Agent)
+	- ReduceAsync : Task\<bool>
+		- ChatHistory
+	- HistoryReducer : IChatHistoryReducer 
+- ChatHistoryAgentThread (AgentThread)
+	- ctor
+		- ChatHistory
+		- id : string
+	- ChatHistory
+	- CreateAsync : void
+	- GetMessagesAsync : IAsyncEnumerable\<ChatMessageContent>
+- ChatCompletionAgentFactory (AgentFactory)
+	- TryCreateAsync : Agent
+		- Kernel
+		- AgentDefinition
+		- AgentCreationOptions
+
+### Assembly: Microsoft.SemanticKernel.Agents.Abstraction
+
+**Microsoft.SemanticKernel.Agents**
+
+- Agent
+	- InvokeAsync : IAsyncEnumerable\<AgentResponseItem\<**ChatMessageContent**>>
+		- message : null | string | ChatMessageContent 
+		- thread : AgentThread
+		- options : AgentInvokeOptions
+	- InvokeStreamingAsync : IAsyncEnumerable\<AgentResponseItem\<**StreamingChatMessageContent**>>
+		- message : null | string | ChatMessageContent 
+		- thread : AgentThread
+		- options : AgentInvokeOptions
+	- KernelArguments
+	- Description : string
+	- Id : string
+	- Instructions : string
+	- Kernel
+	- LoggerFactory
+	- Name : string
+	- Template : IPromptTemplate
+	- UseImmutableKernel : bool
+- AgentCreationOptions
+	- Kernel
+	- IPromptTemplateFactory
+- AgentDefinition
+	- Description : string
+	- Id : string
+	- Inputs : IDictionary<string, AgentInput>
+	- Instructions : string
+	- AgentMetadata
+	- ModelDefinition
+	- Name : string
+	- Outputs : IDictionary<string, AgentOutput>
+	- Template : TemplateOptions
+	- Tools : IList\<AgentToolDefinition>
+	- Type : Type
+	- Version : string
+- AgentDefinitionExtensions (AgentDefinition)
+	- GetDefaultKernelArguments : KernelArguments
+		- Kernel
+	- GetFirstToolDefinition : AgentToolDefinition
+		- toolType : string
+	- GetPromptTemplate : IPromptTemplate
+		- Kernel
+		- PromptTemplateFactory
+	- GetToolDefinitions : IEnumerable\<AgentToolDefinition>
+		- toolType : string
+	- HasToolType : bool
+		- toolType : string
+- AgentFactory
+	- CreateAsync : Agent
+		- Kernel
+		- AgentDefinition
+		- AgentCreationOptions
+	- IsSupported : bool
+		- AgentDefinition
+	- TryCreateAsync : Agent
+		- Kernel
+		- AgentDefinition
+		- AgentCreationOptions
+- AgentInput
+- AgentInvokeOptions
+	- AdditionalInstructions : string
+	- Kernel
+	- KernelArguments
+	- OnIntermediateMessage : Func
+- AgentMetadata
+- AgentOutput
+- AgentResponseItem\<TMessage>
+	- ctor
+		- message : TMessage
+		- AgentThread
+	- Message : TMessage
+	- Thread : AgentThread
+- AgentThread
+	- AIContextProviders : AggregateAIContextProvider
+	- Id : string
+	- IsDeleted : bool
+	- DeleteAsync
+	- OnResumeAsync
+	- OnSuspendAsync
+- AgentToolDefinition
+- AgentToolDefinitionExtensions
+- AggregatorAgent : Agent
+	- AggregatorMode
+	- InvokeAsync
+	- InvokeStreamingAsync
+- AggregatorAgentFactory : AgentFactory
+	- ctor(AgentFactory[]) 
+	- TryCreateAsync : Agent
+- AggregatorMode
+	- Flat
+	- Nested
+- ModelConnection
+	- ExtensionData : IDictionary\<string, object>
+	- ServiceId : string
+	- Type : Type
+- ModelDefinition
+	- Api : string
+	- ModelConnection
+	- Id : string
+	- Options : IDictionary\<string, object>

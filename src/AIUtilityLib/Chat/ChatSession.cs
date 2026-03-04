@@ -1,6 +1,8 @@
 ﻿using AIUtilityLib.Utility;
+using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Agents;
 
 namespace AIUtilityLib.Chat
 {
@@ -9,6 +11,22 @@ namespace AIUtilityLib.Chat
     /// </summary>
     public record ChatSession
     {
+        #region Create
+
+        public static ChatSession Create(IHost host)
+        {
+            //// Get default model config
+            var aiModel = host.GetDefaultAIModel();
+            IKernelBuilder builder = host.CreateKernelBuilder();
+            Kernel kernel = KernelUtility.ConfigureKernel(
+                builder, new(), [aiModel]).Build();
+            ChatSession session = Create(
+                kernel: kernel,
+                serviceId: aiModel.ServiceId,
+                modelId: aiModel.ModelId);
+            return session;
+        }
+
         public static ChatSession Create(Kernel kernel, 
             string? serviceId = null, string? modelId = null)
         {
@@ -28,6 +46,7 @@ namespace AIUtilityLib.Chat
             return session;
         }
 
+        #endregion
 
         public Kernel Kernel { get; set; } = null!;
         public IChatCompletionService AIChat { get; set; } = null!;
@@ -35,6 +54,8 @@ namespace AIUtilityLib.Chat
         public PromptExecutionSettings ExecutionSettings { get; set; } = null!;
         public TextWriter? TextWriter { get; set; }
         public TextReader? TextReader { get; set; }
+        public Agent Agent { get; set; } = null!;
+        public AgentThread AgentThreadId { get; set; } = null!;
 
         /// <summary>
         /// Append the LLM response to chat history

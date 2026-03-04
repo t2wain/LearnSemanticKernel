@@ -27,6 +27,7 @@ namespace AIConsoleApp.Example
                 1 => ChatWithTimePlugin(host),
                 2 => AutoChatWithLLM(host),
                 3 => InvokeStreamingPromptPlugin(host),
+                4 => new AgentExample().RunAsync(host, mode),
                 _ => null
             };
             return Task.FromResult(res);
@@ -39,12 +40,14 @@ namespace AIConsoleApp.Example
         /// </summary>
         public ChatHistory ChatWithLLM(IHost host)
         {
-            ChatSession session = CreateSession(host);
+            ChatSession session = ChatSession.Create(host);
+            session.TextWriter?.WriteLine("Run example - Chat with LLM");
             string initialPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
                 ["input"] = "I don't have the rent for this month"
             });
-            session.StartChat(initialPrompt).Wait();
+            ChatService chatService = new() { Session = session };
+            chatService.StartChat(initialPrompt).Wait();
             return session.History;
         }
 
@@ -54,7 +57,9 @@ namespace AIConsoleApp.Example
 
         public ChatHistory AutoChatWithLLM(IHost host)
         {
-            ChatSession session = CreateSession(host);
+            ChatSession session = ChatSession.Create(host);
+            session.TextWriter?.WriteLine("Run example - Auto chat with LLM");
+
             string initialPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
                 ["input"] = "I don't have the rent for this month"
@@ -64,7 +69,8 @@ namespace AIConsoleApp.Example
                     "I'm late to the meeting",
                     "I did not completed my homework"
                 ];
-            session.AutoChat(messages).Wait();
+            ChatService chatService = new() { Session = session };
+            chatService.AutoChat(messages).Wait();
             ChatMessageUtility.ExploreChatHistory(session.History);
             return session.History;
         }
@@ -79,7 +85,8 @@ namespace AIConsoleApp.Example
         /// </summary>
         public ChatHistory ChatWithTimePlugin(IHost host)
         {
-            ChatSession session = CreateSession(host);
+            ChatSession session = ChatSession.Create(host);
+            session.TextWriter?.WriteLine("Run example - Chat with time plugin");
 
             // Add time plugin to made it available
             // as tools to the LLM
@@ -94,7 +101,8 @@ namespace AIConsoleApp.Example
                 can retrieve or calculate local time information.
                 """;
             session.History.AddSystemMessage(systemPrompt);
-            session.AutoChat([
+            ChatService chatService = new() { Session = session };
+            chatService.AutoChat([
                     "What is the current time?",
                     "What is today's date?",
                     "What is my time zone?",
@@ -132,7 +140,10 @@ namespace AIConsoleApp.Example
         /// </summary>
         public ChatHistory InvokeStreamingPromptPlugin(IHost host)
         {
-            ChatSession session = CreateSession(host);
+            ChatSession session = ChatSession.Create(host);
+            LLMService service = new() { Session = session };
+            session.TextWriter?.WriteLine("Run example - Chat with prompt plugin");
+
             var kernel = session.Kernel;
             var folder = GetPromptDirectory("FunPlugin");
             KernelPlugin plugin = PromptUtility.CreatePluginFromDirectory(kernel, folder);
@@ -143,27 +154,13 @@ namespace AIConsoleApp.Example
             {
                 ["input"] = "I don't have the rent for this month"
             };
-            session.InvokeStreamingAsync(fn, args).Wait();
+            ChatMessageContent response = service.InvokeAsync(fn, args).Result;
             return session.History;
         }
 
         #endregion
 
         #region Utility
-
-        protected ChatSession CreateSession(IHost host)
-        {
-            //// Get default model config
-            var aiModel = host.GetDefaultAIModel();
-            IKernelBuilder builder = host.CreateKernelBuilder();
-            Kernel kernel = KernelUtility.ConfigureKernel(
-                builder, new(), [aiModel]).Build();
-            ChatSession session = ChatSession.Create(
-                kernel: kernel,
-                serviceId: aiModel.ServiceId,
-                modelId: aiModel.ModelId);
-            return session;
-        }
 
         public string GetPromptDirectory(string folderName) =>
                 Path.Combine(RootPromptDirectory, folderName);

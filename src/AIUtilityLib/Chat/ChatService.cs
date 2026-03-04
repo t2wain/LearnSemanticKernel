@@ -9,142 +9,31 @@ namespace AIUtilityLib
     /// Send prompt to LLM and receive the response.
     /// All messages are collected in the chat history.
     /// </summary>
-    public static class ChatService
+    public class ChatService : ChatServiceBase
     {
-        #region Prompt Kernel Function
-
-        /// <summary>
-        /// Call a kernel function that sends a prompt and receives a response 
-        /// </summary>
-        public async static Task InvokeStreamingAsync(this ChatSession session, 
-            KernelFunction kernelFunction, KernelArguments kernelArguments)
-        {
-            // get the original rendered prompt from IPromptRenderFilter
-            void RenderPrompt(string functionName)
-            {
-                //var fn = string.Format("{0}-{1}", f.PluginName, f.Name);
-                var filter = session.Kernel.PromptRenderFilters.OfType<ExplorePromptFilter>().FirstOrDefault();
-                if (filter is ExplorePromptFilter && filter.Contents.ContainsKey(functionName))
-                {
-                    var c = filter.Contents;
-                    var prompt = c[functionName];
-
-                    session.TextWriter?.WriteLine("<<<< User >>>>");
-                    session.TextWriter?.WriteLine();
-                    session.TextWriter?.WriteLine(prompt);
-                    session.TextWriter?.WriteLine();
-
-                    session.TextWriter?.WriteLine("<<<< Assistant >>>>");
-                    session.TextWriter?.WriteLine();
-
-                    session.History.AddUserMessage(prompt);
-                }
-            }
-
-            var f = kernelFunction;
-            IAsyncEnumerable<StreamingKernelContent> chunks = 
-                f.InvokeStreamingAsync(session.Kernel, kernelArguments);
-
-            List<StreamingKernelContent> lstChunk = new();
-            await foreach (var chunk in chunks)
-            {
-                if (lstChunk.Count == 0)
-                {
-                    // the rendered prompt only
-                    // available after the function is called
-                    // and the response started.
-                    RenderPrompt(string.Format("{0}-{1}", f.PluginName, f.Name));
-                }
-                lstChunk.Add(chunk);
-                session.TextWriter?.Write(chunk);
-            }
-            session.AddChatResponseToHistory(lstChunk);
-        }
-
-        #endregion
-
-        #region Chat
-
-        /// <summary>
-        /// Start a user interactive chat session via the console
-        /// </summary>
-        public async static Task StartChat(this ChatSession session, string? message)
-        {
-            string? userInput = message;
-            session.TextWriter?.WriteLine("<<<< User >>>>");
-            if (!string.IsNullOrEmpty(userInput))
-                session.TextWriter?.WriteLine(userInput);
-            else userInput = session.TextReader?.ReadLine();
-
-            while (!string.IsNullOrEmpty(userInput))
-            {
-                ChatMessageContent response = await session.SendMessage(userInput);
-                session.TextWriter?.WriteLine("<<<< User >>>>");
-                session.TextWriter?.WriteLine();
-                userInput = session.TextReader?.ReadLine();
-            }
-        }
-
-        /// <summary>
-        /// Send a series of prompts to the LLM
-        /// </summary>
-        public async static Task AutoChat(this ChatSession session, IEnumerable<string> messages)
-        {
-            foreach (var message in messages)
-            {
-                session.TextWriter?.WriteLine("<<<< User >>>>");
-                session.TextWriter?.WriteLine();
-                session.TextWriter?.WriteLine(message);
-                ChatMessageContent response = await session.SendMessage(message);
-            }
-        }
-
-        #endregion
-
-        #region Invoke LLM Chat
-
-        /// <summary>
-        /// Send a prompt and receive a response
-        /// </summary>
-        public static async Task<ChatMessageContent> SendMessage(
-            this ChatSession session, string message) =>
-                await session.SendMessage(
-                    ChatMessageUtility.CreateMessageContent(AuthorRole.User, message));
-
-        /// <summary>
-        /// Send a prompt and receive a response
-        /// </summary>
-        public static async Task<ChatMessageContent> SendMessage(
-            this ChatSession session, ChatMessageContent message)
+        protected async override Task<ChatMessageContent> Invoke(ChatMessageContent message)
         {
             // Add user input
-            session.History.Add(message);
+            Session.History.Add(message);
 
-            // Get the response from the AI
-            IChatCompletionService aiChat = session.GetAIChat();
-            IAsyncEnumerable<StreamingChatMessageContent> response =
+            IChatCompletionService aiChat = Session.GetAIChat();
+            IAsyncEnumerable<StreamingChatMessageContent> chunks =
                 aiChat.GetStreamingChatMessageContentsAsync(
-                        chatHistory: session.History,
-                        executionSettings: session.ExecutionSettings,
-                        kernel: session.Kernel
+                        chatHistory: Session.History,
+                        executionSettings: Session.ExecutionSettings,
+                        kernel: Session.Kernel
                     );
-
-            session.TextWriter?.WriteLine();
-            session.TextWriter?.WriteLine("<<<< Assistant >>>>");
-            session.TextWriter?.WriteLine();
-            List<StreamingChatMessageContent> chunks = new();
-            await foreach (StreamingChatMessageContent chunk in response)
+            List<StreamingChatMessageContent> lstChunk = new();
+            await foreach (StreamingChatMessageContent chunk in chunks)
             {
-                session.TextWriter?.Write(chunk);
-                chunks.Add(chunk);
+                Session.TextWriter?.Write(chunk);
+                lstChunk.Add(chunk);
             }
-            session.TextWriter?.WriteLine();
-            session.TextWriter?.WriteLine();
+            ChatMessageContent response = ChatMessageUtility.ConvertToChatMessage(lstChunk);
 
             // Add the message from the agent to the chat history
-            return session.AddChatResponseToHistory(chunks);
+            Session.History.Add(response);
+            return response;
         }
-
-        #endregion
     }
 }

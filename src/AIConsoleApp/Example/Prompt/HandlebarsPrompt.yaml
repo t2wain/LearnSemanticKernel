@@ -22,8 +22,8 @@ template: |
       {{#each history}}
    <message role="{{role}}">
    {{content}}
-      </message>
-   {{/each}}
+   </message>
+      {{/each}}
 template_format: handlebars
 description: Contoso chat prompt template.
 input_variables:
