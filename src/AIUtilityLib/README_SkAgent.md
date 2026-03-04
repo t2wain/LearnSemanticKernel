@@ -60,6 +60,7 @@
 	- Name : string
 	- Template : IPromptTemplate
 	- UseImmutableKernel : bool
+- AgentChat
 - AgentCreationOptions
 	- Kernel
 	- IPromptTemplateFactory
@@ -100,13 +101,28 @@
 		- AgentDefinition
 		- AgentCreationOptions
 - AgentInput
+	- Default : object
+	- Description
+	- JsonSchema : string
+	- Name
+	- Required
+	- Sample : object
+	- Strict : bool
+	- Type : string
 - AgentInvokeOptions
 	- AdditionalInstructions : string
 	- Kernel
 	- KernelArguments
 	- OnIntermediateMessage : Func
 - AgentMetadata
+	- Authors : IEnumerable\<string>
+	- ExtensionData : IDictionary<string, object>
+	- Tags : IList\<string>
 - AgentOutput
+	- Description
+	- JsonSchema : string
+	- Name
+	- Type : string
 - AgentResponseItem\<TMessage>
 	- ctor
 		- message : TMessage
@@ -121,7 +137,13 @@
 	- OnResumeAsync
 	- OnSuspendAsync
 - AgentToolDefinition
-- AgentToolDefinitionExtensions
+	- Description
+	- Id : string
+	- Options : IDictionary<string, object>
+	- Type : string
+- AgentToolDefinitionExtensions (AgentToolDefinition)
+	- GetOption\<T> : T
+		- key : string
 - AggregatorAgent : Agent
 	- AggregatorMode
 	- InvokeAsync

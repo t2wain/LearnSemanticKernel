@@ -11,6 +11,8 @@ namespace AIUtilityLib.Chat
     {
         public ChatSession Session { get; set; } = null!;
 
+        public bool IsStreaming { get; set; } = true;
+
         #region Chat
 
         /// <summary>
@@ -66,7 +68,7 @@ namespace AIUtilityLib.Chat
             Session.TextWriter?.WriteLine("<<<< Assistant >>>>");
             Session.TextWriter?.WriteLine();
 
-            ChatMessageContent response = await Invoke(message);
+            ChatMessageContent response = await InvokeAsync(message);
 
             Session.TextWriter?.WriteLine();
             Session.TextWriter?.WriteLine();
@@ -76,6 +78,6 @@ namespace AIUtilityLib.Chat
 
         #endregion
 
-        protected abstract Task<ChatMessageContent> Invoke(ChatMessageContent message);
+        protected abstract Task<ChatMessageContent> InvokeAsync(ChatMessageContent message);
     }
 }

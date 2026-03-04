@@ -11,11 +11,36 @@ namespace AIUtilityLib
     /// </summary>
     public class ChatService : ChatServiceBase
     {
-        protected async override Task<ChatMessageContent> Invoke(ChatMessageContent message)
+        protected async override Task<ChatMessageContent> InvokeAsync(ChatMessageContent message)
         {
             // Add user input
             Session.History.Add(message);
 
+            ChatMessageContent response = await (IsStreaming switch
+            {
+                true => InvokeStreamingAsync(),
+                _ => InvokeNonStreamingAsync()
+            });
+
+            // Add the message from the agent to the chat history
+            Session.History.Add(response);
+            return response;
+        }
+
+        protected async Task<ChatMessageContent> InvokeNonStreamingAsync()
+        {
+            IChatCompletionService aiChat = Session.GetAIChat();
+            ChatMessageContent response =
+                await aiChat.GetChatMessageContentAsync(
+                        chatHistory: Session.History,
+                        executionSettings: Session.ExecutionSettings,
+                        kernel: Session.Kernel
+                    );
+            return response;
+        }
+
+        protected async Task<ChatMessageContent> InvokeStreamingAsync()
+        {
             IChatCompletionService aiChat = Session.GetAIChat();
             IAsyncEnumerable<StreamingChatMessageContent> chunks =
                 aiChat.GetStreamingChatMessageContentsAsync(
@@ -30,9 +55,6 @@ namespace AIUtilityLib
                 lstChunk.Add(chunk);
             }
             ChatMessageContent response = ChatMessageUtility.ConvertToChatMessage(lstChunk);
-
-            // Add the message from the agent to the chat history
-            Session.History.Add(response);
             return response;
         }
     }

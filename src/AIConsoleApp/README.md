@@ -13,5 +13,7 @@ The initialization of the application is based on the configuration file **appse
 The main example is the class **ChatExample** which explores these AI concepts:
 - Use prompts specified in external files
 - Streaming response from LLM
-- Tool calling messaging
+- Toolcall messaging
 - Maintain chat history
+
+Examples in class **AgentExample** re-implement the same chats as an Agent.

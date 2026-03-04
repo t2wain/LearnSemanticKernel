@@ -1,11 +1,9 @@
 ﻿using AIUtilityLib.Chat;
-using AIUtilityLib.SkAgent;
 using AIUtilityLib.Utility;
 using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Plugins.Core;
 
 namespace AIConsoleApp.Example
@@ -43,19 +41,16 @@ namespace AIConsoleApp.Example
                 Name = "time_agent",
                 Instructions = """
                 You are an AI assistant with access to tools that 
-                can retrieve or calculate local time information.
+                can retrieve or calculate local date and time information.
                 """,
-                InstructionsRole = AuthorRole.Developer,
+                InstructionsRole = AuthorRole.System,
                 Kernel = session.Kernel,
-                Arguments = new KernelArguments(
-                new OpenAIPromptExecutionSettings()
-                {
-                    FunctionChoiceBehavior = FunctionChoiceBehavior.Auto()
-                })
+                Arguments = new KernelArguments(session.ExecutionSettings),
             };
             session.AgentThreadId = new ChatHistoryAgentThread(session.History);
 
             var service = new AgentService() { Session = session };
+            //service.InvokeOptions = service.CreateInvokeOption();
             service.AutoChat([
                     "What is the current time?",
                     "What is today's date?",

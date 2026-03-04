@@ -142,6 +142,14 @@ namespace AIUtilityLib.Utility
                     Items = contents,
                 };
 
+        public static ChatMessageContent CreateMessageContent(
+            IEnumerable<ChatMessageContent> contents) =>
+                new()
+                {
+                    Role = contents.First().Role,
+                    Content = string.Join(null, contents.Select(c => c.Content)),
+                };
+
         #endregion
 
         #region Create Kernel Content

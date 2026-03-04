@@ -49,35 +49,15 @@ namespace AIUtilityLib.Chat
         #endregion
 
         public Kernel Kernel { get; set; } = null!;
-        public IChatCompletionService AIChat { get; set; } = null!;
         public ChatHistory History { get; set; } = new();
         public PromptExecutionSettings ExecutionSettings { get; set; } = null!;
         public TextWriter? TextWriter { get; set; }
         public TextReader? TextReader { get; set; }
+
+        public IChatCompletionService AIChat { get; set; } = null!;
+
         public Agent Agent { get; set; } = null!;
         public AgentThread AgentThreadId { get; set; } = null!;
-
-        /// <summary>
-        /// Append the LLM response to chat history
-        /// </summary>
-        public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingChatMessageContent> chunks)
-        {
-            ChatMessageUtility.ExploreStreamingChatMessageContent(chunks);
-            var message = ChatMessageUtility.ConvertToChatMessage(chunks);
-            History.Add(message);
-            return message;
-        }
-
-        /// <summary>
-        /// Append the LLM response to chat history
-        /// </summary>
-        public ChatMessageContent AddChatResponseToHistory(IEnumerable<StreamingKernelContent> chunks)
-        {
-            ChatMessageUtility.ExploreStreamingKernelContent(chunks);
-            var message = ChatMessageUtility.ConvertToChatMessage(chunks);
-            History.Add(message);
-            return message;
-        }
 
         /// <summary>
         /// Get the LLM model based on the serviceId parameter

@@ -8,14 +8,16 @@ The various utility classes (**xxxUtility.cs**) are designed to document the mai
 - KernelUtility.cs
 - PromptUtility.cs
 
-These classes implement many **Exlorexxx** methods to drill down and examine the various data structures implemented in the SK libraries
+These classes implement many **Explorexxx** methods to drill down and examine the various data structures implemented in the SK libraries
 
 Other classes document the basic pattern of an AI chat session:
 - ChatService.cs
 - ChatSession.cs
 - KernelFactory.cs
+- AgentService.cs
 
 The various README files document the essential assemblies, namespaces, classes, and methods of the SK libraries:
 - README_Sk.md
+- README_SkAgent.md
 - README_AltExt.md
 - README_Google.md
