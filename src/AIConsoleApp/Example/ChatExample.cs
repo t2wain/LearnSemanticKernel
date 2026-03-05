@@ -46,8 +46,13 @@ namespace AIConsoleApp.Example
             {
                 ["input"] = "I don't have the rent for this month"
             });
+
+            // setup the chat console
             ChatService chatService = new() { Session = session };
+
+            // start the chat session
             chatService.StartChat(initialPrompt).Wait();
+
             return session.History;
         }
 
@@ -60,6 +65,7 @@ namespace AIConsoleApp.Example
             ChatSession session = ChatSession.Create(host);
             session.TextWriter?.WriteLine("Run example - Auto chat with LLM");
 
+            // setup the first message
             string initialPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
                 ["input"] = "I don't have the rent for this month"
@@ -69,8 +75,14 @@ namespace AIConsoleApp.Example
                     "I'm late to the meeting",
                     "I did not completed my homework"
                 ];
+
+            // setup the chat console
             ChatService chatService = new() { Session = session };
+
+            // start the chat console
             chatService.AutoChat(messages).Wait();
+
+            // explore the messages of the conversation
             ChatMessageUtility.ExploreChatHistory(session.History);
             return session.History;
         }
@@ -96,12 +108,17 @@ namespace AIConsoleApp.Example
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
+            // setup the system prompt and add to the history
             string systemPrompt = """
                 You are an AI assistant with access to tools that 
                 can retrieve or calculate local time information.
                 """;
             session.History.AddSystemMessage(systemPrompt);
+
+            // setp the chat console
             ChatService chatService = new() { Session = session };
+
+            // start the chat console
             chatService.AutoChat([
                     "What is the current time?",
                     "What is today's date?",

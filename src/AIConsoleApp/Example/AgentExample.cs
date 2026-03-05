@@ -23,6 +23,11 @@ namespace AIConsoleApp.Example
 
         #region AgentWithTimePlugin
 
+        /// <summary>
+        /// Register the TimePlug with the agent and
+        /// send prompts related to time to demonstrate
+        /// the toolcall behaviour.
+        /// </summary>
         public object? AgentWithTimePlugin(IHost host)
         {
             ChatSession session = ChatSession.Create(host);
@@ -36,6 +41,7 @@ namespace AIConsoleApp.Example
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
+            // setup the Agent
             session.Agent = new ChatCompletionAgent()
             {
                 Name = "time_agent",
@@ -47,10 +53,14 @@ namespace AIConsoleApp.Example
                 Kernel = session.Kernel,
                 Arguments = new KernelArguments(session.ExecutionSettings),
             };
+            // setup the session thread which maitain the history of the conversation
             session.AgentThreadId = new ChatHistoryAgentThread(session.History);
 
+            // setup the chat conle
             var service = new AgentService() { Session = session };
             //service.InvokeOptions = service.CreateInvokeOption();
+
+            // start the chat in the chat console
             service.AutoChat([
                     "What is the current time?",
                     "What is today's date?",

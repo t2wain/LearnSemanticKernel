@@ -4,9 +4,9 @@ using Microsoft.SemanticKernel;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace AIConsoleApp.Example
+namespace AIConsoleApp.Sample
 {
-    public static class PluginExample
+    public static class PluginSample
     {
         #region Plugin
 
@@ -51,6 +51,12 @@ namespace AIConsoleApp.Example
             High
         }
 
+        /// <summary>
+        /// A native plugin with functions that have 
+        /// complex input/output parameters that needs
+        /// attributes to describe the semantic 
+        /// of these parameters for the LLM to understand
+        /// </summary>
         public class LightsPlugin
         {
             private readonly List<LightModel> _lights;
@@ -98,6 +104,10 @@ namespace AIConsoleApp.Example
 
         #region Examples
 
+        /// <summary>
+        /// Register plugin of native plugins 
+        /// from class, object instance with Kernel
+        /// </summary>
         public static void EX1(IKernelBuilder builder, int mode)
         {
             IKernelBuilderPlugins b = builder.Plugins;
@@ -108,6 +118,10 @@ namespace AIConsoleApp.Example
             };
         }
 
+        /// <summary>
+        /// Create a KernelPluginCollection of native plugins 
+        /// from class, object instance
+        /// </summary>
         public static void EX2(Kernel kernel, int mode)
         {
             KernelPluginCollection pcol = kernel.Plugins;
@@ -119,7 +133,10 @@ namespace AIConsoleApp.Example
             };
         }
 
-        static IEnumerable<KernelFunction> GetKernelFunctions() =>
+        /// <summary>
+        /// Create native KernelFunction from lambda
+        /// </summary>
+        public static IEnumerable<KernelFunction> GetKernelFunctions() =>
             [
                 KernelFunctionFactory.CreateFromMethod(
                     method: () => DateTime.Now,
@@ -133,6 +150,9 @@ namespace AIConsoleApp.Example
                 )
             ];
 
+        /// <summary>
+        /// Using DI container to register native plugins
+        /// </summary>
         public static void EX3(HostApplicationBuilder builder)
         {
             // Create native plugin collection
@@ -150,6 +170,9 @@ namespace AIConsoleApp.Example
             });
         }
 
+        /// <summary>
+        /// Using DI container to register native plugins
+        /// </summary>
         public static void EX4(HostApplicationBuilder builder)
         {
             // Create singletons of your plugin

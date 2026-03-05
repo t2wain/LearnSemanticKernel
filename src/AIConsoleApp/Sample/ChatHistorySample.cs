@@ -1,10 +1,19 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
-namespace AIConsoleApp.Example
+namespace AIConsoleApp.Sample
 {
-    public static class ChatHistoryExample
+    /// <summary>
+    /// Document many different method and data structure
+    /// to construct chat messges. The ChatHistory maintain
+    /// the window context of the entire chat session to be
+    /// sent back to the LLNM on each request.
+    /// </summary>
+    public static class ChatHistorySample
     {
+        /// <summary>
+        /// Various type of message contruction
+        /// </summary>
         public static ChatHistory EX1()
         {
             var chatHistory = new ChatHistory()
@@ -13,7 +22,7 @@ namespace AIConsoleApp.Example
                 new()
                 {
                     Role = AuthorRole.System,
-                    Content = "You are a helpful assistant"
+                    Content = "You are a helpful assistant" // sinple message content
                 }, // ChatMessageContent
 
                 // Add user message with an image
@@ -22,6 +31,7 @@ namespace AIConsoleApp.Example
                     Role = AuthorRole.User,
                     AuthorName = "Laimonis Dumins",
                     Items = [
+                        // message consists of different type of contents
                         new TextContent { Text = "What available on this menu" }, // KernelContent
                         new ImageContent { Uri = new Uri("https://example.com/menu.jpg") } // KernelContent
                     ] // ChatMessageContentItemCollection
@@ -53,13 +63,18 @@ namespace AIConsoleApp.Example
             chatHistory.AddUserMessage(
                 [
                     new TextContent("What’s in this image?"),
-                    new ImageContent(bytes, "image/jpeg"),
+                    new ImageContent(bytes, "image/jpeg"), // binary content
                 ]
             );
 
             return chatHistory;
         }
 
+        /// <summary>
+        /// How toolcall messages are returned and
+        /// how result messages should be sent back
+        /// </summary>
+        /// <returns></returns>
         public static ChatHistory EX2()
         {
             var chatHistory = new ChatHistory();
@@ -69,6 +84,8 @@ namespace AIConsoleApp.Example
                 new()
                 {
                     Role = AuthorRole.Assistant,
+                    // Toolcall message return from LLM
+                    // multiple toolcall messages can be returned in a single response
                     Items = [
                         new FunctionCallContent(
                             functionName: "get_user_allergies",
@@ -86,7 +103,8 @@ namespace AIConsoleApp.Example
                 }
             );
 
-            // Add a simulated function results from the tool role
+            // how to construct a message of toolcall ressult
+            // to be sent back to the LLM
             chatHistory.Add(
                 new()
                 {
@@ -95,7 +113,7 @@ namespace AIConsoleApp.Example
                         new FunctionResultContent(
                             functionName: "get_user_allergies",
                             pluginName: "User",
-                            callId : "0001",
+                            callId : "0001", // reference the toolcall funtion
                             result: "{ \"allergies\": [\"peanuts\", \"gluten\"] }"
                         )
                     ]
@@ -110,7 +128,7 @@ namespace AIConsoleApp.Example
                         new FunctionResultContent(
                             functionName: "get_user_allergies",
                             pluginName: "User",
-                            callId: "0002",
+                            callId: "0002", // reference the toolcall funtion
                             result: "{ \"allergies\": [\"dairy\", \"soy\"] }"
                         )
                     ]

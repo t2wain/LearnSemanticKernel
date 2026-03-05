@@ -10,9 +10,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
-    <PackageReference Include="Microsoft.SemanticKernel" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Agents.AzureAI" Version="1.72.0-preview" />
-    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Orchestration" Version="1.72.0-preview" />
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Yaml" Version="1.72.0-beta" />
     <PackageReference Include="Microsoft.SemanticKernel.Connectors.Chroma" Version="1.72.0-alpha" />
@@ -22,12 +22,12 @@
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.AI" Version="1.72.0-alpha" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Core" Version="1.72.0-preview" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Document" Version="1.72.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.Plugins.OpenApi" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.OpenApi" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.OpenApi.Extensions" Version="1.72.0-alpha" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.Web" Version="1.72.0-alpha" />
-    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Prompty" Version="1.72.0-beta" />
-    <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.72.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.73.0" />
     <PackageReference Include="ModelContextProtocol" Version="1.0.0" />
   </ItemGroup>
 
@@ -42,10 +42,10 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Example\Prompt\HandlebarsPrompt.yaml">
+    <None Update="Sample\Prompt\HandlebarsPrompt.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Example\Prompt\Prompt.yaml">
+    <None Update="Sample\Prompt\Prompt.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.PromptTemplates.Handlebars;
 
-namespace AIConsoleApp.Example.Prompt
+namespace AIConsoleApp.Sample.Prompt
 {
     public static class PromptExample
     {

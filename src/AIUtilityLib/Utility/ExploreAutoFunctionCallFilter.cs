@@ -4,8 +4,17 @@ using AI = Microsoft.Extensions.AI;
 
 namespace AIUtilityLib.Utility
 {
+    /// <summary>
+    /// A filter to be registered with the Kernel. The filter has a
+    /// call-back method to allow the analysis of all functions that
+    /// will be auto-invoke by the Kernel.
+    /// </summary>
     public class ExploreAutoFunctionCallFilter : IAutoFunctionInvocationFilter
     {
+        /// <summary>
+        /// Call-back method for each function that will
+        /// be auto-invoke by the Kernel
+        /// </summary>
         virtual async public Task OnAutoFunctionInvocationAsync(AutoFunctionInvocationContext context, 
             Func<AutoFunctionInvocationContext, Task> next)
         {
@@ -24,6 +33,9 @@ namespace AIUtilityLib.Utility
 
         #region Utility
 
+        /// <summary>
+        /// Explore the function to be auto-invoked
+        /// </summary>
         virtual protected void ValidateFunctionCall(AutoFunctionInvocationContext context)
         {
             var c = context;
@@ -50,6 +62,10 @@ namespace AIUtilityLib.Utility
                 c2.Terminate = true;
         }
 
+        /// <summary>
+        /// Data to be captured by the filter
+        /// for each function call
+        /// </summary>
         public record FnCall
         {
             public string ID { get; set; }
@@ -58,8 +74,14 @@ namespace AIUtilityLib.Utility
             public string? Result { get; set; }
         }
         
+        /// <summary>
+        /// Maintain a list of all auto-invoke function
+        /// </summary>
         public Dictionary<string, FnCall> FunctionCallList { get; set; } = new();
 
+        /// <summary>
+        /// Save the auto-invoked function message to the list.
+        /// </summary>
         virtual protected void SaveFunctionCallData(AutoFunctionInvocationContext context)
         {
             var c = context;
@@ -80,16 +102,23 @@ namespace AIUtilityLib.Utility
             if (args != null && args.Count > 0)
                 KernelFunctionUtility.ExploreKernelArguments(args);
 
+            // analyze the function call message
             if (ChatMessageUtility.GetFunctionCallContent(m, callId) is FunctionCallContent fncall)
             {
                 // Get the function call content
                 int fsi = c.FunctionSequenceIndex;
+                // add function to the list
                 FunctionCallList.TryAdd(callId, new() { ID = callId, FnCallContent = fncall });
             }
 
+            // the result of the function call is text.
+            // analyze the string result of the function call.
             FunctionResult r = c.Result;
             string? res = KernelFunctionUtility.ExploreFunctionResult(r);
             int rsi = c.RequestSequenceIndex;
+
+            // save the result to the corresponding function
+            // save the result to the corresponding function
             if (FunctionCallList.TryGetValue(callId, out var fncall2))
             {
                 // The result of the function call
@@ -97,6 +126,10 @@ namespace AIUtilityLib.Utility
             }
         }
 
+        /// <summary>
+        /// Find and correlate the result message of each auto-invoked function
+        /// stored in ChatHistory.
+        /// </summary>
         public void UpdateFunctionCallWithResult(ChatHistory chatHistory)
         {
             var q = chatHistory
