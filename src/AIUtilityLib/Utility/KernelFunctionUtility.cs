@@ -270,14 +270,16 @@ namespace AIUtilityLib.Utility
 
         #region Create with Kernel
 
-        public static KernelPlugin CreatePlugin(Kernel kernel, IEnumerable<KernelFunction> values, string name) =>
-            kernel.CreatePluginFromFunctions(name, values);
+        public static KernelPlugin CreatePlugin(
+            Kernel kernel, IEnumerable<KernelFunction> values, string name) =>
+                kernel.CreatePluginFromFunctions(name, values);
 
         public static KernelPlugin CreatePlugin(Kernel kernel, object value, string name) =>
             kernel.CreatePluginFromObject(value, name);
 
-        public static KernelFunction CreateKernelFunction(Kernel kernel, Delegate value, string name, string description) =>
-            kernel.CreateFunctionFromMethod(value, name, description);
+        public static KernelFunction CreateKernelFunction(Kernel kernel, Delegate value, 
+            string? name = null, string? description = null) =>
+                kernel.CreateFunctionFromMethod(value, name, description);
 
         public static KernelPlugin CreatePlugin<T>(Kernel kernel) => kernel.CreatePluginFromType<T>();
 

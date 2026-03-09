@@ -9,7 +9,7 @@
 
 **Microsoft.SemanticKernel.Agents**
 
-- ChatCompletionAgent (ChatHistoryAgent)
+- **ChatCompletionAgent** (ChatHistoryAgent)
 	- ctor
 		- PromptTemplateConfig
 		- IPromptTemplateFactory
@@ -37,6 +37,73 @@
 		- Kernel
 		- AgentDefinition
 		- AgentCreationOptions
+- **AgentGroupChat** (**AgentChat**)
+	- ctor(**Agent**[]) 
+	- Agents : IReadOnlyList\<**Agent**>
+	- ExecutionSettings : **AgentGroupChatSettings**
+	- IsComplete : bool
+	- AddAgent(Agent)
+	- CreatePromptFunctionForStrategy : KernelFunction
+	- InvokeAsync : IAsyncEnumerable\<ChatMessageContent>
+		- agent : null | **Agent** 
+	- InvokeStreamingAsync : IAsyncEnumerable\<StreamingChatMessageContent>
+		- agent : null | **Agent** 
+- AgentKernelFunctionFactory
+	- **CreateFromAgent** : KernelFunction
+		- Agent
+		- functionName
+		- description
+		- parameters : IEnumerable\<KernelParameterMetadata>
+		- ILoggerFactory
+
+**Microsoft.SemanticKernel.Agents.Chat**
+
+- AgentGroupChatSettings
+	- SelectionStrategy
+	- TerminationStrategy
+- AggregateTerminationCondition
+	- All
+	- Any
+- AggregatorTerminationStrategy (TerminationStrategy) 
+	- ctor(TerminationStrategy[])
+	- Condition : AggregateTerminationCondition
+- KernelFunctionSelectionStrategy : SelectionStrategy
+	- ctor(KernelFunction, Kernel) 
+	- AgentsVariableName : string
+	- Arguments : KernelArguments
+	- EvaluateNameOnly : bool
+	- Function : KernelFunction
+	- HistoryReducer : IChatHistoryReducer
+	- HistoryVariableName : string
+	- Kernel
+	- ResultParser : Func\<FunctionResult, string>
+	- UseInitialAgentAsFallback : bool
+- KernelFunctionTerminationStrategy : TerminationStrategy
+	- ctor(KernelFunction, Kernel) 
+	- AgentsVariableName : string
+	- Arguments : KernelArguments
+	- EvaluateNameOnly : bool
+	- Function : KernelFunction
+	- HistoryReducer : IChatHistoryReducer
+	- HistoryVariableName : string
+	- Kernel
+	- ResultParser : Func\<FunctionResult, string>
+- RegexTerminationStrategy : TerminationStrategy
+	- ctor(string[] | RegEx[])
+- SelectionStrategy
+	- **NextAsync** : Task\<Agent>
+		- agents : IReadOnlyList\<Agent>
+		- history : IReadOnlyList\<ChatMessageContent>
+	- InitialAgent : Agent
+- SequentialSelectionStrategy : SelectionStrategy
+	- Reset
+- TerminationStrategy
+	- **ShouldTerminateAsync** : Task\<bool>
+		- agents : IReadOnlyList\<Agent>
+		- history : IReadOnlyList\<ChatMessageContent>
+	- Agents : IReadOnlyList\<Agent>
+	- AutomaticReset : bool
+	- MaximumIterations : int
 
 ### Assembly: Microsoft.SemanticKernel.Agents.Abstraction
 
@@ -60,7 +127,15 @@
 	- Name : string
 	- Template : IPromptTemplate
 	- UseImmutableKernel : bool
-- AgentChat
+- **AgentChat**
+	- Agents : IReadOnlyList\<**Agent**>
+	- IsActive : bool
+	- LoggerFactory
+	- AddChatMessage
+	- GetChatMessagesAsync
+	- InvokeAsync
+	- InvokeStreamingAsync
+	- ResetAsync
 - AgentCreationOptions
 	- Kernel
 	- IPromptTemplateFactory
@@ -144,10 +219,17 @@
 - AgentToolDefinitionExtensions (AgentToolDefinition)
 	- GetOption\<T> : T
 		- key : string
-- AggregatorAgent : Agent
+- **AggregatorAgent** : **Agent**
+	- ctor(**Func\<AgentChat**>) 
 	- AggregatorMode
-	- InvokeAsync
-	- InvokeStreamingAsync
+	- InvokeAsync : IAsyncEnumerable\<AgentResponseItem\<ChatMessageContent>>
+		- message : ICollection\<ChatMessageContent> 
+		- thread : **AgentThread**
+		- options : AgentInvokeOptions
+	- InvokeStreamingAsync : IAsyncEnumerable\<AgentResponseItem\<StreamingChatMessageContent>>
+		- message : ICollection\<ChatMessageContent> 
+		- thread : AgentThread
+		- options : AgentInvokeOptions
 - AggregatorAgentFactory : AgentFactory
 	- ctor(AgentFactory[]) 
 	- TryCreateAsync : Agent
@@ -163,3 +245,10 @@
 	- ModelConnection
 	- Id : string
 	- Options : IDictionary\<string, object>
+
+**Microsoft.SemanticKernel.Agents.Extensions**
+
+- **ChatHistoryExtensions** (ChatHistory)
+	- ToDescending : IEnumerable\<ChatMessageContent>
+	- ToDescendingAsync : IAsyncEnumerable\<ChatMessageContent>
+

@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.73.0" />
+    <PackageReference Include="Microsoft.SemanticKernel.Agents.OpenAI" Version="1.73.0-preview" />
     <PackageReference Include="Microsoft.SemanticKernel.Plugins.AI" Version="1.72.0-alpha" />
     <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Prompty" Version="1.72.0-beta" />

@@ -1,5 +1,6 @@
 ﻿using AIUtilityLib;
 using AIUtilityLib.Chat;
+using AIUtilityLib.Config;
 using AIUtilityLib.Utility;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;

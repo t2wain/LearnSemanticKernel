@@ -1,4 +1,5 @@
 ﻿using AIConsoleApp.Example;
+using AIUtilityLib.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 

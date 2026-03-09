@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents.Extensions;
 using Microsoft.SemanticKernel.ChatCompletion;
 using System.Text;
 using AI = Microsoft.Extensions.AI;
@@ -325,6 +326,17 @@ namespace AIUtilityLib.Utility
             var cnt = chatHistory.Count;
             var kernelContents = chatHistory.SelectMany(c => c.Items).ToList();
             ExploreChatMessageContentItemCollection(kernelContents);
+        }
+
+        public static void ExploreChatHistoryDescending(ChatHistory chatHistory)
+        {
+            var cnt = chatHistory.Count;
+            IEnumerable<ChatMessageContent> messages = chatHistory.ToDescending();
+            foreach (ChatMessageContent message in messages)
+            {
+                AuthorRole role = message.Role;
+                string? c = message.Content;
+            }
         }
 
         public static void ExploreChatMessageContent(ChatMessageContent chatMessageContent)

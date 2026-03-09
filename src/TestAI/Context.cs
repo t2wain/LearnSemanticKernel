@@ -1,10 +1,11 @@
 ﻿using AIConsoleApp;
 using AIUtilityLib.Config;
+using AIUtilityLib.Plugins.FileSystem;
 using AIUtilityLib.Utility;
-using Microsoft.Extensions.Hosting;
-using Microsoft.SemanticKernel;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.SemanticKernel;
 
 namespace TestAI
 {
@@ -12,8 +13,9 @@ namespace TestAI
     {
         public Context()
         {
-            var cfg = Host.Services.GetRequiredService<IConfiguration>();
-            RootPromptDirectory = cfg["ExamplePluginDirectory"]!;
+            AppConfig cfg = Host.Services.GetRequiredService<IOptions<AppConfig>>().Value;
+            RootPromptDirectory = cfg.ExamplePluginDirectory;
+            FileSystem = new(cfg.RootDirectory!);
         }
 
         IHost _host = null!;
@@ -68,5 +70,7 @@ namespace TestAI
             Path.Combine(RootPromptDirectory, folderName);
 
         public string RootPromptDirectory { get; init; }
+
+        public FileSystemPlugin FileSystem { get; set; }
     }
 }
