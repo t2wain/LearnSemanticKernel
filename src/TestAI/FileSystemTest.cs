@@ -1,4 +1,6 @@
-﻿using System.Management;
+﻿using AIUtilityLib.Plugins.FileSystem;
+using System.Management;
+using System.Text.Json;
 
 namespace TestAI
 {
@@ -16,16 +18,23 @@ namespace TestAI
         [Fact]
         public void GetFileItems()
         {
-            var items = Context.FileSystem.GetFileSystemContent();
+            var items = Context.FileSystem.ListFileSystemItem();
             Assert.True(items.Length > 0);
 
-            items = Context.FileSystem.GetFileSystemContent("ChatPlugin");
+            items = Context.FileSystem.ListFileSystemItem("ChatPlugin");
             Assert.True(items.Length > 0);
+
+            var s = JsonSerializer.Serialize(items);
+            var d = JsonSerializer.Deserialize<FSItem[]>(s)!;
+            Assert.True(d.Length > 0);
 
             var relPath = @"ChatPlugin\Chat\..\ChatFilter\..\";
-            var rp = Context.FileSystem.GetRelativePath(relPath)!;
-            items = Context.FileSystem.GetFileSystemContent(rp);
+            items = Context.FileSystem.ListFileSystemItem(relPath);
             Assert.True(items.Length > 0);
+
+            s = JsonSerializer.Serialize(items);
+            d = JsonSerializer.Deserialize<FSItem[]>(s)!;
+            Assert.True(d.Length > 0);
 
         }
 
@@ -34,12 +43,12 @@ namespace TestAI
         {
 
             var relPath = @".\..\..\";
-            var items = Context.FileSystem.GetFileSystemContent(relPath);
+            var items = Context.FileSystem.ListFileSystemItem(relPath);
             Assert.True(items.Length == 0);
 
             var rp = Context.FileSystem.GetRelativePath(relPath);
 
-            items = Context.FileSystem.GetFileSystemContent(@"CalendarPlugin\AssistantShowCalendarEvents\config.json");
+            items = Context.FileSystem.ListFileSystemItem(@"CalendarPlugin\AssistantShowCalendarEvents\config.json");
             Assert.True(items.Length == 0);
         }
 

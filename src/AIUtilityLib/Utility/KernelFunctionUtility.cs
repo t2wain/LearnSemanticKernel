@@ -539,14 +539,14 @@ namespace AIUtilityLib.Utility
         /// on the same streaming FunctionCall will returned the
         /// cached value. The original FunctionResult is still valid.
         /// </summary>
-        public static string? ExploreFunctionResult(FunctionResult functionResult)
+        public static object? ExploreFunctionResult(FunctionResult functionResult)
         {
             var r = functionResult;
             KernelFunction f = r.Function;
             IReadOnlyDictionary<string, object?>? m = r.Metadata;
             string? p = r.RenderedPrompt;
             Type? t = r.ValueType;
-            string? v = r.GetValue<string>();
+            object? v = r.GetValue<object>();
             return v;
         }
 

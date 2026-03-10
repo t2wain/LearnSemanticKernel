@@ -46,7 +46,8 @@ namespace AIUtilityLib.Utility
             KernelArguments? args = c.Arguments;
 
             // Check result
-            string? res = KernelFunctionUtility.ExploreFunctionResult(c.Result);
+            Type t = c.Result.GetType();
+            object? res = KernelFunctionUtility.ExploreFunctionResult(c.Result);
 
             // Provide alternate result
             string? altRes = null;
@@ -71,7 +72,8 @@ namespace AIUtilityLib.Utility
             public string ID { get; set; }
             public FunctionCallContent FnCallContent { get; set; }
             public FunctionResultContent FnResultContent { get; set; }
-            public string? Result { get; set; }
+            public object? Result { get; set; }
+            public Type ResultType { get; set; }
         }
         
         /// <summary>
@@ -114,7 +116,8 @@ namespace AIUtilityLib.Utility
             // the result of the function call is text.
             // analyze the string result of the function call.
             FunctionResult r = c.Result;
-            string? res = KernelFunctionUtility.ExploreFunctionResult(r);
+            object? res = KernelFunctionUtility.ExploreFunctionResult(r);
+            Type resType = r.GetType();
             int rsi = c.RequestSequenceIndex;
 
             // save the result to the corresponding function
@@ -123,6 +126,7 @@ namespace AIUtilityLib.Utility
             {
                 // The result of the function call
                 fncall2.Result = res;
+                fncall2.Result = resType;
             }
         }
 

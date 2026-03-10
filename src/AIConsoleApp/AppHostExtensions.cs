@@ -1,9 +1,11 @@
 ﻿using AIConsoleApp.Example;
 using AIUtilityLib.Config;
+using AIUtilityLib.Plugins.FileSystem;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AIConsoleApp
 {
@@ -32,6 +34,12 @@ namespace AIConsoleApp
             {
                 ConfigurationBinder.Bind(iconfig.GetSection("AIProviders"), options);
                 options.Init();
+            });
+
+            builder.Services.AddSingleton(provider =>
+            {
+                var root = provider.GetRequiredService<IOptions<AppConfig>>().Value.RootDirectory!;
+                return new FileSystemPlugin(root);
             });
 
             builder.Services.AddTransient<ChatExample>();
