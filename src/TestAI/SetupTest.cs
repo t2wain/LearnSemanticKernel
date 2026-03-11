@@ -66,8 +66,22 @@ namespace TestAI
         [Fact]
         public void LoadXmlPrompt()
         {
-            var prompts = ChatMessageUtility.LoadUserPromptsFromXmlMessages(
+            var prompts = ChatMessageUtility.LoadPrompts(
                 @".\Example\Prompt\FileSystem\Message.xml");
+            var sys = prompts.FirstOrDefault(p => p.Role == "system")?.Prompt ?? "";
+            var users = prompts.Where(p => p.Role == "user").Select(p => p.ToString()).ToList();
+            var plugins = prompts.Where(p => p.PromptType == "plugin").ToList();
+            Assert.NotEmpty(prompts);
+        }
+
+        [Fact]
+        public void LoadXmlPrompt2()
+        {
+            var prompts = ChatMessageUtility.LoadPrompts(
+                @".\Example\Prompt\Time\Message.xml");
+            var sys = prompts.FirstOrDefault(p => p.Role == "system")?.Prompt ?? "";
+            var users = prompts.Where(p => p.Role == "user").Select(p => p.ToString()).ToList();
+            var plugins = prompts.Where(p => p.PromptType == "plugin").ToList();
             Assert.NotEmpty(prompts);
         }
     }

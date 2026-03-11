@@ -279,31 +279,78 @@ namespace AIUtilityLib.Utility
 
         #endregion
 
-        #region Xml Messages
+        #region Xml Messages File
 
         public static string LoadXmlMessages(string filePath)
         {
-            XDocument doc = XDocument.Load(filePath);
-            var messages = from mcol in doc.Elements("messages")
-                           from m in mcol.Descendants("message")
-                           select m.ToString();
-            return string.Join('\n', messages?.ToArray() ?? []);
+            var elements = LoadPromptsAsXml(filePath);
+            var messages = elements
+                .Where(e => e.Name == "message")
+                .Select(e => e.ToString());
+            return string.Join('\n', messages.ToArray());
         }
 
-        public record XmlPrompt(string Role, string Prompt);
+        public record XmlPrompt(string PromptType, string? Role, string? Prompt, string? Plugin);
 
-        public static XmlPrompt[] LoadUserPromptsFromXmlMessages (string filePath)
+        public static XmlPrompt[] LoadPrompts(string filePath)
+        {
+            var elements = LoadPromptsAsXml(filePath);
+            var messages = elements
+                .Where(e => e.Name == "message")
+                .Select(m => new XmlPrompt(
+                    "message",
+                    m.Attribute("role")?.Value ?? "user",
+                    m.Value.Trim(),
+                    null
+                )).ToArray();
+            var plugins = elements
+                .Where(e => e.Name == "plugin")
+                .Select(m => new XmlPrompt(
+                    "plugin",
+                    null,
+                    null,
+                    m.Attribute("name")!.Value
+                )).ToArray();
+            return messages.Concat(plugins).ToArray();
+        }
+
+        public static XElement[] LoadPromptsAsXml(string filePath)
         {
             XDocument doc = XDocument.Load(filePath);
-            var messages =
-                from mcol in doc.Elements("messages")
+            var chat = doc.Element("chat")!;
+            var group_name = chat.Attribute("use_group")?.Value ?? "";
+
+            IEnumerable<XElement>? messages =
+                from mcol in chat.Elements("messages")
+                where string.IsNullOrWhiteSpace(mcol.Attribute("group")?.Value)
+                    || mcol.Attribute("group")?.Value == group_name
                 from m in mcol.Descendants("message")
-                select new XmlPrompt(m.Attribute("role")?.Value ?? "user", m.Value.Trim()) into p
-                where p.Role == "user" || p.Role == "system"
+                select m;
+
+            var msys = messages
+                .Where(m => m.Attribute("role")?.Value == "system")
+                .ToList();
+            if (msys.Count > 1)
+            {
+                string c = string.Join("\n\n", msys.Select(m => m.Value.Trim()));
+                XElement e = new XElement("message", c);
+                e.SetAttributeValue("role", "system");
+                msys = [e];
+                var others = messages
+                    .Where(m => m.Attribute("role")?.Value != "system");
+                messages = msys.Concat(others).ToArray();
+            }
+
+            IEnumerable<XElement>? plugins = 
+                from pcol in chat.Elements("plugins")
+                where string.IsNullOrWhiteSpace(pcol.Attribute("group")?.Value)
+                    || pcol.Attribute("group")?.Value == group_name
+                from p in pcol.Descendants("plugin")
                 select p;
 
-            return messages?.ToArray() ?? [];
+            return (messages ?? []).Concat(plugins).ToArray();
         }
+
 
         #endregion
 

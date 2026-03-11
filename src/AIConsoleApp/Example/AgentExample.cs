@@ -40,7 +40,7 @@ namespace AIConsoleApp.Example
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
-            var prompts = ChatMessageUtility.LoadUserPromptsFromXmlMessages(
+            var prompts = ChatMessageUtility.LoadPrompts(
                 @".\Example\Prompt\Time\Message.xml");
 
             // setup the system prompt and add to the history

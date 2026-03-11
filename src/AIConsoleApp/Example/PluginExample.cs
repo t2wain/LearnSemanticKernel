@@ -42,7 +42,7 @@ namespace AIConsoleApp.Example
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
-            var prompts = ChatMessageUtility.LoadUserPromptsFromXmlMessages(
+            var prompts = ChatMessageUtility.LoadPrompts(
                 @".\Example\Prompt\Time\Message.xml");
 
             // setup the system prompt and add to the history
@@ -85,13 +85,13 @@ namespace AIConsoleApp.Example
 
             // Add file system plugin to made it available
             // as tools to the LLM
-            session.Kernel.ImportPluginFromObject(host.Services.GetRequiredService<FileSystemPlugin>());
+            session.Kernel.ImportPluginFromObject(host.Services.GetRequiredService<FileSystemPlugin>(), "filepu");
 
             // Filter to capture the function call and result
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
-            var prompts = ChatMessageUtility.LoadUserPromptsFromXmlMessages(
+            var prompts = ChatMessageUtility.LoadPrompts(
                 @".\Example\Prompt\FileSystem\Message.xml");
 
             // setup the system prompt and add to the history
