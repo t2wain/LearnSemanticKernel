@@ -24,6 +24,9 @@ namespace AIUtilityLib.Chat
                 kernel: kernel,
                 serviceId: aiModel.ServiceId,
                 modelId: aiModel.ModelId);
+            if (aiModel.ModelType == Config.AIModelTypeEnum.ChatCompletion)
+                session.AIChat = kernel.GetRequiredService<IChatCompletionService>(
+                    aiModel.ServiceId);
             return session;
         }
 
@@ -39,7 +42,6 @@ namespace AIUtilityLib.Chat
                     ServiceId = serviceId,
                     ModelId = modelId,
                 },
-                AIChat = kernel.GetRequiredService<IChatCompletionService>(serviceId),
                 TextWriter = Console.Out,
                 TextReader = Console.In,
             };

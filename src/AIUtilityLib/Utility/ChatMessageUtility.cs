@@ -2,7 +2,9 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents.Extensions;
 using Microsoft.SemanticKernel.ChatCompletion;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Xml.Linq;
 using AI = Microsoft.Extensions.AI;
 
 namespace AIUtilityLib.Utility
@@ -274,6 +276,34 @@ namespace AIUtilityLib.Utility
                     .OfType<FunctionCallContent>()
                     .Where(c => c.Id == toolCallId)
                     .FirstOrDefault();
+
+        #endregion
+
+        #region Xml Messages
+
+        public static string LoadXmlMessages(string filePath)
+        {
+            XDocument doc = XDocument.Load(filePath);
+            var messages = from mcol in doc.Elements("messages")
+                           from m in mcol.Descendants("message")
+                           select m.ToString();
+            return string.Join('\n', messages?.ToArray() ?? []);
+        }
+
+        public record XmlPrompt(string Role, string Prompt);
+
+        public static XmlPrompt[] LoadUserPromptsFromXmlMessages (string filePath)
+        {
+            XDocument doc = XDocument.Load(filePath);
+            var messages =
+                from mcol in doc.Elements("messages")
+                from m in mcol.Descendants("message")
+                select new XmlPrompt(m.Attribute("role")?.Value ?? "user", m.Value.Trim()) into p
+                where p.Role == "user" || p.Role == "system"
+                select p;
+
+            return messages?.ToArray() ?? [];
+        }
 
         #endregion
 

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message role="system">
+You are an AI assistant. You have access to tools for interacting
+with the file system. These tools allow you to:
+- List directories and their nested subdirectories/files
+- Create files and directories
+- Read from and write to files
+All file system paths must be specified as relative paths
+from the internally configured root directory.
+  </message>
+  <message role="user">List the directories in ChatPlugin and the files in ChatPlugin\ChatV2</message>
+  <message role="user">List the files in ChatPlugin\ChatV2</message>
+  <message role="user">
+List the name of directories and files of the entire file system
+including all the nested subdirectories/files. Display the result
+in a nested unordered list. Include the relative path of each file
+in parenthesis next to each file.
+  </message>
+</messages>

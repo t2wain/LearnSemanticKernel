@@ -22,6 +22,7 @@ namespace AIUtilityLib.Chat
         {
             string? userInput = message;
             Session.TextWriter?.WriteLine("<<<< User >>>>");
+            Session.TextWriter?.WriteLine();
             if (!string.IsNullOrEmpty(userInput))
                 Session.TextWriter?.WriteLine(userInput);
             else userInput = Session.TextReader?.ReadLine();
@@ -38,7 +39,7 @@ namespace AIUtilityLib.Chat
         /// <summary>
         /// Send a series of prompts to the LLM
         /// </summary>
-        public async Task AutoChat(IEnumerable<string> messages)
+        public async Task AutoChat(IEnumerable<string> messages, bool continueWithUserPrompt = false)
         {
             foreach (var message in messages)
             {
@@ -46,6 +47,10 @@ namespace AIUtilityLib.Chat
                 Session.TextWriter?.WriteLine();
                 Session.TextWriter?.WriteLine(message);
                 ChatMessageContent response = await SendMessage(message);
+            }
+            if (continueWithUserPrompt)
+            {
+                await StartChat(null);
             }
         }
 

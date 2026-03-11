@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message role="system"></message>
+  <message role="user"></message>
+  <message role="user">
+    <![CDATA[
+    
+        ]]>
+  </message>
+  <message role="assistant"></message>
+  <message role="developer"></message>
+  <message role="user">
+    <text></text>
+    <image></image>
+  </message>
+</messages>

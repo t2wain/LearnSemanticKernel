@@ -1,7 +1,11 @@
 ﻿using AIUtilityLib.Config;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Agents.OpenAI;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Services;
+using System.ClientModel;
+using OA = OpenAI.Responses;
 
 namespace AIUtilityLib.Utility
 {
@@ -16,21 +20,38 @@ namespace AIUtilityLib.Utility
             KernelPluginCollection plugins,
             IEnumerable<AIModel> aIModels)
         {
-            foreach (var model in aIModels)
+            #region Azure Models
+
+            var azureModels = aIModels.Where(m => 
+                m.ProviderName == AIProviderCollection.AZureOpenAI);
+            foreach (var model in azureModels)
             {
-                kernelBuilder = model.ProviderName switch
+                switch(model.ModelType)
                 {
-                    AIProviderCollection.AZureOpenAI => kernelBuilder.AddAzureOpenAIChatCompletion(
+                    case AIModelTypeEnum.ChatCompletion:
+                        kernelBuilder.AddAzureOpenAIChatCompletion(
                             deploymentName: model.Name,
                             endpoint: model.EndPoint,
                             apiKey: model.APIKey,
                             serviceId: model.ServiceId,
                             modelId: model.ModelId
-                        ),
-                    _ => kernelBuilder
-                };
+                        );
+                        break;
+                    case AIModelTypeEnum.OpenAIResponse:
+                        ApiKeyCredential apiKey = new(model.APIKey);
+                        Uri endPoint = new(model.EndPoint);
+                        #pragma warning disable OPENAI001
+                        OA.ResponsesClient client = new(model.Name, apiKey, 
+                            new() { Endpoint = endPoint });
+                        kernelBuilder.Services.AddSingleton(client);
+                        kernelBuilder.Services.AddSingleton<OpenAIResponseAgent>();
+                        #pragma warning restore OPENAI001
+                        break;
+                }
             }
-            
+
+            #endregion
+
             foreach (KernelPlugin p in  plugins)
                 kernelBuilder.Plugins.Add(p);
 

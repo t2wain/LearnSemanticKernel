@@ -10,7 +10,6 @@ namespace AIConsoleApp.Example
 {
     public class AgentExample
     {
-
         public Task<object?> RunAsync(IHost host, int mode = 0)
         {
             object? res = mode switch
@@ -41,14 +40,18 @@ namespace AIConsoleApp.Example
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
+            var prompts = ChatMessageUtility.LoadUserPromptsFromXmlMessages(
+                @".\Example\Prompt\Time\Message.xml");
+
+            // setup the system prompt and add to the history
+            string systemPrompt = prompts
+                .FirstOrDefault(p => p.Role == "system")?.Prompt ?? "";
+
             // setup the Agent
             session.Agent = new ChatCompletionAgent()
             {
                 Name = "time_agent",
-                Instructions = """
-                You are an AI assistant with access to tools that 
-                can retrieve or calculate local date and time information.
-                """,
+                Instructions = systemPrompt,
                 InstructionsRole = AuthorRole.System,
                 Kernel = session.Kernel,
                 Arguments = new KernelArguments(session.ExecutionSettings),
@@ -61,22 +64,11 @@ namespace AIConsoleApp.Example
             //service.InvokeOptions = service.CreateInvokeOption();
 
             // start the chat in the chat console
-            service.AutoChat([
-                    "What is the current time?",
-                    "What is today's date?",
-                    "What is my time zone?",
-                    "My birthday is 01-Jan-1970. How old am I?",
-                    "What is the date when I am 67.5 years old?",
-                    "When did the US declare independence? How long ago was it?",
-                    """
-                    What are the local current time at these locations.
-                    Include both 24 and 12 hour formats.
-                    1. Chennai, India, 
-                    2. Leatherhead, Great Britain
-                    3. Khobar, Saudi Arabia
-                    4. Ho Chi Minh city, Vietnam
-                    """,
-                ]).Wait();
+            // start the chat console
+            var userPrompts = prompts
+                .Where(p => p.Role == "user")
+                .Select(p => p.Prompt);
+            service.AutoChat(userPrompts, true).Wait();
 
 
             // Capture the function call result from chat history

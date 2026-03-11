@@ -1,10 +1,14 @@
 ﻿using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.SemanticKernel;
 using System.ComponentModel;
 
 namespace AIUtilityLib.Plugins.FileSystem
 {
+    /// <summary>
+    /// Provide methods to manage the local directories
+    /// and files under a specified root directory. It will
+    /// prevent all actions outside of the specified
+    /// </summary>
     public class FileSystemPlugin : IDisposable
     {
 
@@ -126,9 +130,10 @@ namespace AIUtilityLib.Plugins.FileSystem
 
         [KernelFunction("create_items")]
         [Description("""
-            Create files and/or directories. All parent directories 
+            Create files and/or directories. File path has a file extension.
+            Directory path don't have a file extension. All parent directories 
             in the item relative path will also be created if not exist.
-            Return the relative paths of successfully created items.
+            Return the relative paths of only successfully created items.
             """)]
         public string[] CreateItems(string[] itemRelativePaths)
         {
@@ -186,9 +191,9 @@ namespace AIUtilityLib.Plugins.FileSystem
             if not exist. All parent directories in the file 
             relative path will be created if not exist.)]
             """)]
-        public async Task WriteFilesAsync(FileContent[] files)
+        public async Task WriteFilesAsync(FileContent[] fileContents)
         {
-            foreach (var file in files)
+            foreach (var file in fileContents)
             {
                 await WriteAsync(file.FileName, file.TextContent);
             }
@@ -200,15 +205,15 @@ namespace AIUtilityLib.Plugins.FileSystem
             if not exist. All parent directories in the file 
             relative path will be created if not exist.)]
             """)]
-        public async Task WriteAsync(string fileRelativePath, string content)
+        public async Task WriteAsync(string fileRelativePath, string textConent)
         {
             var cont = IsRelPathExist(fileRelativePath) || CreateItem(fileRelativePath);
             if (cont) 
-                await File.WriteAllTextAsync(Path.Combine(FP.Root, fileRelativePath), content);
+                await File.WriteAllTextAsync(Path.Combine(FP.Root, fileRelativePath), textConent);
         }
 
         [KernelFunction("read_files")]
-        [Description("Read the entire text content of multiple files")]
+        [Description("Read and return the entire text content of multiple files")]
         public async Task<FileContent[]> ReadFilesAsync(string[] fileRelativePaths)
         {
             List<FileContent> files = new();
@@ -231,7 +236,7 @@ namespace AIUtilityLib.Plugins.FileSystem
         }
 
         [KernelFunction("read_file")]
-        [Description("Read the entire text content of the file")]
+        [Description("Read and return the entire text content of the file")]
         public async Task<string> ReadAsync(string fileRelativePath) 
         {
             var fi = FP.GetFileInfo(fileRelativePath);

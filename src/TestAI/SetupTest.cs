@@ -54,5 +54,21 @@ namespace TestAI
             });
             Assert.NotNull(prompt);
         }
+
+        [Fact]
+        public void LoadXmlMessage()
+        {
+            string history = ChatMessageUtility.LoadXmlMessages(
+                @".\Example\Prompt\FileSystem\Message.xml");
+            Assert.False(string.IsNullOrEmpty(history));
+        }
+
+        [Fact]
+        public void LoadXmlPrompt()
+        {
+            var prompts = ChatMessageUtility.LoadUserPromptsFromXmlMessages(
+                @".\Example\Prompt\FileSystem\Message.xml");
+            Assert.NotEmpty(prompts);
+        }
     }
 }

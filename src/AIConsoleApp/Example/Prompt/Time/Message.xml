@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<messages>
+  <message role="system">
+You are an AI assistant with access to tools 
+that can retrieve or calculate local time information.
+  </message>
+  <message role="user">What is the current time?</message>
+  <message role="user">What is today's date?</message>
+  <message role="user">What is my time zone?</message>
+  <message role="user">My birthday is 01-Jan-1970. How old am I?</message>
+  <message role="user">What is the date when I am 67.5 years old?</message>
+  <message role="user">When did the US declare independence? How long ago was it?</message>
+  <message role="user">
+What are the current time at these locations.
+Include both 24 and 12 hour formats.
+1. Chennai, India, 
+2. Leatherhead, Great Britain
+3. Khobar, Saudi Arabia
+4. Ho Chi Minh city, Vietnam
+  </message>
+</messages>
