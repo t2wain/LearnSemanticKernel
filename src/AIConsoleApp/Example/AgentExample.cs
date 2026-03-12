@@ -16,7 +16,7 @@ namespace AIConsoleApp.Example
 
         public ChatSession AgentWithTimePlugin(IServiceProvider serviceProvider)
         {
-            var cb = new ChatBox(serviceProvider, true);
+            var cb = new ChatBox(serviceProvider, useAgentService: true);
             ChatSession session = ChatSession.Create(serviceProvider);
             return cb.StartChat(
                 session,
