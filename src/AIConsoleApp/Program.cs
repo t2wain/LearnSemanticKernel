@@ -16,18 +16,18 @@ namespace AIConsoleApp
             {
                 var res = await host.Services
                     .GetRequiredService<ChatExample>()
-                    .RunAsync(host, testNo);
+                    .RunAsync(host.Services, testNo);
             }
         }
 
-        public async static Task RunAsync(IHost host)
+        public async static Task RunAsync(IServiceProvider serviceProvider)
         {
-            var cfg = host.Services.GetRequiredService<IOptions<AppConfig>>().Value;
+            var cfg = serviceProvider.GetRequiredService<IOptions<AppConfig>>().Value;
             foreach (var testNo in cfg.RunExampleNo)
             {
-                var res = await host.Services
+                var res = await serviceProvider
                     .GetRequiredService<ChatExample>()
-                    .RunAsync(host, testNo);
+                    .RunAsync(serviceProvider, testNo);
             }
         }
     }

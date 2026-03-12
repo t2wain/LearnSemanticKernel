@@ -1,36 +1,57 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<!-- use_group and group attributes are optional -->
-<chat use_group="main">
-  <messages group="main">
-    <!-- All system messages will be concatenated -->
+<!-- 
+  All messages and plugins are place in group.
+  A chat session can be set which group to use.
+  If group is not specified for any messages 
+  and/or plugins they will be included by default.
+  -->
+<chat use_group="group1">
+  <!-- unspecified group will be include by default -->
+  <messages>
+    <message role="system"></message>
+  </messages>
+  
+  <messages group="group1">
+    <!-- All system messages will be concatenated into one -->
     <message role="system"></message>
     <message role="system"></message>
     <message role="system"></message>
+    
     <message role="user"></message>
     <message role="user">
       <![CDATA[
-    
+        block of text
           ]]>
     </message>
     <message role="assistant"></message>
     <message role="developer"></message>
+    
+    <!-- mixed content -->
     <message role="user">
       <text></text>
       <image></image>
     </message>
   </messages>
-  <messages group="alt">
-    <!-- Not used by the current session -->
+  
+  <messages group="group2">
     <message role="system"></message>
     <message role="user"></message>
     <message role="assistant"></message>
     <message role="developer"></message>
   </messages>
-  <plugins group="main">
+  
+  <!-- unspecified group will be include by default -->
+  <plugins>
+    <plugin name="timepu" />
+  </plugins>
+  
+  <plugins group="group1">
     <plugin name="filepu" />
     <plugin name="timepu" />
   </plugins>
-  <plugins group="alt">
+  
+  <plugins group="group2">
     <plugin name="filepu" />
   </plugins>
+  
 </chat>

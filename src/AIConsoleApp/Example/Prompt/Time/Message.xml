@@ -12,12 +12,15 @@ that can retrieve or calculate local time information.
     <message role="user">What is the date when I am 67.5 years old?</message>
     <message role="user">When did the US declare independence? How long ago was it?</message>
     <message role="user">
-What are the current time at these locations.
+What are the current time at these locations
+using their local timezone.
 Include both 24 and 12 hour formats.
-1. Chennai, India, 
+Include time difference to my timezone.
+1. Chennai, India,
 2. Leatherhead, Great Britain
 3. Khobar, Saudi Arabia
 4. Ho Chi Minh city, Vietnam
+5. California, United States
     </message>
   </messages>
   <plugins>

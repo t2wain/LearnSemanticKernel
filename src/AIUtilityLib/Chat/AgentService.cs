@@ -38,8 +38,8 @@ namespace AIUtilityLib.Chat
         {
             ChatMessageContent response = await (IsStreaming switch
             {
-                true => InvokeStreamingAsync(message),
-                _ => InvokeNonStreamingAsync(message)
+                true => InvokeStreamingAsync(message, InvokeOptions),
+                _ => InvokeNonStreamingAsync(message, InvokeOptions)
             });
             return response;
         }
@@ -47,10 +47,12 @@ namespace AIUtilityLib.Chat
         /// <summary>
         /// Non-streaming call to the agent
         /// </summary>
-        protected async Task<ChatMessageContent> InvokeNonStreamingAsync(ChatMessageContent message)
+        protected async Task<ChatMessageContent> InvokeNonStreamingAsync(
+            ChatMessageContent message, AgentInvokeOptions? invokeOptions)
         {
             // Get the response from the AI
-            IAsyncEnumerable<RC> chunks = Session.Agent.InvokeAsync(message, Session.AgentThreadId, InvokeOptions);
+            IAsyncEnumerable<RC> chunks = Session.Agent.InvokeAsync(
+                message, Session.AgentThreadId, invokeOptions);
             List<ChatMessageContent> lstChunk = new();
             await foreach (RC chunk in chunks)
             {
@@ -66,10 +68,12 @@ namespace AIUtilityLib.Chat
         /// <summary>
         /// Streaming call to the agent
         /// </summary>
-        protected async Task<ChatMessageContent> InvokeStreamingAsync(ChatMessageContent message)
+        protected async Task<ChatMessageContent> InvokeStreamingAsync(
+            ChatMessageContent message, AgentInvokeOptions? invokeOptions)
         {
             // Get the response from the AI
-            IAsyncEnumerable<RI> chunks = Session.Agent.InvokeStreamingAsync(message, Session.AgentThreadId, InvokeOptions);
+            IAsyncEnumerable<RI> chunks = Session.Agent.InvokeStreamingAsync(
+                message, Session.AgentThreadId, invokeOptions);
             List<StreamingChatMessageContent> lstChunk = new();
             await foreach (RI chunk in chunks)
             {

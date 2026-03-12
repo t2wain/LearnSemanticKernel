@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.SemanticKernel.Plugins.Core;
 
 namespace AIConsoleApp
 {
@@ -34,12 +35,6 @@ namespace AIConsoleApp
             {
                 ConfigurationBinder.Bind(iconfig.GetSection("AIProviders"), options);
                 options.Init();
-            });
-
-            builder.Services.AddSingleton(provider =>
-            {
-                var root = provider.GetRequiredService<IOptions<AppConfig>>().Value.RootDirectory!;
-                return new FileSystemPlugin(root);
             });
 
             builder.Services.AddTransient<ChatExample>();

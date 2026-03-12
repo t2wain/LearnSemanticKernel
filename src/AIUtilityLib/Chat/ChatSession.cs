@@ -1,8 +1,7 @@
 ﻿using AIUtilityLib.Utility;
-using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Agents;
+using Microsoft.SemanticKernel.ChatCompletion;
 
 namespace AIUtilityLib.Chat
 {
@@ -13,11 +12,11 @@ namespace AIUtilityLib.Chat
     {
         #region Create
 
-        public static ChatSession Create(IHost host)
+        public static ChatSession Create(IServiceProvider serviceProvider)
         {
             //// Get default model config
-            var aiModel = host.GetDefaultAIModel();
-            IKernelBuilder builder = host.CreateKernelBuilder();
+            var aiModel = KernelFactory.GetDefaultAIModel(serviceProvider);
+            IKernelBuilder builder = KernelFactory.CreateKernelBuilder(serviceProvider);
             Kernel kernel = KernelUtility.ConfigureKernel(
                 builder, new(), [aiModel]).Build();
             ChatSession session = Create(

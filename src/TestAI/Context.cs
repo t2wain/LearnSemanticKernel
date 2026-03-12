@@ -36,7 +36,7 @@ namespace TestAI
             get
             {
                 if ( _providers == null)
-                    _providers = Host.GetAIProviders();
+                    _providers = KernelFactory.GetAIProviders(Host.Services);
                 return _providers;
             }
         }
@@ -50,7 +50,7 @@ namespace TestAI
                 {
                     var aiModels = AIProviders.Providers.SelectMany(p => p.AIModels);
                     _kernel = KernelUtility.ConfigureKernel(
-                            Host.CreateKernelBuilder(), 
+                            KernelFactory.CreateKernelBuilder(Host.Services), 
                             new(), 
                             aiModels
                         ).Build();
@@ -61,7 +61,7 @@ namespace TestAI
 
         public Kernel CreateKernel(AIModel model) => 
             KernelUtility.ConfigureKernel(
-                    Host.CreateKernelBuilder(),
+                    KernelFactory.CreateKernelBuilder(Host.Services),
                     new(),
                     [model]
                 ).Build();

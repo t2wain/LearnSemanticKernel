@@ -64,25 +64,42 @@ namespace TestAI
         }
 
         [Fact]
-        public void LoadXmlPrompt()
+        public void LoadXmlFileSystemPrompt()
         {
             var prompts = ChatMessageUtility.LoadPrompts(
-                @".\Example\Prompt\FileSystem\Message.xml");
-            var sys = prompts.FirstOrDefault(p => p.Role == "system")?.Prompt ?? "";
-            var users = prompts.Where(p => p.Role == "user").Select(p => p.ToString()).ToList();
-            var plugins = prompts.Where(p => p.PromptType == "plugin").ToList();
+                @".\Example\Prompt\FileSystem\Message.xml", "main");
+            var sys = ChatMessageUtility.GetSystemPrompt(prompts);
+            var users = ChatMessageUtility.GetUserPrompt(prompts);
+            var plugins = ChatMessageUtility.GetPluginPrompt(prompts);
             Assert.NotEmpty(prompts);
+
+            prompts = ChatMessageUtility.LoadPrompts(
+                @".\Example\Prompt\FileSystem\Message.xml", "alt");
+            sys = ChatMessageUtility.GetSystemPrompt(prompts);
+            users = ChatMessageUtility.GetUserPrompt(prompts);
+            plugins = ChatMessageUtility.GetPluginPrompt(prompts);
+            Assert.NotEmpty(prompts);
+
         }
 
         [Fact]
-        public void LoadXmlPrompt2()
+        public void LoadXmlTimePrompt()
         {
             var prompts = ChatMessageUtility.LoadPrompts(
                 @".\Example\Prompt\Time\Message.xml");
-            var sys = prompts.FirstOrDefault(p => p.Role == "system")?.Prompt ?? "";
-            var users = prompts.Where(p => p.Role == "user").Select(p => p.ToString()).ToList();
-            var plugins = prompts.Where(p => p.PromptType == "plugin").ToList();
+            var sys = ChatMessageUtility.GetSystemPrompt(prompts);
+            var users = ChatMessageUtility.GetUserPrompt(prompts);
+            var plugins = ChatMessageUtility.GetPluginPrompt(prompts);
+            Assert.NotEmpty(prompts);
+
+            prompts = ChatMessageUtility.LoadPrompts(
+                @".\Example\Prompt\Time\Message.xml", "nomatch");
+            sys = ChatMessageUtility.GetSystemPrompt(prompts);
+            users = ChatMessageUtility.GetUserPrompt(prompts);
+            plugins = ChatMessageUtility.GetPluginPrompt(prompts);
             Assert.NotEmpty(prompts);
         }
+
+
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents.Extensions;
 using Microsoft.SemanticKernel.ChatCompletion;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Xml.Linq;
 using AI = Microsoft.Extensions.AI;
@@ -281,76 +281,97 @@ namespace AIUtilityLib.Utility
 
         #region Xml Messages File
 
+        /// <summary>
+        /// Return all message elements as
+        /// a single prompt template
+        /// </summary>
         public static string LoadXmlMessages(string filePath)
         {
             var elements = LoadPromptsAsXml(filePath);
             var messages = elements
                 .Where(e => e.Name == "message")
                 .Select(e => e.ToString());
-            return string.Join('\n', messages.ToArray());
+            return string.Join('\n', [..messages]);
         }
 
-        public record XmlPrompt(string PromptType, string? Role, string? Prompt, string? Plugin);
+        public static string GetSystemPrompt(IEnumerable<XmlPrompt> prompts) =>
+            string.Join("\n\n",
+                prompts
+                    .Where(p => p.Role == "system")
+                    .Select(p => p.Prompt)
+            );
 
-        public static XmlPrompt[] LoadPrompts(string filePath)
+        public static IEnumerable<string> GetUserPrompt(IEnumerable<XmlPrompt> prompts) =>
+            prompts
+                .Where(p => p.Role == "user")
+                .Select(p => p.Prompt)
+                .OfType<string>()
+                .ToList();
+
+        public static IEnumerable<string> GetPluginPrompt(IEnumerable<XmlPrompt> prompts) =>
+            prompts
+                .Where(p => p.PromptType == "plugin")
+                .Select(p => p.Plugin)
+                .OfType<string>()
+                .ToList();
+
+        public record XmlPrompt(
+            string PromptType, 
+            string? Role, 
+            string? Prompt, 
+            string? Plugin);
+
+        /// <summary>
+        /// Return all message and plugin elements
+        /// matching the specified group name
+        /// and those without specified group name
+        /// </summary>
+        public static IEnumerable<XmlPrompt> LoadPrompts(string filePath, string? group = null)
         {
-            var elements = LoadPromptsAsXml(filePath);
-            var messages = elements
-                .Where(e => e.Name == "message")
+            var elements = LoadPromptsAsXml(filePath, group);
+            var prompts = elements
                 .Select(m => new XmlPrompt(
-                    "message",
-                    m.Attribute("role")?.Value ?? "user",
+                    m.Name.LocalName,
+                    m.Attribute("role")?.Value,
                     m.Value.Trim(),
-                    null
+                    m.Attribute("name")?.Value
                 )).ToArray();
-            var plugins = elements
-                .Where(e => e.Name == "plugin")
-                .Select(m => new XmlPrompt(
-                    "plugin",
-                    null,
-                    null,
-                    m.Attribute("name")!.Value
-                )).ToArray();
-            return messages.Concat(plugins).ToArray();
+            return prompts;
         }
 
-        public static XElement[] LoadPromptsAsXml(string filePath)
+        /// <summary>
+        /// Return all message and plugin elements
+        /// matching the specified group name
+        /// and those without specified group name
+        /// </summary>
+        public static IEnumerable<XElement> LoadPromptsAsXml(string filePath, string? group = null)
         {
             XDocument doc = XDocument.Load(filePath);
-            var chat = doc.Element("chat")!;
-            var group_name = chat.Attribute("use_group")?.Value ?? "";
+            var chat = doc.Descendants("chat").FirstOrDefault();
+            if (chat == null) return [];
 
-            IEnumerable<XElement>? messages =
+            var group_name = group ?? chat.Attribute("use_group")?.Value ?? "";
+
+            // get all message matching specified group name
+            // and those with unspecifed group name
+            IEnumerable<XElement> messages =
                 from mcol in chat.Elements("messages")
-                where string.IsNullOrWhiteSpace(mcol.Attribute("group")?.Value)
+                where string.IsNullOrWhiteSpace(mcol.Attribute("group")?.Value) // load by default
                     || mcol.Attribute("group")?.Value == group_name
                 from m in mcol.Descendants("message")
                 select m;
 
-            var msys = messages
-                .Where(m => m.Attribute("role")?.Value == "system")
-                .ToList();
-            if (msys.Count > 1)
-            {
-                string c = string.Join("\n\n", msys.Select(m => m.Value.Trim()));
-                XElement e = new XElement("message", c);
-                e.SetAttributeValue("role", "system");
-                msys = [e];
-                var others = messages
-                    .Where(m => m.Attribute("role")?.Value != "system");
-                messages = msys.Concat(others).ToArray();
-            }
-
-            IEnumerable<XElement>? plugins = 
+            // get all plugins matching specified group name
+            // and those with unspecifed group name
+            IEnumerable<XElement> plugins = 
                 from pcol in chat.Elements("plugins")
-                where string.IsNullOrWhiteSpace(pcol.Attribute("group")?.Value)
+                where string.IsNullOrWhiteSpace(pcol.Attribute("group")?.Value) // load by default
                     || pcol.Attribute("group")?.Value == group_name
                 from p in pcol.Descendants("plugin")
                 select p;
 
-            return (messages ?? []).Concat(plugins).ToArray();
+            return [..messages, ..plugins];
         }
-
 
         #endregion
 

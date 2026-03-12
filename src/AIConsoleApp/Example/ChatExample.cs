@@ -19,15 +19,15 @@ namespace AIConsoleApp.Example
             RootPromptDirectory = _appConfig.ExamplePluginDirectory;
         }
 
-        public Task<object?> RunAsync(IHost host, int mode = 0)
+        public Task<object?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
         {
             object? res = mode switch
             {
-                0 => ChatWithLLM(host),
-                1 or 5 => new PluginExample().RunAsync(host, mode),
-                2 => AutoChatWithLLM(host),
-                3 => InvokeStreamingPromptPlugin(host),
-                4 => new AgentExample().RunAsync(host, mode),
+                0 => ChatWithLLM(serviceProvider),
+                1 or 5 => new PluginExample().RunAsync(serviceProvider, mode),
+                2 => AutoChatWithLLM(serviceProvider),
+                3 => InvokeStreamingPromptPlugin(serviceProvider),
+                4 => new AgentExample().RunAsync(serviceProvider, mode),
                 _ => null
             };
             return Task.FromResult(res);
@@ -38,9 +38,9 @@ namespace AIConsoleApp.Example
         /// <summary>
         /// Use SK prompt file from a local directory
         /// </summary>
-        public ChatHistory ChatWithLLM(IHost host)
+        public ChatHistory ChatWithLLM(IServiceProvider serviceProvider)
         {
-            ChatSession session = ChatSession.Create(host);
+            ChatSession session = ChatSession.Create(serviceProvider);
             session.TextWriter?.WriteLine("Run example - Chat with LLM");
             string initialPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
@@ -60,9 +60,9 @@ namespace AIConsoleApp.Example
 
         #region AutoChatWithLLM
 
-        public ChatHistory AutoChatWithLLM(IHost host)
+        public ChatHistory AutoChatWithLLM(IServiceProvider serviceProvider)
         {
-            ChatSession session = ChatSession.Create(host);
+            ChatSession session = ChatSession.Create(serviceProvider);
             session.TextWriter?.WriteLine("Run example - Auto chat with LLM");
 
             // setup the first message
@@ -95,9 +95,9 @@ namespace AIConsoleApp.Example
         /// Call a prompt kernel function 
         /// and return a response stream
         /// </summary>
-        public ChatHistory InvokeStreamingPromptPlugin(IHost host)
+        public ChatHistory InvokeStreamingPromptPlugin(IServiceProvider serviceProvider)
         {
-            ChatSession session = ChatSession.Create(host);
+            ChatSession session = ChatSession.Create(serviceProvider);
             LLMService service = new() { Session = session };
             session.TextWriter?.WriteLine("Run example - Chat with prompt plugin");
 
