@@ -3,28 +3,63 @@ using Microsoft.SemanticKernel;
 
 namespace AIUtilityLib.Chat
 {
-    public class LLMService
+    /// <summary>
+    /// Using semantic KernelFunction to chat with the LLM.
+    /// The KernelFunction is created from a prompt template.
+    /// The KernelArgument contains data assigned to variables
+    /// that are referenced in the template.
+    /// </summary>
+    public class LLMService : ChatServiceBase
     {
-        public ChatSession Session { get; set; } = null!;
-
-        public virtual async Task<ChatMessageContent> InvokeAsync(
-            KernelFunction kernelFunction, KernelArguments kernelArguments)
+        /// <summary>
+        /// Create and set a default semantic KernelFunction 
+        /// and Arguments to chat with the LLM. The default
+        /// template for the plugin is : {{$chat_history}}
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="template"></param>
+        public static void ConfigureKernelFunction(ChatSession session, string? template = null)
         {
+            string tmpl = template ?? """
+                {{$chat_history}}
+                """;
+            session.KernelFunction = new PromptUtility { Kernel = session.Kernel }
+                .CreateKernelFunction(tmpl);
+            session.Arguments = new(session.ExecutionSettings) 
+            {
+                ["chat_history"] = null
+            };
+        }
 
-            var f = kernelFunction;
+        /// <summary>
+        /// If chat_history variable exist, the message first 
+        /// will be added to the chat history which will be 
+        /// serialized to xml text and be added to
+        /// the kernel argument as chat_history variable.
+        /// </summary>
+        protected async override Task<ChatMessageContent> InvokeAsync(ChatMessageContent message)
+        {   
+
+            var f = Session.KernelFunction;
+            // Add user message to history
+            Session.History.Add(message);
+            if (Session.Arguments.ContainsKey("chat_history"))
+            {
+                // serial history to xml text
+                string historyXml = ChatHistoryXmlConverter.ToXml(Session.History);
+                // set the xml text to kernel argument
+                Session.Arguments["chat_history"] = historyXml;
+            }
+            else if (Session.Arguments.ContainsKey("input"))
+            {
+                Session.Arguments["input"] = message.Content;
+            }
             IAsyncEnumerable<StreamingKernelContent> chunks =
-                f.InvokeStreamingAsync(Session.Kernel, kernelArguments);
+                f.InvokeStreamingAsync(Session.Kernel, Session.Arguments);
 
             List<StreamingKernelContent> lstChunk = new();
             await foreach (var chunk in chunks)
             {
-                if (lstChunk.Count == 0)
-                {
-                    // the rendered prompt only
-                    // available after the function is called
-                    // and the response started.
-                    WritePrompt(string.Format("{0}-{1}", f.PluginName, f.Name));
-                }
                 lstChunk.Add(chunk);
                 Session.TextWriter?.Write(chunk);
             }
@@ -32,29 +67,5 @@ namespace AIUtilityLib.Chat
             Session.History.Add(response);
             return response;
         }
-
-        // get the original rendered prompt from IPromptRenderFilter
-        protected void WritePrompt(string functionName)
-        {
-            //var fn = string.Format("{0}-{1}", f.PluginName, f.Name);
-            var filter = Session.Kernel.PromptRenderFilters.OfType<ExplorePromptFilter>().FirstOrDefault();
-            if (filter is ExplorePromptFilter && filter.Contents.ContainsKey(functionName))
-            {
-                var c = filter.Contents;
-                var prompt = c[functionName];
-
-                Session.TextWriter?.WriteLine("<<<< User >>>>");
-                Session.TextWriter?.WriteLine();
-                Session.TextWriter?.WriteLine(prompt);
-                Session.TextWriter?.WriteLine();
-
-                Session.TextWriter?.WriteLine("<<<< Assistant >>>>");
-                Session.TextWriter?.WriteLine();
-
-                Session.History.AddUserMessage(prompt);
-            }
-        }
-
-
     }
 }

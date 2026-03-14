@@ -6,8 +6,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 namespace AIUtilityLib
 {
     /// <summary>
-    /// Send prompt to LLM and receive the response.
-    /// All messages are collected in the chat history.
+    /// Using IChatCompletionService to chat with the LLM.
     /// </summary>
     public class ChatService : ChatServiceBase
     {

@@ -6,33 +6,50 @@ namespace AIConsoleApp.Example
     {
         public Task<ChatSession?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
         {
-            ChatSession? res = mode switch
+            Task<ChatSession?> res = mode switch
             {
                 1 => ChatWithTimePlugin(serviceProvider),
                 5 => ChatWithFileSystemPlugin(serviceProvider),
                 _ => null
             };
-            return Task.FromResult(res);
+            return res;
         }
 
-        public ChatSession ChatWithTimePlugin(IServiceProvider serviceProvider)
+        public Task<ChatSession> ChatWithTimePlugin(IServiceProvider serviceProvider)
         {
-            var cb = new ChatBox(serviceProvider);
+            var cb = new ChatBox();
             ChatSession session = ChatSession.Create(serviceProvider);
             return cb.StartChat(
-                session,
-                @".\Example\Prompt\Time\Message.xml",
-                "Run example - Chat with time plugin");
+                session with
+                {
+                    MessageXmlFile = @".\Example\Prompt\Time\Message.xml",
+                    Title = "Run example - Chat with time plugin"
+                });
         }
 
-        public ChatSession ChatWithFileSystemPlugin(IServiceProvider serviceProvider)
+        public Task<ChatSession> ChatWithTimePlugin2(IServiceProvider serviceProvider)
         {
-            var cb = new ChatBox(serviceProvider);
+            var cb = new ChatBox();
             ChatSession session = ChatSession.Create(serviceProvider);
             return cb.StartChat(
-                session,
-                @".\Example\Prompt\FileSystem\Message.xml",
-                "Run example - Chat with file system plugin");
+                session with
+                {
+                    MessageXmlFile = @".\Example\Prompt\Time\Message.xml",
+                    Title = "Run example - Chat with time plugin"
+                });
+        }
+
+        public Task<ChatSession> ChatWithFileSystemPlugin(IServiceProvider serviceProvider)
+        {
+            var cb = new ChatBox();
+            ChatSession session = ChatSession.Create(serviceProvider);
+            return cb.StartChat(
+                session with
+                {
+                    MessageXmlFile = @".\Example\Prompt\FileSystem\Message.xml",
+                    MessageGroup = "alt",
+                    Title = "Run example - Chat with file system plugin"
+                });
         }
     }
 }

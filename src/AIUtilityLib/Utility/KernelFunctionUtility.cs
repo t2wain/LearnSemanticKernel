@@ -3,7 +3,6 @@ using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 
 namespace AIUtilityLib.Utility

@@ -2,7 +2,8 @@
 using AIUtilityLib.Chat;
 using AIUtilityLib.Config;
 using AIUtilityLib.Utility;
-using Microsoft.Extensions.Hosting;
+using Humanizer;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -19,18 +20,19 @@ namespace AIConsoleApp.Example
             RootPromptDirectory = _appConfig.ExamplePluginDirectory;
         }
 
-        public Task<object?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
+        public async Task<object?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
         {
             object? res = mode switch
             {
-                0 => ChatWithLLM(serviceProvider),
-                1 or 5 => new PluginExample().RunAsync(serviceProvider, mode),
-                2 => AutoChatWithLLM(serviceProvider),
-                3 => InvokeStreamingPromptPlugin(serviceProvider),
-                4 => new AgentExample().RunAsync(serviceProvider, mode),
+                0 => await ChatWithLLM(serviceProvider),
+                1 or 5 => await new PluginExample().RunAsync(serviceProvider, mode),
+                2 => await AutoChatWithLLM(serviceProvider),
+                3 => await InvokeStreamingPromptPlugin(serviceProvider),
+                4 => await new AgentExample().RunAsync(serviceProvider, mode),
+                6 => await new WebPluginExample().RunAsync(serviceProvider, mode),
                 _ => null
             };
-            return Task.FromResult(res);
+            return res;
         }
 
         #region ChatWithLLM
@@ -38,21 +40,17 @@ namespace AIConsoleApp.Example
         /// <summary>
         /// Use SK prompt file from a local directory
         /// </summary>
-        public ChatHistory ChatWithLLM(IServiceProvider serviceProvider)
+        public async Task<ChatHistory> ChatWithLLM(IServiceProvider serviceProvider)
         {
             ChatSession session = ChatSession.Create(serviceProvider);
-            session.TextWriter?.WriteLine("Run example - Chat with LLM");
-            string initialPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
+            session.Title = "Run example - ChatBox with LLM";
+            session.SystemPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
-                ["input"] = "I don't have the rent for this month"
+                ["input"] = null
             });
 
-            // setup the chat console
-            ChatService chatService = new() { Session = session };
-
-            // start the chat session
-            chatService.StartChat(initialPrompt).Wait();
-
+            ChatBox cb = new ChatBox();
+            await cb.StartChat(session, ["I don't have the rent for this month"]);
             return session.History;
         }
 
@@ -60,27 +58,29 @@ namespace AIConsoleApp.Example
 
         #region AutoChatWithLLM
 
-        public ChatHistory AutoChatWithLLM(IServiceProvider serviceProvider)
+        public async Task<ChatHistory> AutoChatWithLLM(IServiceProvider serviceProvider)
         {
             ChatSession session = ChatSession.Create(serviceProvider);
-            session.TextWriter?.WriteLine("Run example - Auto chat with LLM");
+            session.Title = "Run example - Auto chatbox with LLM";
 
             // setup the first message
-            string initialPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
+            session.SystemPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
-                ["input"] = "I don't have the rent for this month"
+                ["input"] = null
             });
             IEnumerable<string> messages = [
-                    initialPrompt,
+                    "I don't have the rent for this month",
                     "I'm late to the meeting",
                     "I did not completed my homework"
                 ];
 
             // setup the chat console
-            ChatService chatService = new() { Session = session };
+            var cb = new ChatBox();
+            await cb.StartChat(session, messages);
+            //ChatService chatService = new() { Session = session };
 
-            // start the chat console
-            chatService.AutoChat(messages).Wait();
+            //// start the chat console
+            //await chatService.AutoChat(messages);
 
             // explore the messages of the conversation
             ChatMessageUtility.ExploreChatHistory(session.History);
@@ -95,23 +95,26 @@ namespace AIConsoleApp.Example
         /// Call a prompt kernel function 
         /// and return a response stream
         /// </summary>
-        public ChatHistory InvokeStreamingPromptPlugin(IServiceProvider serviceProvider)
+        public async Task<ChatHistory> InvokeStreamingPromptPlugin(IServiceProvider serviceProvider)
         {
             ChatSession session = ChatSession.Create(serviceProvider);
-            LLMService service = new() { Session = session };
-            session.TextWriter?.WriteLine("Run example - Chat with prompt plugin");
+            session.ServiceType = ChatServiceBase.ServiceTypeEnum.LLMService;
+            session.Title = "Run example - Auto chatbox with semantic plugin";
+            LLMService.ConfigureKernelFunction(session);
 
-            var kernel = session.Kernel;
-            var folder = GetPromptDirectory("FunPlugin");
-            KernelPlugin plugin = PromptUtility.CreatePluginFromDirectory(kernel, folder);
-            var f = new ExplorePromptFilter();
-            kernel.PromptRenderFilters.Add(f);
-            KernelFunction fn = plugin["Excuses"];
-            KernelArguments args = new()
+            // setup the first message
+            session.SystemPrompt = GetPrompt(session.Kernel, "FunPlugin\\Excuses", new()
             {
-                ["input"] = "I don't have the rent for this month"
-            };
-            ChatMessageContent response = service.InvokeAsync(fn, args).Result;
+                ["input"] = null
+            });
+            IEnumerable<string> messages = [
+                    "I don't have the rent for this month",
+                    "I'm late to the meeting",
+                    "I did not completed my homework"
+                ];
+
+            var cb = new ChatBox();
+            await cb.StartChat(session, messages);
             return session.History;
         }
 

@@ -6,22 +6,25 @@ namespace AIConsoleApp.Example
     {
         public Task<ChatSession?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
         {
-            ChatSession? res = mode switch
+            Task<ChatSession?> res = mode switch
             {
-                4 => AgentWithTimePlugin(serviceProvider),
+                4 => AgentWithTimePluginAsync(serviceProvider),
                 _ => null
             };
-            return Task.FromResult(res);
+            return res;
         }
 
-        public ChatSession AgentWithTimePlugin(IServiceProvider serviceProvider)
+        public Task<ChatSession> AgentWithTimePluginAsync(IServiceProvider serviceProvider)
         {
-            var cb = new ChatBox(serviceProvider, useAgentService: true);
+            var cb = new ChatBox();
             ChatSession session = ChatSession.Create(serviceProvider);
+            session.ServiceType = ChatServiceBase.ServiceTypeEnum.AgentService;
             return cb.StartChat(
-                session,
-                @".\Example\Prompt\Time\Message.xml",
-                "Run example - Agent with time plugin");
+                session with
+                {
+                    MessageXmlFile = @".\Example\Prompt\Time\Message.xml",
+                    Title = "Run example - Agent with time plugin"
+                });
         }
     }
 }

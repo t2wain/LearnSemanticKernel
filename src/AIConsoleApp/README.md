@@ -18,7 +18,7 @@ The examples explores these AI concepts:
 
 ## PluginExample
 
-The **ChatBox** class provides a default initialization of a session with the LLM. System prompts, user prompts, and tools can be specified in an xml file. Once the chatbox has iterated through all the user prompts in the xml file, it will accept further prompts from the user to continue the chat session.
+The **ChatBox** class provides a default initialization of a session with the LLM. System prompts, user prompts, and tools can be specified in an xml file. Once the chatbox has iterated through all the user prompts in the xml file, it will accept further prompts from the user at the console to continue the chat session.
 
 ```csharp
 var cb = new ChatBox(serviceProvider);
@@ -140,6 +140,27 @@ return cb.StartChat(
     session,
     @".\Example\Prompt\Time\Message.xml",
     "Run example - Agent with time plugin");
+```
+
+```csharp
+virtual protected AgentService CreateAgentService(ChatSession session, string systemPrompt)
+{
+    Agent agent = new ChatCompletionAgent()
+    {
+        Name = "my_agent",
+        Instructions = systemPrompt,
+        InstructionsRole = AuthorRole.System,
+        Kernel = session.Kernel,
+        Arguments = new KernelArguments(session.ExecutionSettings),
+    };
+    session.Agent = agent;
+    // setup the session thread which maitain the history of the conversation
+    session.AgentThreadId = new ChatHistoryAgentThread(session.History);
+
+    // setup the chat conle
+    var service = new AgentService() { Session = session };
+    return service;
+}
 ```
 
 ## Message.xml

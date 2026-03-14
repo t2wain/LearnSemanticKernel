@@ -2,6 +2,7 @@
 
 - Microsoft.SemanticKernel.Agents.Core
 	- Microsoft.SemanticKernel.Agents.Abstractions
+- Microsoft.SemanticKernel.Agents.Yaml
 
 # Agent
 

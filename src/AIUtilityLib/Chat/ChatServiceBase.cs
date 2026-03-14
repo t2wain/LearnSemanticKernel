@@ -9,6 +9,18 @@ namespace AIUtilityLib.Chat
     /// </summary>
     public abstract class ChatServiceBase
     {
+        /// <summary>
+        /// Configure how to send/receive message with the LLM,
+        /// either using an IChatCompletionService, or a KernelFunction, 
+        /// or an Agent.
+        /// </summary>
+        public enum ServiceTypeEnum
+        {
+            ChatService,
+            AgentService,
+            LLMService
+        }
+
         public ChatSession Session { get; set; } = null!;
 
         public bool IsStreaming { get; set; } = true;

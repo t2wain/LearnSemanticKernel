@@ -10,13 +10,8 @@ namespace AIConsoleApp.Example
 {
     public class ChatBox : ChatBoxBase
     {
-        public ChatBox(IServiceProvider serviceProvider) 
-            : this(serviceProvider, false) { }
-
-        public ChatBox(IServiceProvider serviceProvider, bool useAgentService = false) 
-            : base(serviceProvider, useAgentService) { }
-
-        protected override void RegisterPlugins(KernelPluginCollection pluginCollection, IEnumerable<string> plugins)
+        protected override void RegisterPlugins(IServiceProvider provider, 
+            KernelPluginCollection pluginCollection, IEnumerable<string> plugins)
         {
             foreach (var p in plugins)
             {
@@ -26,7 +21,7 @@ namespace AIConsoleApp.Example
                         pluginCollection.AddFromType<TimePlugin>(p);
                         break;
                     case "filepu":
-                        AppConfig cfg = ServiceProvider.GetRequiredService<IOptions<AppConfig>>().Value;
+                        AppConfig cfg = provider.GetRequiredService<IOptions<AppConfig>>().Value;
                         pluginCollection.AddFromObject(new FileSystemPlugin(cfg.RootDirectory!), p);
                         break;
                 }
