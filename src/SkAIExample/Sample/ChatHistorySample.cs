@@ -1,7 +1,7 @@
 ﻿using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 
-namespace AIConsoleApp.Sample
+namespace SkAIExample.Sample
 {
     /// <summary>
     /// Document many different method and data structure

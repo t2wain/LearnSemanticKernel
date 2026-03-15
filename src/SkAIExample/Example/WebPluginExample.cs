@@ -1,17 +1,24 @@
-﻿using Microsoft.SemanticKernel.Plugins.Core;
+﻿using AIUtilityLib.Chat;
+using Microsoft.SemanticKernel.Plugins.Core;
 
-namespace AIConsoleApp.Example
+namespace SkAIExample.Example
 {
     public class WebPluginExample
     {
-        public Task<object?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
+        IServiceProvider serviceProvider;
+
+        public WebPluginExample(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+        public Task<ChatSession> RunAsync(int mode = 0)
         {
             object? res = mode switch
             {
                 6 => GetWebPage(),
                 _ => null
             };
-            return Task.FromResult(res);
+            return Task.FromResult(new ChatSession());
         }
 
         public string GetWebPage()

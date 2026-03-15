@@ -1,46 +1,45 @@
-﻿using AIUtilityLib;
-using AIUtilityLib.Chat;
+﻿using AIUtilityLib.Chat;
 using AIUtilityLib.Config;
 using AIUtilityLib.Utility;
-using Humanizer;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.ChatCompletion;
 
-namespace AIConsoleApp.Example
+namespace SkAIExample.Example
 {
     public class ChatExample
     {
+        #region Other
+
         AppConfig _appConfig = null!;
-        
-        public ChatExample(IOptions<AppConfig> cfg)
+        IServiceProvider serviceProvider;
+
+        public ChatExample(IServiceProvider serviceProvider, IOptions<AppConfig> cfg)
         {
             _appConfig = cfg.Value;
             RootPromptDirectory = _appConfig.ExamplePluginDirectory;
+            this.serviceProvider = serviceProvider;
         }
 
-        public async Task<object?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
-        {
-            object? res = mode switch
+        #endregion
+
+        public Task<ChatSession> RunAsync(int mode = 0) =>
+            mode switch
             {
-                0 => await ChatWithLLM(serviceProvider),
-                1 or 5 => await new PluginExample().RunAsync(serviceProvider, mode),
-                2 => await AutoChatWithLLM(serviceProvider),
-                3 => await InvokeStreamingPromptPlugin(serviceProvider),
-                4 => await new AgentExample().RunAsync(serviceProvider, mode),
-                6 => await new WebPluginExample().RunAsync(serviceProvider, mode),
-                _ => null
+                0 => ChatWithLLM(),
+                1 or 5 => new PluginExample(serviceProvider).RunAsync(mode),
+                2 => AutoChatWithLLM(),
+                3 => InvokeStreamingPromptPlugin(),
+                4 => new AgentExample(serviceProvider).RunAsync(mode),
+                6 => new WebPluginExample(serviceProvider).RunAsync(mode),
+                _ => Task.FromResult(new ChatSession())
             };
-            return res;
-        }
 
         #region ChatWithLLM
 
         /// <summary>
         /// Use SK prompt file from a local directory
         /// </summary>
-        public async Task<ChatHistory> ChatWithLLM(IServiceProvider serviceProvider)
+        public Task<ChatSession> ChatWithLLM()
         {
             ChatSession session = ChatSession.Create(serviceProvider);
             session.Title = "Run example - ChatBox with LLM";
@@ -50,15 +49,14 @@ namespace AIConsoleApp.Example
             });
 
             ChatBox cb = new ChatBox();
-            await cb.StartChat(session, ["I don't have the rent for this month"]);
-            return session.History;
+            return cb.StartChat(session, ["I don't have the rent for this month"]);
         }
 
         #endregion
 
         #region AutoChatWithLLM
 
-        public async Task<ChatHistory> AutoChatWithLLM(IServiceProvider serviceProvider)
+        public Task<ChatSession> AutoChatWithLLM()
         {
             ChatSession session = ChatSession.Create(serviceProvider);
             session.Title = "Run example - Auto chatbox with LLM";
@@ -76,15 +74,7 @@ namespace AIConsoleApp.Example
 
             // setup the chat console
             var cb = new ChatBox();
-            await cb.StartChat(session, messages);
-            //ChatService chatService = new() { Session = session };
-
-            //// start the chat console
-            //await chatService.AutoChat(messages);
-
-            // explore the messages of the conversation
-            ChatMessageUtility.ExploreChatHistory(session.History);
-            return session.History;
+            return cb.StartChat(session, messages);
         }
 
         #endregion
@@ -95,7 +85,7 @@ namespace AIConsoleApp.Example
         /// Call a prompt kernel function 
         /// and return a response stream
         /// </summary>
-        public async Task<ChatHistory> InvokeStreamingPromptPlugin(IServiceProvider serviceProvider)
+        public Task<ChatSession> InvokeStreamingPromptPlugin()
         {
             ChatSession session = ChatSession.Create(serviceProvider);
             session.ServiceType = ChatServiceBase.ServiceTypeEnum.LLMService;
@@ -114,8 +104,7 @@ namespace AIConsoleApp.Example
                 ];
 
             var cb = new ChatBox();
-            await cb.StartChat(session, messages);
-            return session.History;
+            return cb.StartChat(session, messages);
         }
 
         #endregion

@@ -15,15 +15,12 @@ namespace AIUtilityLib.Chat
 
         public async Task<ChatSession> StartChat(ChatSession session, IEnumerable<string> prompts)
         {
-            session.TextWriter?.WriteLine(session.Title);
-            session.TextWriter?.WriteLine("Using model - {0}",
-                session.ExecutionSettings.ServiceId);
-
             // Filter to capture the function call and result
             ExploreAutoFunctionCallFilter f = new();
             session.Kernel.AutoFunctionInvocationFilters.Add(f);
 
-            ChatServiceBase chatService = null!;
+            #region User prompts
+
             IEnumerable<string> userPrompts = prompts;
             if (!string.IsNullOrWhiteSpace(session.MessageXmlFile))
             {
@@ -37,14 +34,16 @@ namespace AIUtilityLib.Chat
 
                 // setp the chat console
                 session.SystemPrompt = ChatMessageUtility.GetSystemPrompt(xmlPrompts);
-                chatService = CreateChatServiceBase(session, session.SystemPrompt);
-                // start the chat console
                 userPrompts = userPrompts.Concat(ChatMessageUtility.GetUserPrompt(xmlPrompts));
             }
-            else
-            {
-                chatService = CreateChatServiceBase(session, session.SystemPrompt);
-            }
+
+            #endregion
+
+            #region Start chat
+
+            session.TextWriter?.WriteLine(session.Title);
+            session.TextWriter?.WriteLine("Using model - {0}",
+                session.ExecutionSettings.ServiceId);
 
             if (!string.IsNullOrWhiteSpace(session.SystemPrompt))
             {
@@ -53,9 +52,13 @@ namespace AIUtilityLib.Chat
                 session.TextWriter?.WriteLine();
             }
 
+            ChatServiceBase chatService = CreateChatServiceBase(session, session.SystemPrompt);
+
             if (userPrompts.Count() > 0)
                 await chatService.AutoChat(userPrompts, true);
             else await chatService.StartChat(null);
+
+            #endregion
 
             // Capture the function call result from chat history
             f.UpdateFunctionCallWithResult(session.History);
@@ -111,9 +114,7 @@ namespace AIUtilityLib.Chat
         {
             // setup the system prompt and add to the history
             session.History.AddSystemMessage(systemPrompt);
-
             LLMService service = new() { Session = session };
-            //service.ConfigureKernelFunction();
             return service;
         }
 

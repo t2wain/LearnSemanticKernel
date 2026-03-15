@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.SemanticKernel;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace AIConsoleApp.Sample
+namespace SkAIExample.Sample
 {
     public static class PluginSample
     {
@@ -153,17 +152,17 @@ namespace AIConsoleApp.Sample
         /// <summary>
         /// Using DI container to register native plugins
         /// </summary>
-        public static void EX3(HostApplicationBuilder builder)
+        public static void EX3(IServiceCollection services)
         {
             // Create native plugin collection
-            builder.Services.AddTransient((serviceProvider) => {
+            services.AddTransient((serviceProvider) => {
                 KernelPluginCollection pluginCollection = [];
                 pluginCollection.AddFromType<LightsPlugin>("Lights");
                 return pluginCollection;
             });
 
             // Create the kernel service
-            builder.Services.AddTransient((serviceProvider) => {
+            services.AddTransient((serviceProvider) => {
                 KernelPluginCollection pluginCollection =
                     serviceProvider.GetRequiredService<KernelPluginCollection>();
                 return new Kernel(serviceProvider, pluginCollection);
@@ -173,17 +172,17 @@ namespace AIConsoleApp.Sample
         /// <summary>
         /// Using DI container to register native plugins
         /// </summary>
-        public static void EX4(HostApplicationBuilder builder)
+        public static void EX4(IServiceCollection services)
         {
             // Create singletons of your plugin
-            builder.Services.AddKeyedSingleton("LightPlugin", (serviceProvider, key) =>
+            services.AddKeyedSingleton("LightPlugin", (serviceProvider, key) =>
             {
                 KernelPlugin p = KernelPluginFactory.CreateFromType<LightsPlugin>();
                 return p;
             });
 
             // Create a kernel service with singleton plugin
-            builder.Services.AddTransient((serviceProvider) => {
+            services.AddTransient((serviceProvider) => {
                 KernelPluginCollection pluginCollection = [
                         serviceProvider.GetRequiredKeyedService<KernelPlugin>("LightPlugin")
                     ];

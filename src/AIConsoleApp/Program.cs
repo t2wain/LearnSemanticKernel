@@ -1,7 +1,9 @@
-﻿using AIConsoleApp.Example;
-using AIUtilityLib.Config;
+﻿using AIUtilityLib.Config;
+using AIUtilityLib.Utility;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SkAIExample.Example;
 
 namespace AIConsoleApp
 {
@@ -15,7 +17,9 @@ namespace AIConsoleApp
             {
                 var res = await host.Services
                     .GetRequiredService<ChatExample>()
-                    .RunAsync(host.Services, testNo);
+                    .RunAsync(testNo);
+
+                ChatMessageUtility.ExploreChatHistory(res.History);
             }
         }
 
@@ -26,7 +30,7 @@ namespace AIConsoleApp
             {
                 var res = await serviceProvider
                     .GetRequiredService<ChatExample>()
-                    .RunAsync(serviceProvider, testNo);
+                    .RunAsync(testNo);
             }
         }
     }

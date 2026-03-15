@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Example\**" />
+    <EmbeddedResource Remove="Example\**" />
+    <None Remove="Example\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Agents.AI" Version="1.0.0-rc4" />
     <PackageReference Include="Microsoft.Agents.AI.Workflows" Version="1.0.0-rc4" />
     <PackageReference Include="Microsoft.Agents.Client" Version="1.5.45-beta" />
@@ -38,6 +44,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AIUtilityLib\AIUtilityLib.csproj" />
+    <ProjectReference Include="..\SkAIExample\SkAIExample.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,21 +52,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Example\Prompt\FileSystem\Message.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Example\Prompt\FileSystem\System.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Example\Prompt\Time\Message.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Sample\Prompt\HandlebarsPrompt.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Sample\Prompt\Prompt.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

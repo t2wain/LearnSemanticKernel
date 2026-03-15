@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Plugins.Core;
 
-namespace AIConsoleApp.Example
+namespace SkAIExample.Example
 {
     public class ChatBox : ChatBoxBase
     {

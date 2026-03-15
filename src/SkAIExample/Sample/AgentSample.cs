@@ -5,7 +5,7 @@ using Microsoft.SemanticKernel.ChatCompletion;
 
 #pragma warning disable SKEXP0110, SKEXP0130
 
-namespace AIConsoleApp.Sample
+namespace SkAIExample.Sample
 {
     public static class AgentSample
     {

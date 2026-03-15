@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestAI", "TestAI\TestAI.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIUtilityLib", "AIUtilityLib\AIUtilityLib.csproj", "{694725C4-E9D6-453C-8E01-10A3B0088728}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkAIExample", "SkAIExample\SkAIExample.csproj", "{BA651110-6C19-4829-AC98-D43922925DB1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{694725C4-E9D6-453C-8E01-10A3B0088728}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{694725C4-E9D6-453C-8E01-10A3B0088728}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{694725C4-E9D6-453C-8E01-10A3B0088728}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA651110-6C19-4829-AC98-D43922925DB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA651110-6C19-4829-AC98-D43922925DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA651110-6C19-4829-AC98-D43922925DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA651110-6C19-4829-AC98-D43922925DB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

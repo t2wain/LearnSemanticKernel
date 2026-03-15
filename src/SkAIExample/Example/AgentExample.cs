@@ -1,20 +1,23 @@
 ﻿using AIUtilityLib.Chat;
 
-namespace AIConsoleApp.Example
+namespace SkAIExample.Example
 {
     public class AgentExample
     {
-        public Task<ChatSession?> RunAsync(IServiceProvider serviceProvider, int mode = 0)
-        {
-            Task<ChatSession?> res = mode switch
-            {
-                4 => AgentWithTimePluginAsync(serviceProvider),
-                _ => null
-            };
-            return res;
-        }
+        IServiceProvider serviceProvider;
 
-        public Task<ChatSession> AgentWithTimePluginAsync(IServiceProvider serviceProvider)
+        public AgentExample(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+        public Task<ChatSession> RunAsync(int mode = 0) =>
+             mode switch
+            {
+                4 => AgentWithTimePluginAsync(),
+                _ => Task.FromResult(new ChatSession())
+            };
+
+        public Task<ChatSession> AgentWithTimePluginAsync()
         {
             var cb = new ChatBox();
             ChatSession session = ChatSession.Create(serviceProvider);
