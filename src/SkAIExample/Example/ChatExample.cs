@@ -1,5 +1,5 @@
-﻿using AIUtilityLib.Chat;
-using AIUtilityLib.Config;
+﻿using AICommon.Config;
+using AIUtilityLib.Chat;
 using AIUtilityLib.Utility;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;

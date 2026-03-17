@@ -1,11 +1,11 @@
-﻿using AIConsoleApp;
-using AIUtilityLib.Config;
+﻿using AICommon.Config;
 using AIUtilityLib.Plugins.FileSystem;
 using AIUtilityLib.Utility;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.SemanticKernel;
+using SkAIExample;
 
 namespace TestAI
 {

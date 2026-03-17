@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIUtilityLib", "AIUtilityLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkAIExample", "SkAIExample\SkAIExample.csproj", "{BA651110-6C19-4829-AC98-D43922925DB1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentAIUtility", "AgentAIUtility\AgentAIUtility.csproj", "{0DF34C6D-7961-42D4-9888-DB2016B91800}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICommon", "AICommon\AICommon.csproj", "{C8215966-1D1C-4E2C-B031-488AAF028462}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{BA651110-6C19-4829-AC98-D43922925DB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA651110-6C19-4829-AC98-D43922925DB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA651110-6C19-4829-AC98-D43922925DB1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DF34C6D-7961-42D4-9888-DB2016B91800}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DF34C6D-7961-42D4-9888-DB2016B91800}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DF34C6D-7961-42D4-9888-DB2016B91800}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DF34C6D-7961-42D4-9888-DB2016B91800}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C8215966-1D1C-4E2C-B031-488AAF028462}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C8215966-1D1C-4E2C-B031-488AAF028462}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C8215966-1D1C-4E2C-B031-488AAF028462}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C8215966-1D1C-4E2C-B031-488AAF028462}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

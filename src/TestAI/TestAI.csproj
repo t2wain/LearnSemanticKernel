@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AICommon\AICommon.csproj" />
     <ProjectReference Include="..\AIConsoleApp\AIConsoleApp.csproj" />
   </ItemGroup>
 

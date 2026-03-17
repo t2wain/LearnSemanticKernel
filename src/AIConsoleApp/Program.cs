@@ -1,8 +1,9 @@
-﻿using AIUtilityLib.Config;
+﻿using AICommon.Config;
 using AIUtilityLib.Utility;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using SkAIExample;
 using SkAIExample.Example;
 
 namespace AIConsoleApp

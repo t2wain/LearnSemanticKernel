@@ -1,5 +1,5 @@
-﻿using AIUtilityLib.Chat;
-using AIUtilityLib.Config;
+﻿using AICommon.Config;
+using AIUtilityLib.Chat;
 using AIUtilityLib.Plugins.FileSystem;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

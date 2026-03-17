@@ -1,4 +1,4 @@
-﻿using AIUtilityLib.Config;
+﻿using AICommon.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents.OpenAI;

@@ -1,4 +1,5 @@
-﻿using AIUtilityLib.Utility;
+﻿using AICommon.Config;
+using AIUtilityLib.Utility;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Agents;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -26,7 +27,7 @@ namespace AIUtilityLib.Chat
                 serviceId: aiModel.ServiceId,
                 modelId: aiModel.ModelId);
             session.ServiceProvider = serviceProvider;
-            if (aiModel.ModelType == Config.AIModelTypeEnum.ChatCompletion)
+            if (aiModel.ModelType == AIModelTypeEnum.ChatCompletion)
                 session.AIChat = kernel.GetRequiredService<IChatCompletionService>(
                     aiModel.ServiceId);
             return session;

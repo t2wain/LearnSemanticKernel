@@ -1,4 +1,4 @@
-﻿namespace AIUtilityLib.Config
+﻿namespace AICommon.Config
 {
     public enum AIModelTypeEnum
     {

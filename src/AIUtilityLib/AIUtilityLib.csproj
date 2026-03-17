@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Config\**" />
+    <EmbeddedResource Remove="Config\**" />
+    <None Remove="Config\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.3.9" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Agents.Core" Version="1.73.0" />
@@ -15,6 +21,10 @@
     <PackageReference Include="Microsoft.SemanticKernel.PromptTemplates.Handlebars" Version="1.73.0" />
     <PackageReference Include="Microsoft.SemanticKernel.Prompty" Version="1.72.0-beta" />
     <PackageReference Include="Microsoft.SemanticKernel.Yaml" Version="1.73.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AICommon\AICommon.csproj" />
   </ItemGroup>
 
 </Project>
