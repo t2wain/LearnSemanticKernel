@@ -1,10 +1,8 @@
 ﻿using AICommon.Config;
 using Azure.AI.OpenAI;
-using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
+using Microsoft.Extensions.Logging;
 using System.ClientModel;
 
 namespace AgentAIUtility.Utility
@@ -24,7 +22,6 @@ namespace AgentAIUtility.Utility
                     IChatClient chatClient = CreateAzureOpenAIChatClient(aIModel);
                     return chatClient;
                 });
-            builder = builder.UseFunctionInvocation();
             return builder;
         }
 
@@ -42,6 +39,11 @@ namespace AgentAIUtility.Utility
                         return chatClient;
                     });
 
+        public static ChatClientBuilder ConfigureAutoTooCall(
+            ChatClientBuilder builder,
+            ILoggerFactory? loggerFactory = null) =>
+                builder.UseFunctionInvocation(loggerFactory);
+
         #endregion
 
         #region Configure ChatOptions
@@ -55,11 +57,11 @@ namespace AgentAIUtility.Utility
                 builder.ConfigureOptions(configureOptions);
 
         public static ChatOptions CreateChatOptions(IEnumerable<AITool> tools) =>
-            new ChatOptions()
+            new()
             {
                 ToolMode = ChatToolMode.Auto,
                 AllowMultipleToolCalls = true,
-                Tools = tools.ToArray()
+                Tools = tools.ToList()
             };
 
         #endregion
@@ -90,7 +92,9 @@ namespace AgentAIUtility.Utility
             IServiceProvider serviceProvider, 
             AIModel aiModel)
         {
+            ILoggerFactory loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
             var clientBuilder = CreateBuilder(aiModel);
+            clientBuilder = ConfigureAutoTooCall(clientBuilder, loggerFactory);
             IChatClient chatClient = clientBuilder.Build(serviceProvider);
             return chatClient;
         }

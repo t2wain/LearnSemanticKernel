@@ -46,6 +46,7 @@ namespace AgentAIUtility.Chat
                 Session.TextWriter?.WriteLine("<<<< System >>>>");
                 Session.TextWriter?.WriteLine();
                 Session.TextWriter?.WriteLine(message);
+                Session.TextWriter?.WriteLine();
             }
         }
 

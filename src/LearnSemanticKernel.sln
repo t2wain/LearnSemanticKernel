@@ -22,6 +22,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIAgentExample", "AIAgentExample\AIAgentExample.csproj", "{E6DEC8ED-FB6E-4AAA-AA00-FA1B9E1F6D16}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6DEC8ED-FB6E-4AAA-AA00-FA1B9E1F6D16}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6DEC8ED-FB6E-4AAA-AA00-FA1B9E1F6D16}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6DEC8ED-FB6E-4AAA-AA00-FA1B9E1F6D16}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6DEC8ED-FB6E-4AAA-AA00-FA1B9E1F6D16}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,6 +19,7 @@ namespace AgentAIUtility.Chat
             IChatClient chatClient = clientBuilder.Build(serviceProvider);
             ChatSession session = new ChatSession
             {
+                ServiceProvider = serviceProvider,
                 ChatClient = chatClient,
                 AIModel = aiModel,
                 TextWriter = Console.Out,
@@ -42,6 +43,8 @@ namespace AgentAIUtility.Chat
         #endregion
 
         #region ChatCompletionService
+
+        public IServiceProvider ServiceProvider { get; set; }
 
         public AIModel AIModel { get; set; }
         public IChatClient ChatClient { get; set; }

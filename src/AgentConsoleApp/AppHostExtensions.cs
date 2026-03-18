@@ -1,11 +1,13 @@
-﻿using AgentAIUtility.Example;
+﻿using AIAgentExample.Example;
 using AICommon.Config;
+using AICommon.Plugins.FileSystem;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-namespace AgentAIUtility
+namespace AgentConsoleApp
 {
     public static class AppHostExtensions
     {
@@ -34,7 +36,13 @@ namespace AgentAIUtility
                 options.Init();
             });
 
-            builder.Services.AddTransient<AgentExample>();
+            builder.Services.AddSingleton(provider =>
+            {
+                var d = provider.GetRequiredService<IOptions<AppConfig>>().Value.RootDirectory!;
+                return new FileSystemTool(d);
+            });
+
+            builder.Services.AddSingleton<AgentExample>();
 
             return builder;
         }

@@ -1,5 +1,8 @@
-﻿using AICommon;
+﻿using AgentAIUtility.Utility;
+using AICommon;
+using AICommon.Plugins.FileSystem;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.DependencyInjection;
 using PRMT = AICommon.XmlMessageUtility.XmlPrompt;
 
 namespace AgentAIUtility.Chat
@@ -41,11 +44,12 @@ namespace AgentAIUtility.Chat
                 // Add time plugin to made it available
                 // as tools to the LLM
                 IEnumerable<string> plugins = XmlMessageUtility.GetPluginPrompt(xmlPrompts);
-                //RegisterPlugins(session.ServiceProvider, session.Kernel.Plugins, plugins);
+                var newTools = GetAITools(plugins);
+                Session.ChatOptions.Tools = (Session.ChatOptions.Tools ?? []).Concat(newTools).ToList();
 
                 // setp the chat console
                 Session.SystemPrompt = XmlMessageUtility.GetSystemPrompt(xmlPrompts);
-                userPrompts = userPrompts.Concat(XmlMessageUtility.GetUserPrompt(xmlPrompts));
+                userPrompts = userPrompts.Concat(XmlMessageUtility.GetUserPrompt(xmlPrompts)).ToList();
             }
 
             #endregion
@@ -115,6 +119,14 @@ namespace AgentAIUtility.Chat
         }
 
         #endregion
+
+        protected virtual IEnumerable<AITool> GetAITools(IEnumerable<string> toolName) =>
+            toolName.SelectMany(n => n switch
+            {
+                "timepu" => AIToolUtility.GetTimeTools(),
+                "filepu" => AIToolUtility.CreateTools(Session.ServiceProvider.GetRequiredService<FileSystemTool>()),
+                _ => []
+            });
 
         protected abstract void SetSystemMessage(string message);
 

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<chat use_group="alt">
+  <messages>
+    <message role="system">
+      <![CDATA[
+You are an AI assistant. You have access to tools for interacting
+with the file system. These tools allow you to:
+
+- List directories and their nested subdirectories/files
+- Create files and directories
+- Read from and write to files
+
+All file system paths must be specified as relative paths
+from the internally configured root directory.
+              ]]>
+    </message>
+  </messages>
+  <messages group="main">
+    <message role="system">
+      <![CDATA[
+Whenever the user asks you to generate any program code or dataset,
+you MUST provide the file name the code or full dataset should be saved to.
+Use a short, descriptive name with a valid file extension (e.g., .csv, .json, .txt, .cs)
+
+Example 1 - Generated dataset:
+
+**Filename**: customer_orders_sample.csv
+
+```csv
+order_id,customer_id,order_date,amount,status
+1001,501,2025-01-03,125.50,Completed1002,502,2025-01-04,89.99,Pending
+1003,503,2025-01-04,42.00,Completed1004,501,2025-01-05,310.10,Shipped
+```
+
+Example 2 - Generated program code
+
+**Filename** : VoltageDropResult.cs
+
+```csharp
+public class VoltageDropResult
+{
+  public double DeltaV { get; }
+  public double PercentVoltageDrop { get; }
+
+  public VoltageDropResult(double deltaV, double percentVoltageDrop)
+  {
+    DeltaV = deltaV;
+    PercentVoltageDrop = percentVoltageDrop;
+  }
+}
+```
+              ]]>
+    </message>
+  </messages>
+  <messages group="alt">
+    <message role="user">List the directories in ChatPlugin and the files in ChatPlugin\ChatV2</message>
+    <message role="user">List the files in ChatPlugin\ChatV2</message>
+    <message role="user">
+List the name of directories and files of the entire file system
+including all the nested subdirectories/files. Display the result
+in a nested unordered list. Include the relative path of each file
+in parenthesis next to each file.
+    </message>
+  </messages>
+  <plugins>
+    <plugin name="filepu" />
+  </plugins>
+</chat>

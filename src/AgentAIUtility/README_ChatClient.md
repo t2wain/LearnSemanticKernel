@@ -90,7 +90,7 @@
 - FunctionInvokingChatClient.FunctionInvocationResult
 - FunctionInvokingChatClient.FunctionInvocationStatus
 - FunctionInvokingChatClientBuilderExtensions (ChatClientBuilder)
-	- UseFunctionInvocation :  ChatClientBuilder
+	- **UseFunctionInvocation** :  ChatClientBuilder
 		- configure : Action\<FunctionInvokingChatClient>
 - LoggingChatClient : **DelegatingChatClient**
 - LoggingChatClientBuilderExtensions

@@ -1,5 +1,5 @@
 ﻿using AgentAIUtility;
-using AgentAIUtility.Example;
+using AIAgentExample.Example;
 using AICommon.Config;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
