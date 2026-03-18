@@ -1,5 +1,5 @@
-﻿using AIUtilityLib.Plugins.FileSystem;
-using System.Text.Json;
+﻿using System.Text.Json;
+using SK = AIUtilityLib.Plugins.FileSystem;
 
 namespace TestAI
 {
@@ -23,8 +23,8 @@ namespace TestAI
             items = Context.FileSystem.ListFileSystemItem("ChatPlugin");
             Assert.True(items.Length > 0);
 
-            var s = JsonSerializer.Serialize(items);
-            var d = JsonSerializer.Deserialize<FSItem[]>(s)!;
+            string s = JsonSerializer.Serialize(items);
+            var d = JsonSerializer.Deserialize<SK.FSItem[]>(s)!;
             Assert.True(d.Length > 0);
 
             var relPath = @"ChatPlugin\Chat\..\ChatFilter\..\";
@@ -32,7 +32,7 @@ namespace TestAI
             Assert.True(items.Length > 0);
 
             s = JsonSerializer.Serialize(items);
-            d = JsonSerializer.Deserialize<FSItem[]>(s)!;
+            d = JsonSerializer.Deserialize<SK.FSItem[]>(s)!;
             Assert.True(d.Length > 0);
 
         }

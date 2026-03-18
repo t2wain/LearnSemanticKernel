@@ -56,14 +56,24 @@
 		- FunctionApprovalResponseContent
 		- FunctionCallContent
 		- FunctionResultContent
+		- HostedFileContent
+		- HostedVectorStoreContent
 		- ImageGenerationToolCallContent
 		- ImageGenerationToolResultContent
+		- McpServerToolApprovalRequestContent
+		- McpServerToolApprovalResponseContent
 		- McpServerToolCallContent
 		- McpServerToolResultContent
 		- TextContent
+		- TextReasoningContent
+		- ToolApprovalRequestContent 
+		- ToolApprovalResponseContent 
+		- UriContent
 		- UsageContent
 		- UserInputRequestContent
 		- UserInputResponseContent
+		- WebSearchToolCallContent
+		- WebSearchToolResultContent
 	- AdditionalProperties : AdditionalPropertiesDictionary
 	- Annotations : AIAnnotation
 	- RawRepresentation : object
@@ -81,3 +91,49 @@
 	- ResponseId : string
 	- Text : string
 	- Usage : UsageDetails
+- ChatResponseExtensions
+	- AddMessages
+		- *this* IList\<ChatMessage>
+		- ChatResponse
+	- AddMessages
+		- *this* IList\<ChatMessage>
+		- ChatResponse
+		- filter : Func\<AIContent, bool>
+	- AddMessages
+		- *this* IList\<ChatMessage>
+		- IEnumerable\<ChatResponseUpdate>
+	- AddMessages
+		- *this* IList\<ChatMessage>
+		- IAsyncEnumerable\<ChatResponseUpdate>
+	- ToChatResponse : ChatResponse
+		- *this* IEnumerable\<ChatResponseUpdate>
+	- ToChatResponseAsync : ChatResponse
+		- *this* IAsyncEnumerable\<ChatResponseUpdate>
+- ChatResponseFormat
+	- ForJsonSchema : ChatResponseFormatJson 
+		- schema : JsonElement
+		- schemaName : string
+		- schemaDescription : string
+	- ForJsonSchema : ChatResponseFormatJson 
+		- schemaType : Type
+		- serializerOptions : JsonSerializerOptions
+		- schemaName : string
+		- schemaDescription : string
+	- ForJsonSchema\<T> : ChatResponseFormatJson 
+		- serializerOptions : JsonSerializerOptions
+		- schemaName : string
+		- schemaDescription : string
+	- Json : ChatResponseFormatJson
+	- Text : ChatResponseFormatText
+- ChatResponseFormatJson : ChatResponseFormat
+	- Schema : JsonElement
+	- SchemaDescription : string
+	- SchemaName : string
+- ChatResponseFormatText : ChatResponseFormat
+
+
+## Assembly : Microsoft.Extensions.AI
+
+### Microsoft.Extensions.AI
+
+- MessageCountingChatReducer

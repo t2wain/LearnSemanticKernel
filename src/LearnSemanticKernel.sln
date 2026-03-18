@@ -15,6 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentAIUtility", "AgentAIUt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AICommon", "AICommon\AICommon.csproj", "{C8215966-1D1C-4E2C-B031-488AAF028462}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentConsoleApp", "AgentConsoleApp\AgentConsoleApp.csproj", "{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +52,10 @@ Global
 		{C8215966-1D1C-4E2C-B031-488AAF028462}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C8215966-1D1C-4E2C-B031-488AAF028462}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C8215966-1D1C-4E2C-B031-488AAF028462}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BD2A986D-F831-471A-AF8C-99FBF0BA6FDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
-namespace AgentAIUtility
+namespace AgentAIUtility.Utility
 {
     public static class ChatUtility
     {
