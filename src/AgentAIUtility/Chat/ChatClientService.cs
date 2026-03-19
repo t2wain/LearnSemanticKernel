@@ -8,15 +8,16 @@ namespace AgentAIUtility.Chat
 
         protected async override Task<ChatResponse> InvokeAsync(ChatMessage message)
         {
-            Session.ChatHistory.Add(message);
-            ChatOptions options = Session.ChatOptions;
+            IChatClientSession ses = Session;
+            ses.ChatHistory.Add(message);
+            ChatOptions options = ses.ChatOptions;
             ChatResponse response = IsStreaming switch
             {
-                true => await InvokeStreamingAsync(Session.ChatHistory, options),
-                _ => await InvokeNonStreamingAsync(Session.ChatHistory, options)
+                true => await InvokeStreamingAsync(ses.ChatHistory, options),
+                _ => await InvokeNonStreamingAsync(ses.ChatHistory, options)
             };
 
-            Session.ChatHistory.AddMessages(response);
+            ses.ChatHistory.AddMessages(response);
             return response;
         }
 
@@ -37,25 +38,13 @@ namespace AgentAIUtility.Chat
             return response;
         }
 
-        protected override void SetSystemMessage(string message)
-        {
-            if (!string.IsNullOrWhiteSpace(message))
-            {
-                Session.ChatHistory.Add(new ChatMessage(ChatRole.System, message));
-                Session.TextWriter?.WriteLine();
-                Session.TextWriter?.WriteLine("<<<< System >>>>");
-                Session.TextWriter?.WriteLine();
-                Session.TextWriter?.WriteLine(message);
-                Session.TextWriter?.WriteLine();
-            }
-        }
-
         protected async Task<ChatResponse> InvokeNonStreamingAsync(
             IEnumerable<ChatMessage> messages, ChatOptions options)
         {
-            var chatClient = Session.ChatClient;
+            IChatClientSession ses = Session;
+            var chatClient = ses.ChatClient;
             ChatResponse response = await chatClient.GetResponseAsync(messages, options);
-            Session.TextWriter?.Write(response.Text);
+            ses.TextWriter?.Write(response.Text);
             return response;
         }
     }

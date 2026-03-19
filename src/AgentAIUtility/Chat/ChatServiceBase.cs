@@ -1,9 +1,4 @@
-﻿using AgentAIUtility.Utility;
-using AICommon;
-using AICommon.Plugins.FileSystem;
-using Microsoft.Extensions.AI;
-using Microsoft.Extensions.DependencyInjection;
-using PRMT = AICommon.XmlMessageUtility.XmlPrompt;
+﻿using Microsoft.Extensions.AI;
 
 namespace AgentAIUtility.Chat
 {
@@ -33,49 +28,22 @@ namespace AgentAIUtility.Chat
         /// </summary>
         public async Task StartChat(IEnumerable<string> messages, bool continueWithUserPrompt = true)
         {
-            #region Load prompts from MessageXml file
+            WriteHeader();
 
-            IEnumerable<string> userPrompts = messages;
-            if (!string.IsNullOrWhiteSpace(Session.MessageXmlFile))
-            {
-                IEnumerable<PRMT> xmlPrompts =
-                    XmlMessageUtility.LoadPrompts(Session.MessageXmlFile, Session.MessageGroup);
-
-                // Add time plugin to made it available
-                // as tools to the LLM
-                IEnumerable<string> plugins = XmlMessageUtility.GetPluginPrompt(xmlPrompts);
-                var newTools = GetAITools(plugins);
-                Session.ChatOptions.Tools = (Session.ChatOptions.Tools ?? []).Concat(newTools).ToList();
-
-                // setp the chat console
-                Session.SystemPrompt = XmlMessageUtility.GetSystemPrompt(xmlPrompts);
-                userPrompts = userPrompts.Concat(XmlMessageUtility.GetUserPrompt(xmlPrompts)).ToList();
-            }
-
-            #endregion
-
-            Session.TextWriter?.WriteLine(Session.Title);
-            Session.TextWriter?.WriteLine("Using model - {0}",
-                Session.AIModel.ServiceId);
-
-            SetSystemMessage(Session.SystemPrompt);
-
-            #region Provided prompts
-
-            foreach (var userPrompt in userPrompts)
+            foreach (var userPrompt in messages.Concat(Session.UserPrompts))
             {
                 Session.TextWriter?.WriteLine("<<<< User >>>>");
                 Session.TextWriter?.WriteLine();
                 Session.TextWriter?.WriteLine(userPrompt);
                 ChatResponse response = await SendMessage(userPrompt);
             }
-            #endregion
 
-            if (!continueWithUserPrompt)
-                return;
+            if (continueWithUserPrompt)
+                await StartInteractiveChat();
+        }
 
-            #region Interactive prompt
-
+        protected async Task StartInteractiveChat()
+        {
             Session.TextWriter?.WriteLine("<<<< User >>>>");
             Session.TextWriter?.WriteLine();
 
@@ -87,8 +55,22 @@ namespace AgentAIUtility.Chat
                 Session.TextWriter?.WriteLine();
                 userInput = Session.TextReader?.ReadLine();
             }
+        }
 
-            #endregion
+        protected void WriteHeader()
+        {
+            Session.TextWriter?.WriteLine(Session.Title);
+            Session.TextWriter?.WriteLine("Using model - {0}",
+                Session.AIModel.ServiceId);
+            Session.TextWriter?.WriteLine();
+
+            if (!string.IsNullOrWhiteSpace(Session.SystemPrompt))
+            {
+                Session.TextWriter?.WriteLine("<<<< System >>>>");
+                Session.TextWriter?.WriteLine();
+                Session.TextWriter?.WriteLine(Session.SystemPrompt);
+                Session.TextWriter?.WriteLine();
+            }
         }
 
         #endregion
@@ -119,16 +101,6 @@ namespace AgentAIUtility.Chat
         }
 
         #endregion
-
-        protected virtual IEnumerable<AITool> GetAITools(IEnumerable<string> toolName) =>
-            toolName.SelectMany(n => n switch
-            {
-                "timepu" => AIToolUtility.GetTimeTools(),
-                "filepu" => AIToolUtility.CreateTools(Session.ServiceProvider.GetRequiredService<FileSystemTool>()),
-                _ => []
-            });
-
-        protected abstract void SetSystemMessage(string message);
 
         protected abstract Task<ChatResponse> InvokeAsync(ChatMessage messages);
 

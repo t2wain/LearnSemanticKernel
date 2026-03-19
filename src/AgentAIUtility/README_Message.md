@@ -24,6 +24,18 @@
 	- ToAgentResponse (IEnumerable\<AgentResponseUpdate>) : AgentResponse
 	- ToAgentResponseAsync (IAsyncEnumerable\<AgentResponseUpdate>) : AgentResponse
 - AgentResponseUpdate
+	- AdditionalProperties 
+	- AgentId 
+	- AuthorName 
+	- Contents 
+	- ContinuationToken 
+	- CreatedAt 
+	- FinishReason 
+	- MessageId 
+	- RawRepresentation 
+	- ResponseId 
+	- Role 
+	- Text
 
 ## Assembly : Microsoft.Extensions.AI.Abstractions
 

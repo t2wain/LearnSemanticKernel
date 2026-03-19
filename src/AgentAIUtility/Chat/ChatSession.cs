@@ -1,61 +1,130 @@
 ﻿using AgentAIUtility.Utility;
+using AICommon;
 using AICommon.Config;
+using AICommon.Plugins.FileSystem;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using PRMT = AICommon.XmlMessageUtility.XmlPrompt;
 
 namespace AgentAIUtility.Chat
 {
-    public record ChatSession
+    #region Interface
+
+    public interface IConsoleSession
     {
-        #region Create
+        AIModel AIModel { get; set; }
+        string Title { get; set; }
+        TextWriter? TextWriter { get; set; }
+        TextReader? TextReader { get; set; }
+    }
 
-        public static ChatSession Create(IServiceProvider serviceProvider)
+    public interface IChatClientSession : IConsoleSession
+    {
+        IServiceProvider ServiceProvider { get; set; }
+        IChatClient ChatClient { get; set; }
+        List<ChatMessage> ChatHistory { get; set; }
+        ChatOptions ChatOptions { get; set; }
+        void ConfigureChatClient();
+    }
+
+    public interface IAgentSession : IConsoleSession
+    {
+        IServiceProvider ServiceProvider { get; set; }
+        IChatClient ChatClient { get; set; }
+        AIAgent Agent { get; set; }
+        AgentSession AgentSession { get; set; }
+        AgentRunOptions AgentRunOptions { get; set; }
+        ChatHistoryProvider AgentHistory {  get; set; }
+        ChatOptions ChatOptions { get; set; }
+        void ConfigureAgent(string? name = null, string? description = null);
+    }
+
+    #endregion
+
+    public record ChatSession : IChatClientSession, IAgentSession
+    {
+        public ChatSession(
+            IServiceProvider serviceProvider, 
+            AIModel? aiModel = null)
         {
-            //// Get default model config
-            var aiModel = serviceProvider.GetRequiredService<IOptions<AIProviderCollection>>().Value.GetAIModel();
-            var clientBuilder = ChatClientBuilderUtility.CreateBuilder(aiModel);
-            IChatClient chatClient = clientBuilder.Build(serviceProvider);
-            ChatSession session = new ChatSession
-            {
-                ServiceProvider = serviceProvider,
-                ChatClient = chatClient,
-                AIModel = aiModel,
-                TextWriter = Console.Out,
-                TextReader = Console.In,
-            };
-            return session;
+            AIModel = aiModel ?? 
+                serviceProvider.GetRequiredService<IOptions<AIProviderCollection>>()
+                    .Value
+                    .GetAIModel();
+            ServiceProvider = serviceProvider;
+            TextWriter = Console.Out;
+            TextReader = Console.In;
         }
 
-        public static ChatSession Create(IChatClient chatClient)
-        {
-            var session = new ChatSession
-            {
-                ChatClient = chatClient,
-                Agent = chatClient.AsAIAgent(),
-                TextWriter = Console.Out,
-                TextReader = Console.In,
-            };
-            return session;
-        }
+        #region Agent
 
-        #endregion
-
-        #region ChatCompletionService
-
-        public IServiceProvider ServiceProvider { get; set; }
-
-        public AIModel AIModel { get; set; }
-        public IChatClient ChatClient { get; set; }
         public AIAgent Agent { get; set; }
+
+        public AgentSession AgentSession { get; set; }
+
+        public AgentRunOptions AgentRunOptions { get; set; }
 
         /// <summary>
         /// For use with chat LLM
         /// </summary>
-        public ChatHistoryProvider AgentHistory { get; set; } = new InMemoryChatHistoryProvider();
+        public ChatHistoryProvider AgentHistory { get; set; }
 
-        public List<ChatMessage> ChatHistory { get; set; } = new();
+        public void ConfigureAgent(string? name = null, string? description = null)
+        {
+            if (ChatClient == null)
+            {
+                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel);
+                clientBuilder = ChatClientBuilderUtility.ConfigureAutoTooCall(clientBuilder);
+                ChatClient = clientBuilder.Build(ServiceProvider);
+            }
+
+            InMemoryChatHistoryProvider hist = new();
+            AgentHistory = hist;
+            Agent = new ChatClientAgent(
+                chatClient: ChatClient, 
+                options: new()
+                {
+                    Name = name,
+                    Description = description,
+                    ChatOptions = ChatOptions,
+                    ChatHistoryProvider = AgentHistory,
+                },
+                services: ServiceProvider);
+            AgentRunOptions = new ChatClientAgentRunOptions(ChatOptions) ;
+            AgentSession =  Agent.CreateSessionAsync().Result;
+            if (!string.IsNullOrWhiteSpace(SystemPrompt)) 
+                hist.SetMessages(AgentSession, [new ChatMessage(ChatRole.System, SystemPrompt)]);
+        }
+
+        #endregion
+
+        #region Chat
+
+        public IChatClient ChatClient { get; set; }
+
+        public List<ChatMessage> ChatHistory { get; set; }
+
+        public void ConfigureChatClient()
+        {
+            if (ChatClient == null)
+            {
+                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel);
+                clientBuilder = ChatClientBuilderUtility.ConfigureAutoTooCall(clientBuilder);
+                ChatClient = clientBuilder.Build(ServiceProvider);
+            }
+
+            ChatHistory = new();
+            if (!string.IsNullOrWhiteSpace(SystemPrompt))
+                ChatHistory.Add(new ChatMessage(ChatRole.System, SystemPrompt));
+        }
+
+        #endregion
+
+        #region CompletionService
+
+        public IServiceProvider ServiceProvider { get; set; }
 
         /// <summary>
         /// For use with chat LLM
@@ -68,24 +137,49 @@ namespace AgentAIUtility.Chat
 
         #endregion
 
+        #region Prompts
+
         /// <summary>
         /// System message to be added to the
         /// chat history
         /// </summary>
         public string SystemPrompt { get; set; } = "";
 
-        /// <summary>
-        /// Prompts are stored in the xml file
-        /// </summary>
-        public string MessageXmlFile { get; set; } = "";
+        public IEnumerable<string> UserPrompts { get; set; } = [];
 
-        /// <summary>
-        /// Specify the group of messages in the
-        /// file to be used.
-        /// </summary>
-        public string MessageGroup { get; set; } = "";
+        public void ConfigurePrompt(string messageXmlFile, string? messageGroup = null)
+        {
+            if (string.IsNullOrWhiteSpace(messageXmlFile))
+                return;
 
-        #region Chatbox console
+            IEnumerable<PRMT> xmlPrompts =
+                XmlMessageUtility.LoadPrompts(messageXmlFile, messageGroup);
+
+            // Add time plugin to made it available
+            // as tools to the LLM
+            IEnumerable<string> plugins = XmlMessageUtility.GetPluginPrompt(xmlPrompts);
+            var newTools = GetAITools(plugins);
+            ChatOptions.Tools = (ChatOptions.Tools ?? []).Concat(newTools).ToList();
+
+            // setp the chat console
+            var sysPrompt = XmlMessageUtility.GetSystemPrompt(xmlPrompts);
+            SystemPrompt = ((SystemPrompt ?? "") + " " + sysPrompt).Trim();
+            UserPrompts = UserPrompts.Concat(XmlMessageUtility.GetUserPrompt(xmlPrompts)).ToList();
+        }
+
+        public IEnumerable<AITool> GetAITools(IEnumerable<string> toolName) =>
+            toolName.SelectMany(n => n switch
+            {
+                "timepu" => AIToolUtility.GetTimeTools(),
+                "filepu" => AIToolUtility.CreateTools(ServiceProvider.GetRequiredService<FileSystemTool>()),
+                _ => []
+            });
+
+        #endregion
+
+        #region Console
+
+        public AIModel AIModel { get; set; }
 
         public string Title { get; set; } = "";
 

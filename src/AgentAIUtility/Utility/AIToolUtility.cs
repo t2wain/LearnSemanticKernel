@@ -1,4 +1,5 @@
-﻿using AICommon.Tools;
+﻿using AICommon.Plugins.FileSystem;
+using AICommon.Tools;
 using Microsoft.Extensions.AI;
 using System.ComponentModel;
 using System.Reflection;
@@ -34,5 +35,8 @@ namespace AgentAIUtility.Utility
 
         public static IEnumerable<AITool> GetTimeTools() =>
             CreateTools(new TimeTool());
+
+        public static IEnumerable<AITool> GetFileSystemTools(string rootDirectory) =>
+            CreateTools(new FileSystemTool(rootDirectory));
     }
 }

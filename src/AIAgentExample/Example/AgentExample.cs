@@ -1,6 +1,7 @@
 ﻿using AgentAIUtility.Chat;
 using AgentAIUtility.Utility;
 using AICommon.Config;
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 
@@ -9,17 +10,14 @@ namespace AIAgentExample.Example
     public class AgentExample
     {
 
-        AppConfig appConfig;
         IServiceProvider serviceProvider;
         AIProviderCollection aiModelCollection;
         AIModel aiModel;
 
         public AgentExample(
             IServiceProvider serviceProvider, 
-            IOptions<AppConfig> cfg, 
             IOptions<AIProviderCollection> aiModelCollection)
         {
-            this.appConfig = cfg.Value;
             this.serviceProvider = serviceProvider;
             this.aiModelCollection = aiModelCollection.Value;
             aiModel = this.aiModelCollection.GetAIModel();
@@ -27,18 +25,23 @@ namespace AIAgentExample.Example
 
         public Task<object?> RunAsync(int mode = 0)
         {
-            return ChatWithFileSystemTool();
+            return mode switch
+            {
+                1 => ChatWithFileSystemTool(),
+                2 => AgentWithTimeTool(),
+                _ => ChatWithTimeTool()
+            };
         }
 
         public async Task<object?> ChatWithTimeTool()
         {
-            IChatClient chatClient = 
-                ChatClientBuilderUtility.CreateChatClient(serviceProvider, aiModel);
+            //IChatClient chatClient = 
+            //    ChatClientBuilderUtility.CreateChatClient(serviceProvider, aiModel);
 
-            var session = ChatSession.Create(chatClient);
-            session.AIModel = aiModel;
+            ChatSession session = new(serviceProvider, aiModel);
             session.Title = "Run example - Chat with time plugin";
-            session.MessageXmlFile = @".\Example\Prompt\Time\Message.xml";
+            session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
+            session.ConfigureChatClient();
 
             var service = new ChatClientService(session);
             await service.StartChat();
@@ -48,20 +51,37 @@ namespace AIAgentExample.Example
 
         public async Task<object?> ChatWithFileSystemTool()
         {
-            IChatClient chatClient =
-                ChatClientBuilderUtility.CreateChatClient(serviceProvider, aiModel);
+            //IChatClient chatClient =
+            //    ChatClientBuilderUtility.CreateChatClient(serviceProvider, aiModel);
 
-            var session = ChatSession.Create(chatClient);
-            session.AIModel = aiModel;
+            ChatSession session = new(serviceProvider, aiModel);
             session.Title = "Run example - Chat with time plugin";
-            session.MessageXmlFile = @".\Example\Prompt\FileSystem\Message.xml";
-            session.MessageGroup = "alt";
-            session.ServiceProvider = serviceProvider;
+            session.ConfigurePrompt(@".\Example\Prompt\FileSystem\Message.xml");
+            session.ConfigureChatClient();
 
-            var service = new ChatClientService(session);
+            ChatServiceBase service = new ChatClientService(session);
             await service.StartChat();
 
             return session;
         }
+
+        public async Task<object?> AgentWithTimeTool()
+        {
+            ChatSession session = new(serviceProvider, aiModel);
+            session.Title = "Run example - Agent with time plugin";
+            session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
+            session.ConfigureAgent();
+
+            ChatServiceBase service = new AgentService(session);
+            await service.StartChat();
+
+            if (session.AgentHistory is InMemoryChatHistoryProvider hist)
+            {
+                List<ChatMessage> messages = hist.GetMessages(session.AgentSession);
+            }
+
+            return session;
+        }
+
     }
 }
