@@ -35,12 +35,11 @@ namespace AIAgentExample.Example
 
         public async Task<object?> ChatWithTimeTool()
         {
-            //IChatClient chatClient = 
-            //    ChatClientBuilderUtility.CreateChatClient(serviceProvider, aiModel);
-
             ChatSession session = new(serviceProvider, aiModel);
             session.Title = "Run example - Chat with time plugin";
             session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
+            // add middleware
+            session.CreateChatClient(middleware: new ChatClientMiddlewareBase());
             session.ConfigureChatClient();
 
             var service = new ChatClientService(session);
@@ -51,9 +50,6 @@ namespace AIAgentExample.Example
 
         public async Task<object?> ChatWithFileSystemTool()
         {
-            //IChatClient chatClient =
-            //    ChatClientBuilderUtility.CreateChatClient(serviceProvider, aiModel);
-
             ChatSession session = new(serviceProvider, aiModel);
             session.Title = "Run example - Chat with time plugin";
             session.ConfigurePrompt(@".\Example\Prompt\FileSystem\Message.xml");
@@ -70,7 +66,8 @@ namespace AIAgentExample.Example
             ChatSession session = new(serviceProvider, aiModel);
             session.Title = "Run example - Agent with time plugin";
             session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
-            session.ConfigureAgent();
+            session.ConfigureAgent("time-agent","An agent with access to tools that can " +
+                "retrieve or calculate local time information", new());
 
             ChatServiceBase service = new AgentService(session);
             await service.StartChat();
@@ -78,6 +75,11 @@ namespace AIAgentExample.Example
             if (session.AgentHistory is InMemoryChatHistoryProvider hist)
             {
                 List<ChatMessage> messages = hist.GetMessages(session.AgentSession);
+            }
+
+            if (session.Agent.GetService<InMemoryChatHistoryProvider>() is InMemoryChatHistoryProvider hist2)
+            {
+                List<ChatMessage> messages = hist2.GetMessages(session.AgentSession);
             }
 
             return session;

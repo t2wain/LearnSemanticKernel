@@ -26,7 +26,7 @@ namespace AgentAIUtility.Chat
         IChatClient ChatClient { get; set; }
         List<ChatMessage> ChatHistory { get; set; }
         ChatOptions ChatOptions { get; set; }
-        void ConfigureChatClient();
+        IChatClient ConfigureChatClient();
     }
 
     public interface IAgentSession : IConsoleSession
@@ -38,7 +38,8 @@ namespace AgentAIUtility.Chat
         AgentRunOptions AgentRunOptions { get; set; }
         ChatHistoryProvider AgentHistory {  get; set; }
         ChatOptions ChatOptions { get; set; }
-        void ConfigureAgent(string? name = null, string? description = null);
+        AIAgent ConfigureAgent(string? name = null, 
+            string? description = null, AgentMiddlewareBase? middleware = null);
     }
 
     #endregion
@@ -56,6 +57,7 @@ namespace AgentAIUtility.Chat
             ServiceProvider = serviceProvider;
             TextWriter = Console.Out;
             TextReader = Console.In;
+            GetAIToolsFunc = GetAITools;
         }
 
         #region Agent
@@ -71,15 +73,12 @@ namespace AgentAIUtility.Chat
         /// </summary>
         public ChatHistoryProvider AgentHistory { get; set; }
 
-        public void ConfigureAgent(string? name = null, string? description = null)
+        public AIAgent ConfigureAgent(
+            string? name = null,
+            string? description = null,
+            AgentMiddlewareBase? middleware = null)
         {
-            if (ChatClient == null)
-            {
-                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel);
-                clientBuilder = ChatClientBuilderUtility.ConfigureAutoTooCall(clientBuilder);
-                ChatClient = clientBuilder.Build(ServiceProvider);
-            }
-
+            CreateChatClient();
             InMemoryChatHistoryProvider hist = new();
             AgentHistory = hist;
             Agent = new ChatClientAgent(
@@ -95,7 +94,16 @@ namespace AgentAIUtility.Chat
             AgentRunOptions = new ChatClientAgentRunOptions(ChatOptions) ;
             AgentSession =  Agent.CreateSessionAsync().Result;
             if (!string.IsNullOrWhiteSpace(SystemPrompt)) 
-                hist.SetMessages(AgentSession, [new ChatMessage(ChatRole.System, SystemPrompt)]);
+                ChatOptions.Instructions = SystemPrompt;
+
+            if (middleware != null)
+            {
+                AIAgentBuilder builder = Agent.AsBuilder();
+                AgentBuilderUtility.ConfigureMiddleWare(builder, new());
+                Agent = builder.Build(ServiceProvider);
+            }
+
+            return Agent;
         }
 
         #endregion
@@ -106,23 +114,32 @@ namespace AgentAIUtility.Chat
 
         public List<ChatMessage> ChatHistory { get; set; }
 
-        public void ConfigureChatClient()
+        public IChatClient ConfigureChatClient()
         {
-            if (ChatClient == null)
-            {
-                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel);
-                clientBuilder = ChatClientBuilderUtility.ConfigureAutoTooCall(clientBuilder);
-                ChatClient = clientBuilder.Build(ServiceProvider);
-            }
-
+            CreateChatClient();
             ChatHistory = new();
             if (!string.IsNullOrWhiteSpace(SystemPrompt))
-                ChatHistory.Add(new ChatMessage(ChatRole.System, SystemPrompt));
+                ChatOptions.Instructions = SystemPrompt;
+
+            return ChatClient;
         }
 
         #endregion
 
         #region CompletionService
+
+        public void CreateChatClient(AIModel? aiModel = null, ChatClientMiddlewareBase? middleware = null)
+        {
+            if (ChatClient == null)
+            {
+                AIModel = aiModel ?? AIModel;
+                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel);
+                clientBuilder = ChatClientBuilderUtility.ConfigureAutoTooCall(clientBuilder);
+                if (middleware != null)
+                    clientBuilder = ChatClientBuilderUtility.ConfigureMiddleWare(clientBuilder, middleware);
+                ChatClient = clientBuilder.Build(ServiceProvider);
+            }
+        }
 
         public IServiceProvider ServiceProvider { get; set; }
 
@@ -158,7 +175,7 @@ namespace AgentAIUtility.Chat
             // Add time plugin to made it available
             // as tools to the LLM
             IEnumerable<string> plugins = XmlMessageUtility.GetPluginPrompt(xmlPrompts);
-            var newTools = GetAITools(plugins);
+            var newTools = GetAIToolsFunc(plugins);
             ChatOptions.Tools = (ChatOptions.Tools ?? []).Concat(newTools).ToList();
 
             // setp the chat console
@@ -167,8 +184,10 @@ namespace AgentAIUtility.Chat
             UserPrompts = UserPrompts.Concat(XmlMessageUtility.GetUserPrompt(xmlPrompts)).ToList();
         }
 
-        public IEnumerable<AITool> GetAITools(IEnumerable<string> toolName) =>
-            toolName.SelectMany(n => n switch
+        public Func<IEnumerable<string>, IEnumerable<AITool>> GetAIToolsFunc { get; set; }
+
+        protected IEnumerable<AITool> GetAITools(IEnumerable<string> toolNames) =>
+            toolNames.SelectMany(n => n switch
             {
                 "timepu" => AIToolUtility.GetTimeTools(),
                 "filepu" => AIToolUtility.CreateTools(ServiceProvider.GetRequiredService<FileSystemTool>()),

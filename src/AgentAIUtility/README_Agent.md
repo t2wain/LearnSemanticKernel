@@ -8,6 +8,7 @@
 	- Microsoft.Agents.Core
 - Microsoft.Agents.AI.Hosting
 - Azure.AI.OpenAI
+- OpenAI
 
 # Agent
 
@@ -35,6 +36,11 @@
 	- Description
 	- Id
 	- Name
+- AgentRunContext
+	- AIAgent
+	- RequestMessages : IReadOnlyCollection\<ChatMessage>
+	- RunOptions : AgentRunOptions
+	- Session : AgentSession
 - AgentRunOptions
 	- subtypes
 		- **ChatClientAgentRunOptions** 
@@ -59,11 +65,75 @@
 	- TryGetValue\<T>
 	- TryRemoveValue
 	- Count : int
+- AIContext
+	- Instructions : string
+	- Messages : IEnumerable\<ChatMessage>
+	- Tools : IEnumerable\<AITool>
+- AIContextProvider
+	- ctor
+		- provideInputMessageFilter : Func<IEnumerable\<ChatMessage>, IEnumerable\<ChatMessage>>
+		- storeInputRequestMessageFilter : Func<IEnumerable\<ChatMessage>, IEnumerable\<ChatMessage>> 
+		- storeInputResponseMessageFilter : Func<IEnumerable\<ChatMessage>, IEnumerable\<ChatMessage>>
+	- InvokedCoreAsync
+		- context : AIContextProvider.InvokedContext
+		- CancellationToken
+	- InvokingCoreAsync : AIContext
+		- context : AIContextProvider.InvokingContext
+		- CancellationToken
+	- ProvideAIContextAsync : AIContext
+		- context : AIContextProvider.InvokingContext
+		- CancellationToken
+	- StoreAIContextAsync
+		- context : AIContextProvider.InvokedContext
+		- CancellationToken
+- AIContextProvider.InvokedContext
+	- AIAgent
+	- InvokeException 
+	- ResponseMessages : IEnumerable\<ChatMessage>
+	- ResponseMessages : IEnumerable\<ChatMessage>
+	- AgentSession
+- AIContextProvider.InvokingContext
+	- AIAgent
+	- AIContext
+	- AgentSession
+- DelegatingAIAgent : AIAgent
+	- ctor(AIAgent)
+	- CreateSessionCoreAsync
+	- DeserializeSessionCoreAsync
+	- GetService
+	- RunCoreAsync
+	- RunCoreStreamingAsync
+	- SerializeSessionCoreAsync
+	- Description 
+	- IdCore 
+	- InnerAgent 
+	- Name 
 
 ## Assembly : Microsoft.Agents.AI
 
 ### Microsoft.Agents.AI
 
+- **AIAgentBuilder**
+	- ctor(AIAgent)
+	- ctor(Func<IServiceProvider, AIAgent>)
+	- Build : AIAgent
+		- IServiceProvider
+	- Use : AIAgentBuilder
+		- Func<AIAgent, AIAgent>
+	- Use : AIAgentBuilder
+		- Func<AIAgent, IServiceProvider, AIAgent>
+	- Use : AIAgentBuilder
+		- runFunc : Func<IEnumerable\<ChatMessage>, AgentSession, AgentRunOptions, AIAgent, CancellationToken, Task\<AgentResponse>>
+		- runStreamingFunc : Func\<IEnumerable\<ChatMessage>, AgentSession, AgentRunOptions, AIAgent, CancellationToken, IAsyncEnumerable\<AgentResponseUpdate>>
+	- Use : AIAgentBuilder
+		- sharedFunc : Func<IEnumerable\<ChatMessage>, AgentSession, AgentRunOptions, Func<IEnumerable\<ChatMessage>, AgentSession, AgentRunOptions, CancellationToken, Task>, CancellationToken, Task>
+	- UseAIContextProviders : AIAgentBuilder
+		- MessageAIContextProvider[]
+- AIAgentExtensions (AIAgent)
+	- AsAIFunction : AIFunction
+		- AIFunctionFactoryOptions
+		- AgentSession
+	- **AsBuilder** : AIAgentBuilder
 - ChatClientAgent : **AIAgent**
 	- ctor
 		- **IChatClient**
@@ -106,6 +176,9 @@
 	- ctor(ChatOptions) 
 	- ChatClientFactory : Func<IChatClient, IChatClient>
 	- ChatOptions : ChatOptions
+- FunctionInvocationDelegatingAgentBuilderExtensions (**AIAgentBuilder**)
+	- Use : AIAgentBuilder
+		- Func<AIAgent, FunctionInvocationContext, Func<FunctionInvocationContext, CancellationToken, ValueTask\<object>>, CancellationToken, ValueTask\<object>>
 
 ### Microsoft.Extensions.AI
 

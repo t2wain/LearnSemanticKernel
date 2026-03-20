@@ -19,7 +19,8 @@ namespace AgentAIUtility.Utility
             ChatClientBuilder builder = new(
                 (serviceProvider) =>
                 {
-                    IChatClient chatClient = CreateAzureOpenAIChatClient(aIModel);
+                    IChatClient chatClient = aIModel.ModelType == AIModelTypeEnum.ChatCompletion ?
+                        CreateAzureOpenAIChatClient(aIModel) : CreateAzureOpenAIResponseClient(aIModel);
                     return chatClient;
                 });
             return builder;
@@ -43,6 +44,30 @@ namespace AgentAIUtility.Utility
             ChatClientBuilder builder,
             ILoggerFactory? loggerFactory = null) =>
                 builder.UseFunctionInvocation(loggerFactory);
+
+        #endregion
+
+        #region Configure Middleware
+
+        public static ChatClientBuilder ConfigureMiddleWare(
+            ChatClientBuilder builder, 
+            ChatClientMiddlewareBase middleware)
+        {
+            return builder.Use(
+                getResponseFunc: middleware.GetResponseAsync, 
+                getStreamingResponseFunc: middleware.GetStreamingResponseAsync);
+        }
+
+        public static ChatClientBuilder ConfigureMiddleWareShared(
+            ChatClientBuilder builder,
+            ChatClientMiddlewareBase middleware)
+        {
+            return builder.Use(sharedFunc: middleware.GetSharedResponseAsync);
+        }
+
+        public static ChatClientBuilder ConfigureChainMiddleWare(ChatClientBuilder builder) =>
+            builder.Use((innerChatClient, serviceProvider) => 
+                new ChatClientChainBase(innerChatClient, serviceProvider));
 
         #endregion
 
@@ -76,6 +101,20 @@ namespace AgentAIUtility.Utility
             return chatClient;
         }
 
+        #pragma warning disable OPENAI001
+        public static IChatClient CreateAzureOpenAIResponseClient(AIModel model)
+        {
+            OpenAI.OpenAIClient client = new(new ApiKeyCredential(model.APIKey),
+                new()
+                {
+                    Endpoint = new(model.EndPoint),
+                });
+            OpenAI.Responses.ResponsesClient responseClient = client.GetResponsesClient();
+            IChatClient chatClient = responseClient.AsIChatClient(model.ModelId);
+            return chatClient;
+        }
+        #pragma warning restore OPENAI001
+
         /// <summary>
         /// Create IChatClient from ChatClientBuilder pipeline
         /// </summary>
@@ -100,6 +139,5 @@ namespace AgentAIUtility.Utility
         }
 
         #endregion
-
     }
 }

@@ -44,3 +44,14 @@
 - InMemoryChatHistoryProviderOptions.ChatReducerTriggerEvent
 	- AfterMessageAdded
 	- BeforeMessagesRetrieval
+- ProviderSessionState\<TState>
+	- ctor
+		- stateInitializer : Func<AgentSession, TState>
+		- stateKey : string
+		- jsonSerializerOptions : JsonSerializerOptions
+	- GetOrInitializeState : TState
+		- AgentSession
+	- SaveState
+		- AgentSession
+		- TState
+ 

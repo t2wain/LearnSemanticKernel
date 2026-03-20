@@ -54,18 +54,28 @@
 	- GetResponseAsync
 	- GetService
 	- GetStreamingResponseAsync
+	- InnerClient : IChatClient
 
 ## Assembly : Microsoft.Extensions.AI
 
 ### Microsoft.Extensions.AI
 
-- ChatClientBuilder
+- **ChatClientBuilder**
 	- ctor(IChatClient)
 	- ctor(Func<IServiceProvider, IChatClient>)
 	- Build : IChatClient
 		- IServiceProvider
+	- Use : ChatClientBuilder
+		- Func<IChatClient, IChatClient>
+	- Use : ChatClientBuilder
+		- Func<IChatClient, IServiceProvider, IChatClient>
+	- Use : ChatClientBuilder
+		- getResponseFunc : Func<IEnumerable\<ChatMessage>, ChatOptions, IChatClient, CancellationToken, Task\<ChatResponse>> 
+		- getStreamingResponseFunc : Func<IEnumerable\<ChatMessage>, ChatOptions, ChatClient, CancellationToken, IAsyncEnumerable\<ChatResponseUpdate>> 
+	- Use : ChatClientBuilder
+		- Func<IEnumerable\<ChatMessage>, ChatOptions, Func<IEnumerable\<ChatMessage>, ChatOptions, CancellationToken, Task>, CancellationToken, Task>
 - ChatClientBuilderChatClientExtensions (IChatClient)
-	- AsBuilder : ChatClientBuilder
+	- **AsBuilder** : ChatClientBuilder
 - ChatClientStructuredOutputExtensions
 - ConfigureOptionsChatClient : **DelegatingChatClient**
 	- ctor(IChatClient, ChatOptions)
@@ -75,14 +85,24 @@
 	- ConfigureOptions : ChatClientBuilder
 		- configure : Action\<ChatOptions>
 - FunctionInvocationContext 
-- FunctionInvokingChatClient : **DelegatingChatClient**
+	- Arguments : AIFunctionArguments
+	- CallContent : FunctionCallContent
+	- Function : AIFunction
+	- FunctionCallIndex : int
+	- FunctionCount : int
+	- IsStreaming : bool
+	- Iteration : int
+	- Messages : IList\<ChatMessage>
+	- Options : ChatOptions
+	- Terminate : bool
+- **FunctionInvokingChatClient** : **DelegatingChatClient**
 	- ctor(IChatClient, IServiceProvider) 
 	- GetResponseAsync
 	- GetStreamingResponseAsync
 	- AdditionalTools : IList\<AITool>
 	- AllowConcurrentInvocation : bool
-	- CurrentContext : FunctionInvocationContext
-	- FunctionInvoker : Func<FunctionInvocationContext, CancellationToken, ValueTask\<object>>
+	- CurrentContext : **FunctionInvocationContext**
+	- FunctionInvoker : Func<**FunctionInvocationContext**, CancellationToken, ValueTask\<object>>
 	- IncludeDetailedErrors : bool
 	- MaximumConsecutiveErrorsPerRequest : int
 	- MaximumIterationsPerRequest : int
@@ -124,18 +144,29 @@
 
 ### Microsoft.Extensions.AI
 
-- OpenAIClientExtensions
-	- AsIChatClient : Microsoft.Extensions.AI.IChatClient
-		- OpenAI.Assistants.AssistantClient
-		- OpenAI.Chat.ChatClient
-		- OpenAI.Responses.ResponsesClient
+- **OpenAIClientExtensions**
+	- AsIChatClient : Microsoft.Extensions.AI.**IChatClient**
+		- this OpenAI.Assistants.AssistantClient
+		- this OpenAI.Chat.ChatClient
+		- this OpenAI.Responses.ResponsesClient
+	- AsIEmbeddingGenerator : IEmbeddingGenerator<string, Embedding\<float>>
+		- this EmbeddingClient
 
 ## Assembly : Azure.AI.OpenAI
 
 ### Azure.AI.OpenAI
 
-- AzureOpenAIClient : OpenAIClient
-	- GetChatClient : **IChatClient**
+- **AzureOpenAIClient** : OpenAIClient
+	- GetChatClient : OpenAI.Chat.ChatClient
 		- deploymentName : string
-
+	- GetAssistantClient : OpenAI.Assistants.AssistantClient
+	- GetAudioClient : OpenAI.Audio.AudioClient
+	- GetBatchClient : OpenAI.Batch.BatchClient
+	- GetEmbeddingClient : OpenAI.Embeddings.EmbeddingClient
+	- GetEvaluationClient : OpenAI.Evals.EvaluationClient
+	- GetFineTuningClient : OpenAI.FineTuning.FineTuningClient
+	- GetImageClient : OpenAI.Images.ImageClient
+	- GetOpenAIFileClient : OpenAI.Files.OpenAIFileClient
+	- GetRealtimeClient : RealtimeClient
+	- GetResponsesClient : OpenAI.Responses.ResponsesClient
 

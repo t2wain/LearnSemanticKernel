@@ -97,17 +97,61 @@ namespace AgentAIUtility.Utility
                 services: serviceProvider);
 
         public static ChatClientAgentOptions CreateChatClientAgentOptions(
+            string? agentId = null,
+            string? agentName = null,
+            string? agentDescription = null,
             ChatOptions? chatOptions = null,
             ChatHistoryProvider? chatHistoryProvider = null) =>
                 new ChatClientAgentOptions()
                 {
-                    Id = "pirate",
-                    Name = "pirate",
-                    Description = "An agent that speaks like a pirate.",
+                    Id = agentId,
+                    Name = agentName,
+                    Description = agentDescription,
                     ChatOptions = chatOptions,
                     ChatHistoryProvider = chatHistoryProvider
                 };
 
         #endregion
+
+        #region Create Agent with AIAgentBuilder
+
+        public static AIAgentBuilder CreateAgentBuilder(
+            Func<IServiceProvider, AIAgent> createAgentFunc) => new AIAgentBuilder(createAgentFunc);
+
+        public static AIAgentBuilder CreateAgentBuilder(AIAgent aiAgent) => aiAgent.AsBuilder();
+
+        #endregion
+
+        #region Configure Middleware
+
+        public static AIAgentBuilder ConfigureMiddleWare(
+            AIAgentBuilder builder,
+            AgentMiddlewareBase middleware)
+        {
+            return builder.Use(
+                runFunc: middleware.RunAsync,
+                runStreamingFunc: middleware.RunStreamingAsync);
+        }
+
+        public static AIAgentBuilder ConfigureMiddleWareShared(
+            AIAgentBuilder builder,
+            AgentMiddlewareBase middleware)
+        {
+            return builder.Use(middleware.RunSharedResponseAsync);
+        }
+
+        public static AIAgentBuilder ConfigureFunctionCallback(
+            AIAgentBuilder builder,
+            AgentMiddlewareBase middleware)
+        {
+            return builder.Use(middleware.AIFunctionCallBackAsync);
+        }
+
+        public static AIAgentBuilder ConfigureChainMiddleWare(AIAgentBuilder builder) =>
+            builder.Use((innerAgent, serviceProvider) =>
+                new AgentChainBase(innerAgent, serviceProvider));
+
+        #endregion
+
     }
 }
