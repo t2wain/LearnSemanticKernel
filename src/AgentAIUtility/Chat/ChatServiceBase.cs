@@ -61,7 +61,7 @@ namespace AgentAIUtility.Chat
         {
             Session.TextWriter?.WriteLine(Session.Title);
             Session.TextWriter?.WriteLine("Using model - {0}",
-                Session.AIModel.ServiceId);
+                Session.AIModel?.ServiceId);
             Session.TextWriter?.WriteLine();
 
             if (!string.IsNullOrWhiteSpace(Session.SystemPrompt))

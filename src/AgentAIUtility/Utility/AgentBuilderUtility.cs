@@ -2,14 +2,11 @@
 using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace AgentAIUtility.Utility
 {
     public static class AgentBuilderUtility
     {
-
         #region Create Agent
 
         public static ChatClientAgent CreateAgent1(
@@ -157,5 +154,10 @@ namespace AgentAIUtility.Utility
 
         #endregion
 
+        public static T ParseResponse<T>(AgentResponse agentResponse)
+        {
+            AgentResponse<T> resp = new(agentResponse, new());
+            return resp.Result;
+        }
     }
 }

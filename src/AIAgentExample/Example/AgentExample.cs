@@ -1,5 +1,6 @@
 ﻿using AgentAIUtility.Chat;
 using AgentAIUtility.Middleware;
+using AgentAIUtility.Utility;
 using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -15,7 +16,7 @@ namespace AIAgentExample.Example
         AIModel aiModel;
 
         public AgentExample(
-            IServiceProvider serviceProvider, 
+            IServiceProvider serviceProvider,
             IOptions<AIProviderCollection> aiModelCollection)
         {
             this.serviceProvider = serviceProvider;
@@ -29,6 +30,7 @@ namespace AIAgentExample.Example
             {
                 1 => ChatWithFileSystemTool(),
                 2 => AgentWithTimeTool(),
+                3 => RunTestAgent(),
                 _ => ChatWithTimeTool()
             };
         }
@@ -68,11 +70,11 @@ namespace AIAgentExample.Example
             session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
             session.ConfigureAgent(
                 name: "time-agent",
-                description:  "An agent with access to tools that can " +
+                description: "An agent with access to tools that can " +
                     "retrieve or calculate local time information"
-                //middleware: new(),
-                //middlewareChain: (innerAgent, serviceProvider) => new AgentChainBase(innerAgent, serviceProvider),
-                //contextProviders: [new AIContextProviderBase()]
+            //middleware: new(),
+            //middlewareChain: (innerAgent, serviceProvider) => new AgentChainBase(innerAgent, serviceProvider),
+            //contextProviders: [new AIContextProviderBase()]
             );
 
             ChatServiceBase service = new AgentService(session);
@@ -91,5 +93,26 @@ namespace AIAgentExample.Example
             return session;
         }
 
+        public async Task<object?> RunTestAgent()
+        {
+            ChatSession session = new();
+            session.Title = "Run example - Using Test Agent";
+            session.AIModel = new() { ServiceId = "Local Test Agent" };
+
+            var GetContent = (string message) =>
+            {
+                string resp = "This is a default message";
+                if (message.Contains("name"))
+                    resp = "Joe Smith";
+                return new ChatMessage(ChatRole.Assistant, resp);
+            };
+            session.Agent = new TestAgent() { GetContent = GetContent };
+            session.AgentSession = session.Agent.CreateSessionAsync().Result;
+
+            ChatServiceBase service = new AgentService(session);
+            await service.StartChat();
+
+            return session;
+        }
     }
 }

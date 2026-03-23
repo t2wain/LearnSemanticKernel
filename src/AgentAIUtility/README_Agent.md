@@ -5,8 +5,12 @@
 	- Microsoft.Extensions.AI
 	- Microsoft.Extensions.AI.Abstraction
 - Microsoft.Agents.Client
+	- Microsoft.Agents.Authentication
+	- Microsoft.Agents.Builder
 	- Microsoft.Agents.Core
+	- Microsoft.Agents.Storage
 - Microsoft.Agents.AI.Hosting
+	- Microsoft.Agents.AI.Workflows
 - Azure.AI.OpenAI
 - OpenAI
 
@@ -152,10 +156,10 @@
 		- conversationId : string
 		- CancellationToken
 	- GetService
-	- RunAsync
-	- RunAsync\<T>
-	- RunStreamingAsync
-	- AIContextProviders : IReadOnlyList\<AIContextProvider>
+	- RunAsync : Task\<AgentResponse>
+	- RunAsync\<T> : Task\<AgentResponse\<T>>
+	- RunStreamingAsync : IAsyncEnumerable\<AgentResponseUpdate>
+	- AIContextProviders : IReadOnlyList\<AIontextProvider>
 	- ChatClient : IChatClient
 	- ChatHistoryProvider : ChatHistoryProvider
 	- Description

@@ -51,6 +51,12 @@ namespace AgentAIUtility.Chat
 
     public record ChatSession : IChatClientSession, IAgentSession
     {
+        public ChatSession()
+        {
+            TextWriter = Console.Out;
+            TextReader = Console.In;
+        }
+
         public ChatSession(
             IServiceProvider serviceProvider, 
             AIModel? aiModel = null)

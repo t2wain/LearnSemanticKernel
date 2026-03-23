@@ -1,7 +1,7 @@
 ﻿using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 
-namespace AgentAIUtility.Utility
+namespace AgentAIUtility.Middleware
 {
     public class AIContextProviderBase : AIContextProvider
     {

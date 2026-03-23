@@ -41,10 +41,10 @@
 	- ModelId : string
 	- PresencePenalty : float
 	- RawRepresentationFactory : Func\<IChatClient, object>
-	- Reasoning 
-	- ResponseFormat 
+	- Reasoning : ReasoningOptions
+	- ResponseFormat : **ChatResponseFormat**
 	- Seed : bool
-	- StopSequences 
+	- StopSequences : IList\<string>
 	- Temperature : float
 	- ToolMode : **ChatToolMode**
 	- Tools : **IList\<AITool>**
