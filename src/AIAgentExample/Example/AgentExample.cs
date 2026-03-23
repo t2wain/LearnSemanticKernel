@@ -1,5 +1,5 @@
 ﻿using AgentAIUtility.Chat;
-using AgentAIUtility.Utility;
+using AgentAIUtility.Middleware;
 using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -39,7 +39,7 @@ namespace AIAgentExample.Example
             session.Title = "Run example - Chat with time plugin";
             session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
             // add middleware
-            session.CreateChatClient(middleware: new ChatClientMiddlewareBase());
+            session.CreateChatClient(middleware: new ChatClientMiddleWareBase());
             session.ConfigureChatClient();
 
             var service = new ChatClientService(session);
@@ -66,8 +66,14 @@ namespace AIAgentExample.Example
             ChatSession session = new(serviceProvider, aiModel);
             session.Title = "Run example - Agent with time plugin";
             session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
-            session.ConfigureAgent("time-agent","An agent with access to tools that can " +
-                "retrieve or calculate local time information", new());
+            session.ConfigureAgent(
+                name: "time-agent",
+                description:  "An agent with access to tools that can " +
+                    "retrieve or calculate local time information"
+                //middleware: new(),
+                //middlewareChain: (innerAgent, serviceProvider) => new AgentChainBase(innerAgent, serviceProvider),
+                //contextProviders: [new AIContextProviderBase()]
+            );
 
             ChatServiceBase service = new AgentService(session);
             await service.StartChat();

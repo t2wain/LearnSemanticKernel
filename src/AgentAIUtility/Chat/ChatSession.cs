@@ -1,4 +1,5 @@
-﻿using AgentAIUtility.Utility;
+﻿using AgentAIUtility.Middleware;
+using AgentAIUtility.Utility;
 using AICommon;
 using AICommon.Config;
 using AICommon.Plugins.FileSystem;
@@ -38,8 +39,12 @@ namespace AgentAIUtility.Chat
         AgentRunOptions AgentRunOptions { get; set; }
         ChatHistoryProvider AgentHistory {  get; set; }
         ChatOptions ChatOptions { get; set; }
-        AIAgent ConfigureAgent(string? name = null, 
-            string? description = null, AgentMiddlewareBase? middleware = null);
+        AIAgent ConfigureAgent(
+            string? name = null, 
+            string? description = null, 
+            AgentMiddleWareBase? middleware = null,
+            Func<AIAgent, IServiceProvider, AIAgent>? middlewareChain = null,
+            IEnumerable<AIContextProvider>? contextProviders = null);
     }
 
     #endregion
@@ -76,7 +81,9 @@ namespace AgentAIUtility.Chat
         public AIAgent ConfigureAgent(
             string? name = null,
             string? description = null,
-            AgentMiddlewareBase? middleware = null)
+            AgentMiddleWareBase? middleware = null,
+            Func<AIAgent, IServiceProvider, AIAgent>? middlewareChain = null,
+            IEnumerable<AIContextProvider>? contextProviders = null)
         {
             CreateChatClient();
             InMemoryChatHistoryProvider hist = new();
@@ -89,6 +96,7 @@ namespace AgentAIUtility.Chat
                     Description = description,
                     ChatOptions = ChatOptions,
                     ChatHistoryProvider = AgentHistory,
+                    AIContextProviders = contextProviders
                 },
                 services: ServiceProvider);
             AgentRunOptions = new ChatClientAgentRunOptions(ChatOptions) ;
@@ -99,7 +107,14 @@ namespace AgentAIUtility.Chat
             if (middleware != null)
             {
                 AIAgentBuilder builder = Agent.AsBuilder();
-                AgentBuilderUtility.ConfigureMiddleWare(builder, new());
+                AgentBuilderUtility.ConfigureMiddleWare(builder, middleware);
+                Agent = builder.Build(ServiceProvider);
+            }
+
+            if (middlewareChain != null)
+            {
+                AIAgentBuilder builder = Agent.AsBuilder();
+                AgentBuilderUtility.ConfigureChainMiddleWare(builder, middlewareChain);
                 Agent = builder.Build(ServiceProvider);
             }
 
@@ -128,7 +143,7 @@ namespace AgentAIUtility.Chat
 
         #region CompletionService
 
-        public void CreateChatClient(AIModel? aiModel = null, ChatClientMiddlewareBase? middleware = null)
+        public void CreateChatClient(AIModel? aiModel = null, ChatClientMiddleWareBase? middleware = null)
         {
             if (ChatClient == null)
             {

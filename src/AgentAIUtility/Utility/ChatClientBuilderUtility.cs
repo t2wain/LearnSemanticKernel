@@ -1,4 +1,5 @@
-﻿using AICommon.Config;
+﻿using AgentAIUtility.Middleware;
+using AICommon.Config;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,7 +52,7 @@ namespace AgentAIUtility.Utility
 
         public static ChatClientBuilder ConfigureMiddleWare(
             ChatClientBuilder builder, 
-            ChatClientMiddlewareBase middleware)
+            ChatClientMiddleWareBase middleware)
         {
             return builder.Use(
                 getResponseFunc: middleware.GetResponseAsync, 
@@ -60,7 +61,7 @@ namespace AgentAIUtility.Utility
 
         public static ChatClientBuilder ConfigureMiddleWareShared(
             ChatClientBuilder builder,
-            ChatClientMiddlewareBase middleware)
+            ChatClientMiddleWareBase middleware)
         {
             return builder.Use(sharedFunc: middleware.GetSharedResponseAsync);
         }

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.AI;
 using System.Runtime.CompilerServices;
 
-namespace AgentAIUtility.Utility
+namespace AgentAIUtility.Middleware
 {
-    public class ChatClientMiddlewareBase
+    public class ChatClientMiddleWareBase
     {
         #region delegate signature
 

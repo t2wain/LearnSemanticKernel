@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.AI;
 using System.Runtime.CompilerServices;
 
-namespace AgentAIUtility.Utility
+namespace AgentAIUtility.Middleware
 {
     public class ChatClientChainBase : DelegatingChatClient
     {

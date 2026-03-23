@@ -1,6 +1,9 @@
-﻿using AICommon.Config;
+﻿using AgentAIUtility.Middleware;
+using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace AgentAIUtility.Utility
 {
@@ -126,7 +129,7 @@ namespace AgentAIUtility.Utility
 
         public static AIAgentBuilder ConfigureMiddleWare(
             AIAgentBuilder builder,
-            AgentMiddlewareBase middleware)
+            AgentMiddleWareBase middleware)
         {
             return builder.Use(
                 runFunc: middleware.RunAsync,
@@ -135,21 +138,22 @@ namespace AgentAIUtility.Utility
 
         public static AIAgentBuilder ConfigureMiddleWareShared(
             AIAgentBuilder builder,
-            AgentMiddlewareBase middleware)
+            AgentMiddleWareBase middleware)
         {
             return builder.Use(middleware.RunSharedResponseAsync);
         }
 
         public static AIAgentBuilder ConfigureFunctionCallback(
             AIAgentBuilder builder,
-            AgentMiddlewareBase middleware)
+            AgentMiddleWareBase middleware)
         {
             return builder.Use(middleware.AIFunctionCallBackAsync);
         }
 
-        public static AIAgentBuilder ConfigureChainMiddleWare(AIAgentBuilder builder) =>
-            builder.Use((innerAgent, serviceProvider) =>
-                new AgentChainBase(innerAgent, serviceProvider));
+        public static AIAgentBuilder ConfigureChainMiddleWare(
+            AIAgentBuilder builder, 
+            Func<AIAgent, IServiceProvider, AIAgent> chainFunc) =>
+                builder.Use(chainFunc);
 
         #endregion
 
