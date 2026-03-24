@@ -111,7 +111,8 @@ namespace AgentAIUtility.Utility
                     Endpoint = new(model.EndPoint),
                 });
             OpenAI.Responses.ResponsesClient responseClient = client.GetResponsesClient();
-            IChatClient chatClient = responseClient.AsIChatClient(model.ModelId);
+            IChatClient chatClient = OpenAIClientExtensions.AsIChatClient(responseClient);
+            //IChatClient chatClient = responseClient.AsIChatClient(model.ModelId);
             return chatClient;
         }
         #pragma warning restore OPENAI001

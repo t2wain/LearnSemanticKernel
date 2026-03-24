@@ -1,6 +1,6 @@
 ﻿using AgentAIUtility.Chat;
+using AgentAIUtility.Entity;
 using AgentAIUtility.Middleware;
-using AgentAIUtility.Utility;
 using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -31,9 +31,14 @@ namespace AIAgentExample.Example
                 1 => ChatWithFileSystemTool(),
                 2 => AgentWithTimeTool(),
                 3 => RunTestAgent(),
+                4 => WorkflowExample.TestSpamDetectionAgent(),
+                5 => WorkflowExample.TestEmailAssistantAgent(),
+                6 => WorkflowExample.RunWorkflow(),
                 _ => ChatWithTimeTool()
             };
         }
+
+        #region Examples
 
         public async Task<object?> ChatWithTimeTool()
         {
@@ -99,8 +104,9 @@ namespace AIAgentExample.Example
             session.Title = "Run example - Using Test Agent";
             session.AIModel = new() { ServiceId = "Local Test Agent" };
 
-            var GetContent = (string message) =>
+            Func<IEnumerable<ChatMessage>, ChatMessage> GetContent = (messages) =>
             {
+                var message = messages.Last().Text;
                 string resp = "This is a default message";
                 if (message.Contains("name"))
                     resp = "Joe Smith";
@@ -114,5 +120,7 @@ namespace AIAgentExample.Example
 
             return session;
         }
+
+        #endregion
     }
 }

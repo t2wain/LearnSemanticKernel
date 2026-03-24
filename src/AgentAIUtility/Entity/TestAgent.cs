@@ -2,60 +2,35 @@
 using Microsoft.Extensions.AI;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace AgentAIUtility.Utility
+namespace AgentAIUtility.Entity
 {
     public class TestAgent : AIAgent
     {
-        #region TestAgentSession
+        #region Create response
 
-        public class TestAgentSession : AgentSession
-        {
-            public TestAgentSession() { }
+        public Func<IEnumerable<ChatMessage>, ChatMessage> GetContent = null!;
 
-            public TestAgentSession(string? conversationId, AgentSessionStateBag? stateBag) 
-                : base(stateBag ?? new())
-            {
-                this.ConversationId = conversationId;
-            }
-
-            string? _conversationId;
-            [JsonPropertyName("conversationId")]
-            public string? ConversationId {
-                get => _conversationId;
-                set
+        virtual protected Task<AgentResponse> CreateAgentResponse(
+            IEnumerable<ChatMessage> messages,
+            string? instruction = null) =>
+                Task.Factory.StartNew(() =>
                 {
-                    if (string.IsNullOrWhiteSpace(_conversationId) && string.IsNullOrWhiteSpace(value))
-                    {
-                        return;
-                    }
+                    ChatResponse chatResp = new(GetContent(messages));
+                    AgentResponse agentResp = new(chatResp);
+                    return agentResp;
+                });
 
-                    _conversationId = !string.IsNullOrWhiteSpace(value) ? value : throw new Exception("Cannot be null");
-                }
-            }
-            public ChatHistoryProvider History { get; set; } = new InMemoryChatHistoryProvider();
-
-            public override object? GetService(Type serviceType, object? serviceKey = null)
-            {
-                if (serviceType == typeof(ChatHistoryProvider)
-                    || serviceType == typeof(InMemoryChatHistoryProvider))
-                    return History;
-                return base.GetService(serviceType, serviceKey);
-            }
+        virtual async protected IAsyncEnumerable<AgentResponseUpdate> CreateStreamingAgentResponse(
+            IEnumerable<ChatMessage> messages,
+            string? instruction = null)
+        {
+            AgentResponse agentResp = await CreateAgentResponse(messages);
+            foreach (var chunk in agentResp.ToAgentResponseUpdates())
+                yield return chunk;
         }
 
         #endregion
-
-        public Func<string, ChatMessage> GetContent = null!;
-
-        virtual protected AgentResponse CreateAgentResponse(IEnumerable<ChatMessage> messages)
-        {
-            var requestMessage = messages.Last();
-            ChatResponse chatResp = new(GetContent(requestMessage.Text));
-            AgentResponse agentResp = new(chatResp);
-            return agentResp;
-        }
 
         protected override ValueTask<AgentSession> CreateSessionCoreAsync(
             CancellationToken cancellationToken = default)
@@ -78,6 +53,8 @@ namespace AgentAIUtility.Utility
             AgentRunOptions? options = null, 
             CancellationToken cancellationToken = default)
         {
+            #region Get messages to call LLM
+            
             var ses = session ?? await CreateSessionAsync();
             var hist = ses.GetService<ChatHistoryProvider>()!;
 
@@ -85,14 +62,30 @@ namespace AgentAIUtility.Utility
             ChatHistoryProvider.InvokingContext invokingContext = new(this, ses, messages);
             IEnumerable<ChatMessage> storeMessages = await hist.InvokingAsync(invokingContext, cancellationToken);
 
-            var resp = CreateAgentResponse(storeMessages);
-            resp.AgentId = this.Id;
+            string? instruction = null;
+            if (options is ChatClientAgentRunOptions opt)
+            {
+                instruction = opt.ChatOptions?.Instructions;
+            }
+
+            #endregion
+
+            #region Call LLM
+
+            var resp = await CreateAgentResponse(storeMessages, instruction);
+            resp.AgentId = Id;
             resp.ResponseId = Guid.NewGuid().ToString();
+
+            #endregion
+
+            #region Update history
 
             // Notify the session of the input and output messages.
             IEnumerable<ChatMessage> responseMessage = resp.Messages;
             ChatHistoryProvider.InvokedContext invokedContext = new(this, ses, storeMessages, responseMessage);
             await hist.InvokedAsync(invokedContext, cancellationToken);
+
+            #endregion
 
             return resp;
         }
@@ -103,6 +96,8 @@ namespace AgentAIUtility.Utility
             AgentRunOptions? options = null, 
             [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            #region Get messages to call LLM
+
             var ses = session ?? await CreateSessionAsync();
             var hist = ses.GetService<ChatHistoryProvider>()!;
 
@@ -110,28 +105,37 @@ namespace AgentAIUtility.Utility
             ChatHistoryProvider.InvokingContext invokingContext = new(this, ses, messages);
             IEnumerable<ChatMessage> storeMessages = await hist.InvokingAsync(invokingContext, cancellationToken);
 
-            var resp = CreateAgentResponse(storeMessages);
-            resp.AgentId = this.Id;
-            resp.ResponseId = Guid.NewGuid().ToString();
+            string? instruction = null;
+            if (options is ChatClientAgentRunOptions opt)
+            {
+                instruction = opt.ChatOptions?.Instructions;
+            }
+
+            #endregion
+
+            #region Call LLM
+
+            List<AgentResponseUpdate> lst = new();
+            var response = CreateStreamingAgentResponse(storeMessages, instruction);
+            await foreach (var message in response)
+            {
+                lst.Add(message);
+                message.AgentId = Id;
+                message.ResponseId = Guid.NewGuid().ToString();
+                message.MessageId = Guid.NewGuid().ToString();
+                yield return message;
+            }
+
+            #endregion
+
+            #region Update history
 
             // Notify the session of the input and output messages.
-            IEnumerable<ChatMessage> responseMessage = resp.Messages;
+            IEnumerable<ChatMessage> responseMessage = lst.ToAgentResponse().Messages;
             ChatHistoryProvider.InvokedContext invokedContext = new(this, ses, storeMessages, responseMessage);
             await hist.InvokedAsync(invokedContext, cancellationToken);
 
-            var rnd = new Random();
-            foreach (var message in resp.Messages)
-            {
-                yield return new AgentResponseUpdate
-                {
-                    AgentId = this.Id,
-                    //AuthorName = this.DisplayName,
-                    Role = ChatRole.Assistant,
-                    Contents = message.Contents,
-                    ResponseId = Guid.NewGuid().ToString(),
-                    MessageId = Guid.NewGuid().ToString()
-                };
-            }
+            #endregion
         }
 
         protected override ValueTask<JsonElement> SerializeSessionCoreAsync(
