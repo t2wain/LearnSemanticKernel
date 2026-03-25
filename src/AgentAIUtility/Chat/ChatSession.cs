@@ -4,6 +4,7 @@ using AICommon;
 using AICommon.Config;
 using AICommon.Plugins.FileSystem;
 using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Workflows;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -146,6 +147,8 @@ namespace AgentAIUtility.Chat
         }
 
         #endregion
+
+        public WorkflowBuilder WorkflowBuilder { get; set; }
 
         #region CompletionService
 

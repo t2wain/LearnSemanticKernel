@@ -1,0 +1,225 @@
+﻿# Main Nuget Packages
+
+- Microsoft.Agents.AI.Workflows
+
+# Workflow.Builder
+
+## Assembly : Microsoft.Agents.AI.Workflows
+
+### Microsoft.Agents.AI.Workflows
+
+- WorkflowBuilder
+	- ctor(start : ExecutorBinding) 
+	- ctor(executors : params ExecutorBinding[]) 
+	- AddEdge : WorkflowBuilder
+		- source : ExecutorBinding
+		- target : ExecutorBinding
+		- label : string
+		- idempotent : bool
+	- AddEdge\<T> : WorkflowBuilder
+		- source : ExecutorBinding
+		- target : ExecutorBinding
+		- condition : Func<T, bool>
+		- label : string
+		- idempotent : bool
+	- AddFanInBarrierEdge
+		- target : ExecutorBinding
+		- sources : params IEnumerable\<ExecutorBinding>
+	- AddFanInBarrierEdge
+		- sources : IEnumerable\<ExecutorBinding>
+		- targets : IEnumerable\<ExecutorBinding>
+		- label : string
+	- AddFanOutEdge
+		- source : ExecutorBinding
+		- targets : IEnumerable\<ExecutorBinding>
+		- label : string
+	- AddFanOutEdge\<T>
+		- source : ExecutorBinding
+		- targets : IEnumerable\<ExecutorBinding>
+		- targetSelector : Func<T, int, IEnumerable\<int>>
+		- label : string
+	- BindExecutor(registration : ExecutorBinding)
+	- Build(validateOrphans : bool) : **Workflow**
+	- WithDescription(description : string)
+	- WithName(name : string)
+	- WithOutputFrom(executors : params ExecutorBinding[])
+- WorkflowBuilderExtensions
+	- AddChain
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- executors : IList\<ExecutorBinding>
+		- allowRepetition : bool
+	- AddExternalCall<TRequest, TResponse>
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- portId : string
+	- AddSwitch
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- configureSwitch : Action\<**SwitchBuilder**>
+	- ForwardExcept\<TMessage>
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- target : ExecutorBinding
+	- ForwardExcept\<TMessage>
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- targets : IEnumerable\<ExecutorBinding>
+	- ForwardMessage\<TMessage>
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- target : ExecutorBinding
+	- ForwardMessage\<TMessage>
+		- this builder WorkflowBuilder
+		- source : ExecutorBinding
+		- targets : IEnumerable\<ExecutorBinding>
+		- condition : Func<TMessage, bool>
+- SwitchBuilder
+	- AddCase\<T> : SwitchBuilder
+		- predicate : Func<T, bool>
+		- params executors : IEnumerable\<ExecutorBinding>
+	- WithDefault : SwitchBuilder
+		- params executors : IEnumerable\<ExecutorBinding>
+- AgentWorkflowBuilder
+- Edge
+	- Data : EdgeData
+	- Kind : EdgeKind
+- EdgeData (abstract)
+	- Label : string
+- EdgeId (struct)
+- EdgeKind (enum)
+	- Direct
+	- FanIn
+	- FanOut
+- Workflow
+	- DescribeProtocolAsync : ValueTask\<ProtocolDescriptor>
+	- ReflectEdges : Dictionary<string, HashSet<Checkpointing.EdgeInfo>>
+	- ReflectExecutors : Dictionary<string, ExecutorBinding>
+	- ReflectPorts : Dictionary<string, Checkpointing.RequestPortInfo>
+	- Description : string
+	- Name : string
+	- StartExecutorId : string
+- IWorkflowContext
+	- AddEventAsync
+		- WorkflowEvent
+	- QueueClearScopeAsync
+		- scopeName : string
+	- QueueStateUpdateAsync\<T>
+		- key : string
+		- value : T
+		- scoptName : string
+	- ReadOrInitStateAsync\<T> : ValueTask\<T>
+		- key : string
+		- initialStateFactory : Func\<T>
+		- scopeName : string
+	- ReadStateAsync\<T> : ValueTask\<T>
+		- key : string
+		- scopeName : string
+	- ReadStateKeysAsync : ValueTask\<HashSet\<string>>
+		- scopeName : string
+	- RequestHaltAsync
+	- **SendMessageAsync**
+		- message : object
+		- targetId : string
+	- **YieldOutputAsync**
+		- output : object
+	- ConcurrentRunsEnabled : bool
+	- TraceContext : IReadOnlyDictionary<string, string>
+- IWorkflowContextExtensions
+	- InvokeWithStateAsync\<TState> : ValueTask
+		- this context : IWorkflowContext
+		- invocation : Func<TState, IWorkflowContext, CancellationToken, ValueTask\<TState>>
+		- initialStateFactory : Func\<TState>
+		- key : string
+		- scopeName : string
+		- CancellationToken
+	- SendMessageAsync
+		- this context : IWorkflowContext
+		- message : object
+		- CancellationToken
+- IWorkflowExecutionEnvironment
+- InProcessExecution
+	- OpenStreamingAsync : ValueTask\<**StreamRun**>
+		- Workflow
+		- CheckpointManager
+		- sessionId : string
+		- CancellationToken
+	- ResumeAsync : ValueTask\<**Run**>
+		- Workflow
+		- CheckpointInfo
+		- CheckpointManager
+		- CancellationToken
+	- ResumeStreamingAsync : ValueTask\<StreamRun>
+		- Workflow
+		- CheckpointInfo
+		- CheckpointManager
+		- CancellationToken
+	- RunAsync\<TInput> : ValueTask\<Run>
+		- Workflow
+		- input : TInput
+		- CheckpointManager
+		- sessionId : string
+		- CancellationToken
+	- RunStreamingAsync\<TInput> : ValueTask\<StreamRun>
+		- Workflow
+		- input : TInput
+		- CheckpointManager
+		- sessionId : string
+		- CancellationToken
+	- Concurrent : InProcessExecutionEnvironment
+	- Default : InProcessExecutionEnvironment
+	- Lockstep : InProcessExecutionEnvironment
+	- OffThread : InProcessExecutionEnvironment
+- WorkflowEvent
+	- supertypes
+		- ExecutorEvent
+			- ExecutorCompletedEvent
+			- ExecutorFailedEvent
+			- ExecutorInvokedEvent
+		- RequestInfoEvent
+		- SuperStepEvent
+			- SuperStepCompletedEvent
+			- SuperStepStartedEvent
+		- WorkflowOutputEvent
+			- AgentResponseEvent
+			- AgentResponseUpdateEvent
+		- WorkflowErrorEvent
+			- SubworkflowErrorEvent
+		- WorkflowStartedEvent
+		- WorkflowWarningEvent
+			- SubworkflowWarningEvent
+- SuperStepStartedEvent
+	- StartInfo : SuperStepStartInfo
+- SuperStepStartInfo
+	- HasExternalMessages : bool
+	- SendingExecutors : HashSet\<string>
+- SuperStepCompletedEvent
+	- CompletionInfo : SuperStepCompletionInfo
+- SuperStepCompletionInfo
+	- ActivatedExecutors : HashSet\<string>
+	- Checkpoint : CheckpointInfo
+	- HasPendingMessages : bool
+	- HasPendingRequests : bool
+	- InstantiatedExecutors : HashSet\<string>
+	- StateUpdated : bool
+- CheckpointInfo
+	- CheckpointId : string
+	- SessionId : string
+- SuperStepEvent
+	- StepNumber : int
+- ExecutorFailedEvent
+	- Data : Exception
+- ExecutorEvent
+	- ExecutorId : string
+- AgentResponseEvent 
+	- Response : AgentResponse
+- AgentResponseUpdateEvent
+	- Update : AgentResponseUpdate
+	- AsResponse : AgentResponse
+- WorkflowEvent
+	- Data : object
+
+
+
+
+

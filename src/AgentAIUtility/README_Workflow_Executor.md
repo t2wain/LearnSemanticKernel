@@ -1,0 +1,184 @@
+﻿# Workflow.Executor
+
+## Assembly : Microsoft.Agents.AI.Workflows
+
+### Microsoft.Agents.AI.Workflows
+
+- Executor (abstract)
+	- ctor
+		- id : string
+		- options : **ExecutorOptions**
+		- declareCrossRunShareable : bool
+	- CanHandle : bool
+		- messageType : System.Type
+	- ConfigureProtocol : **ProtocolBuilder**
+		- protocolBuilder : ProtocolBuilder
+	- DescribeProtocol : ProtocolDescriptor
+	- ExecuteCoreAsync : ValueTask\<object>
+		- message : object
+		- messageType : Checkpointing.TypeId
+		- context : IWorkflowContext
+		- cancellationToken : CancellationToken
+	- InitializeAsync
+		- context : IWorkflowContext
+		- cancellationToken : CancellationToken
+	- OnCheckpointingAsync
+		- context : IWorkflowContext
+		- cancellationToken : CancellationToken
+	- OnCheckpointRestoredAsync
+		- context : IWorkflowContext
+		- cancellationToken : CancellationToken
+	- Id : string
+	- InputTypes : ISet<System.Type>
+	- Options : ExecutorOptions
+	- OutputTypes : ISet<System.Type>
+-  Executor<TInput, TOutput> : Executor
+	- HandleAsync : ValueTask\<TOutput>
+		- message : TInput
+		- IWorkflowContext
+		- CancellationToken
+- Executor\<TInput> : Executor
+	- HandleAsync : ValueTask
+		- message : TInput
+		- IWorkflowContext
+		- CancellationToken
+- ExecutorOptions
+	- AutoSendMessageHandlerResultObject : bool
+	- AutoYieldOutputHandlerResultObject : bool
+	- Default : ExecutorOptions
+- AggregatingExecutor<TInput, TAggregate> : Executor<TInput, TAggregate>
+- ChatForwardingExecutor : Executor
+- ChatForwardingExecutorOptions
+- ChatProtocolExecutor : StatefulExecutor<List\<ChatMessage>>
+- ChatProtocolExecutorOptions
+- ChatProtocolExtensions
+- FunctionExecutor<TInput, TOutput> : Executor<TInput, TOutput> : Executor<TInput, TOutput>
+	- ctor
+		- id : string
+		- handlerAsync : Func<TInput, IWorkflowContext, CancellationToken, .ValueTask\<TOutput>>
+		- options : ExecutorOptions
+		- sentMessageTypes : IEnumerable<System.Type>
+		- outputTypes : IEnumerable<System.Type>
+		- declareCrossRunShareable : bool
+	- HandleAsync : ValueTask\<TOutput>
+		- message : TInput
+		- IWorkflowContext
+		- CancellationToken
+- FunctionExecutor\<TInput> : Executor\<TInput>
+- StatefulExecutor<TState, TInput, TOutput> : StatefulExecutor\<TState>
+- StatefulExecutor<TState, TInput> : StatefulExecutor\<TState>
+- StatefulExecutor\<TState> : Executor
+- StatefulExecutorOptions : ExecutorOptions
+
+# Executor.ProtocolBuilder
+
+- ProtocolBuilder
+	- AddClassAttributeTypes : ProtocolBuilder
+	- AddDelegateAttributeTypes : ProtocolBuilder
+	- AddMethodAttributeTypes : ProtocolBuilder
+	- ConfigureRoutes : ProtocolBuilder
+		- Action\<**RouteBuilder**>
+	- SendsMessage\<TMessage> : ProtocolBuilder
+	- SendsMessageType(System.Type) : ProtocolBuilder
+	- SendsMessageTypes(IEnumerable<System.Type>) : ProtocolBuilder
+	- YieldsOutput\<TOutput> : ProtocolBuilder
+	- YieldsOutputType(System.Type) : ProtocolBuilder
+	- YieldsOutputTypes(IEnumerable<System.Type>) : ProtocolBuilder
+	- RouteBuilder : **RouteBuilder**
+- RouteBuilder
+	- AddCatchAll
+		- Action<**PortableValue**, IWorkflowContext, CancellationToken, ValueTask>
+		- overwrite : bool
+	- AddCatchAll\<TResult>
+		- Func<PortableValue, IWorkflowContext, CancellationToken, ValueTask\<TResult>>
+		- overwrite : bool
+	- AddCatchAll\<TResult>
+		- Func<PortableValue, IWorkflowContext, TResult>
+		- overwrite : bool
+	- AddHandler<TInput, TResult>
+		- Func<TInput, IWorkflowContext, CancellationToken, ValueTask\<TResult>>
+		- overwrite : bool
+	- AddHandler<TInput, TResult>
+		- Func<TInput, IWorkflowContext, CancellationToken, TResult>
+		- overwrite : bool
+	- AddHandler\<TInput>
+		- Func<TInput, IWorkflowContext, CancellationToken, ValueTask>
+		- overwrite : bool
+	- AddHandler\<TInput>
+		- Func<TInput, IWorkflowContext, CancellationToken>
+		- overwrite : bool
+- PortableValue
+	- ctor(object)
+	- As\<TValue>() : TValue
+	- AsType(System.Type targetType) : object
+	- Is\<TValue> : bool
+	- Is\<TValue>(out TValue value) : bool
+	- IsType(System.Type targetType) : bool
+	- IsType(System.Type targetType, out object value) : bool
+	- TypeId : Checkpointing.TypeId
+- ProtocolDescriptor
+	- Accepts : IEnumerable<System.Type>
+	- AcceptsAll : bool
+	- Sends : IEnumerable<System.Type>
+	- Yields : IEnumerable<System.Type>
+- **MessageHandlerAttribute** : Attribute
+	- Send : System.Type[]
+	- Yield : System.Type[]
+
+# Executor.Binding
+
+- ExecutorBindingExtensions
+	- BindAsExecutor(this **AIAgent**, emitEvents : bool) : **ExecutorBinding**
+	- BindAsExecutor(this AIAgent, AIAgentHostOptions) : ExecutorBinding
+	- BindAsExecutor(this **RequestPort**, allowWrappedRequests : bool) : ExecutorBinding
+	- BindAsExecutor : ExecutorBinding
+		- this **Workflow**
+		- id : string
+		- ExecutorOptions
+	- BindAsExecutor<TInput, **TAccumulate**> : ExecutorBinding
+		- this **Func<TAccumulate, TInput, TAccumulate>**
+		- id : string
+		- ExecutorOptions
+		- threadsafe : bool
+	- BindAsExecutor<TInput, TOutput>
+		- this messageHandlerAsync : **Func<TInput, IWorkflowContext, CancellationToken, TOutput>**
+		- id : string
+		- ExecutorOptions
+		- threadsafe : bool
+	- BindAsExecutor<TInput, TOutput>
+		- this messageHandlerAsync : **Func<TInput, IWorkflowContext, CancellationToken, ValueTask\<TOutput>>**
+		- id : string
+		- ExecutorOptions
+		- threadsafe : bool
+	- BindAsExecutor\<TInput>
+		- this messageHandlerAsync : **Action<TInput, IWorkflowContext, CancellationToken, ValueTask>**
+		- id : string
+		- ExecutorOptions
+		- threadsafe : bool
+	- BindAsExecutor\<TInput>
+		- this messageHandlerAsync : **Action<TInput, IWorkflowContext, CancellationToken>**
+		- id : string
+		- ExecutorOptions
+		- threadsafe : bool
+	- BindExecutor(this **Executor**)
+	- BindExecutor<TExecutor, TOptions>
+		- this factoryAsync : **Func<Config\<TOptions>, string, ValueTask\<TExecutor>>**
+	- BindExecutor\<TExecutor>
+		- this factoryAsync : **Func<string, string, ValueTask\<TExecutor>>**
+		- id : string
+- ExecutorBinding
+	- ExecutorType : System.Type
+	- Id : string
+	- IsPlaceholder : bool
+	- IsSharedInstance : bool
+	- RawValue : object
+	- SupportsConcurrentSharedExecution : bool
+	- SupportsResetting : bool
+	- FactoryAsync : Func<string, ValueTask<Workflows.Executor>>
+	- Deconstruct
+		- out id : string
+		- out FactoryAsync : Func<string, ValueTask<Workflows.Executor>>
+		- out ExecutorType : System.Type
+		- out RawValue : object
+- AIAgentBinding : ExecutorBinding
+- AIAgentHostOptions
