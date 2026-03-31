@@ -1,5 +1,6 @@
 ﻿using AgentAIUtility.Chat;
 using Microsoft.Agents.AI.Workflows;
+using Microsoft.Agents.AI.Workflows.Checkpointing;
 using Microsoft.Extensions.AI;
 
 namespace AIAgentExample.Example
@@ -64,7 +65,7 @@ namespace AIAgentExample.Example
 
         #endregion
 
-        #region Workflow
+        #region Build workflow
 
         public static WorkflowBuilder BuildWorkflow()
         {
@@ -105,14 +106,31 @@ namespace AIAgentExample.Example
                         ChatSession.TextWriter?.WriteLine($"   - {ec.Data}");
                     }
                 }
-                else if (evt is RequestInfoEvent e5)
+                else if (evt is RequestInfoEvent ri)
                 {
                     // Get the guess from the human operator or any external system
-                    ChatSession.TextWriter?.Write("Guess a number : ");
+                    ExternalRequest request = ri.Request;
+                    string requestId = request.RequestId;
+                    PortableValue d = request.Data;
+
+                    RequestPortInfo info = request.PortInfo;
+                    string portId = info.PortId;
+                    TypeId responseType = info.ResponseType;
+                    TypeId requestType = info.RequestType;
+
+                    NumberSignal v = d.As<NumberSignal>();
+                    string i = v switch
+                    {
+                        NumberSignal.Above => "lower",
+                        NumberSignal.Below => "higher",
+                        _ => ""
+                    };
+
+                    ChatSession.TextWriter?.Write($"Guess a {i} number : ");
                     string? input = ChatSession.TextReader?.ReadLine();
                     if (int.TryParse(input, out var guess))
                     {
-                        ExternalResponse response = e5.Request.CreateResponse(guess);
+                        ExternalResponse response = ri.Request.CreateResponse(guess);
                         await handle.SendResponseAsync(response);
                     }
                     else await handle.CancelRunAsync();
@@ -135,6 +153,8 @@ namespace AIAgentExample.Example
 
         #endregion
 
+        #region Run workflow
+
         class WorkflowService2 : WorkflowService
         {
             public WorkflowService2(ChatSession session) : base(session) { }
@@ -153,6 +173,8 @@ namespace AIAgentExample.Example
             session.WorkflowBuilder = builder;
             session.Title = "Run example - Guess a number game workflow";
             session.AIModel = new() { ServiceId = "Local Test Agent" };
+
+            session.UserPrompts = ["NumberSignal.Init"];
             session.WorkflowEventProcessor = new ProcessRequestWorkflowEvent(session);
 
             WorkflowService2 service = new WorkflowService2(session);
@@ -161,6 +183,8 @@ namespace AIAgentExample.Example
 
             return null;
         }
+
+        #endregion
 
     }
 }

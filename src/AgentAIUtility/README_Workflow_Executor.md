@@ -183,5 +183,39 @@
 - AIAgentBinding : ExecutorBinding
 - AIAgentHostOptions
 - RequestPort
+	- ctor
+		- id : string
+		- request : System.Type
+		- response : System.Type
+	- Create<TRequest, TResponse> : RequestPort<TRequest, TResponse>
+		- id : string
+	- Deconstruct
+		- out id : string
+		- out request : System.Type
+		- out response : System.Type
+	- Id : string
+	- Request : System.Type
+	- Response : System.Type
 - RequestPort<TRequest, TResponse> : RequestPort
+	- ctor
+		- id : string
+		- request : System.Type
+		- response : System.Type
+		- AllowWrapped : bool
+	- Deconstruct
+		- out id : string
+		- out request : System.Type
+		- out response : System.Type
+		- out AllowWrapped : bool
+	- AllowWrapped : bool
 - RequestPortBinding : ExecutorBinding
+	- ctor
+		- Port : RequestPort
+		- AllowWrapped : bool
+	- Deconstruct
+		- out Port : RequestPort
+		- out AllowWrapped : bool
+	- IsSharedInstance : bool
+	- Port : RequestPort
+	- SupportsConcurrentSharedExecution : bool
+	- SupportsResetting : bool

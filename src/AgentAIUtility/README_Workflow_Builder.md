@@ -8,7 +8,7 @@
 
 ### Microsoft.Agents.AI.Workflows
 
-- WorkflowBuilder
+- **WorkflowBuilder**
 	- ctor(start : ExecutorBinding) 
 	- ctor(executors : params ExecutorBinding[]) 
 	- AddEdge : WorkflowBuilder
@@ -91,7 +91,7 @@
 	- Direct
 	- FanIn
 	- FanOut
-- Workflow
+- **Workflow**
 	- DescribeProtocolAsync : ValueTask\<ProtocolDescriptor>
 	- ReflectEdges : Dictionary<string, HashSet<Checkpointing.EdgeInfo>>
 	- ReflectExecutors : Dictionary<string, ExecutorBinding>
@@ -268,6 +268,17 @@
 	- Data : PortableValue
 	- PortInfo : RequestPortInfo
 	- RequestId : string
+
+### Microsoft.Agents.AI.Workflows.Checkpointing
+
+- DirectEdgeInfo : EdgeInfo
+- EdgeInfo
+- FanInEdgeInfo : EdgeInfo
+- FanOutEdgeInfo : EdgeInfo
+- FileSystemJsonCheckpointStore : JsonCheckpointStore
+- JsonCheckpointStore
+- RequestPortInfo
+- TypeId
 
 ### Workflow Events Summary
 

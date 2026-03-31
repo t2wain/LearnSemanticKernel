@@ -8,6 +8,12 @@ using System.Text.Json.Serialization;
 
 namespace AIAgentExample.Example
 {
+    /// <summary>
+    /// An example of using LLM to evaluate
+    /// an incoming email as spam or not then
+    /// send out an LLM generated email reply
+    /// if not a spam email.
+    /// </summary>
     public static class EmailWorkflow
     {
         #region Data structures
@@ -327,6 +333,9 @@ namespace AIAgentExample.Example
 
         #region Workflow
 
+        /// <summary>
+        /// Define the workflow
+        /// </summary>
         public static WorkflowBuilder BuildWorkflow()
         {
             IChatClient chatClient = GetChatClient();
@@ -367,6 +376,9 @@ namespace AIAgentExample.Example
 
         #endregion
 
+        /// <summary>
+        /// Run worklfow example
+        /// </summary>
         public static async Task<object?> RunWorkflow()
         {
             WorkflowBuilder builder = BuildWorkflow();
