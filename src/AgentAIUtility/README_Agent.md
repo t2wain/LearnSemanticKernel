@@ -36,15 +36,15 @@
 		- AgentRunOptions
 	- RunStreamingAsync
 	- SerializeSessionAsync : JsonElement
-	- CurrentRunContext : AgentRunContext
+	- CurrentRunContext : **AgentRunContext**
 	- Description
 	- Id
 	- Name
 - AgentRunContext
 	- AIAgent
 	- RequestMessages : IReadOnlyCollection\<ChatMessage>
-	- RunOptions : AgentRunOptions
-	- Session : AgentSession
+	- RunOptions : **AgentRunOptions**
+	- Session : **AgentSession**
 - AgentRunOptions
 	- subtypes
 		- **ChatClientAgentRunOptions** 
@@ -98,7 +98,7 @@
 	- AgentSession
 - AIContextProvider.InvokingContext
 	- AIAgent
-	- AIContext
+	- **AIContext**
 	- AgentSession
 - DelegatingAIAgent : AIAgent
 	- ctor(AIAgent)
@@ -187,6 +187,9 @@
 ### Microsoft.Extensions.AI
 
 - AIContextProviderChatClientBuilderExtensions
+	- UseAIContextProviders
+		- this builder : ChatClientBuilder, 
+		- providers : params AIContextProvider[] 
 - ChatClientBuilderExtensions (**ChatClientBuilder**)
 	- BuildAIAgent : ChatClientAgent
 		- ChatClientAgentOptions 

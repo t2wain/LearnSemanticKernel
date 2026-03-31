@@ -81,6 +81,63 @@
 	- WithDefault : SwitchBuilder
 		- params executors : IEnumerable\<ExecutorBinding>
 - AgentWorkflowBuilder
+	- BuildConcurrent : Workflow
+		- workflowName : string
+		- agents : IEnumerable\<AIAgent>
+		- aggregator : Func<IList<List\<ChatMessage>>, List\<ChatMessage>>
+	- BuildConcurrent : Workflow
+		- agents : IEnumerable\<AIAgent>
+		- aggregator : Func<IList<List\<ChatMessage>>, List\<ChatMessage>>
+	- BuildSequential : Workflow
+		- workflowName : string
+		- agents : params IEnumerable\<AIAgent>
+	- BuildSequential : Workflow
+		- agents : params IEnumerable\<AIAgent>
+	- CreateGroupChatBuilderWith : **GroupChatWorkflowBuilder**
+		- managerFactory : Func<IReadOnlyList\<AIAgent>, **GroupChatManager**>
+	- CreateHandoffBuilderWith : **HandoffsWorkflowBuilder**
+		- initialAgent : AIAgent
+- GroupChatManager (abstract)
+	- Reset
+	- SelectNextAgentAsync : ValueTask\<AIAgent>
+		- history : IReadOnlyList\<ChatMessage>
+	- ShouldTerminateAsync : ValueTask\<bool>
+		- history : IReadOnlyList\<ChatMessage>
+	- UpdateHistoryAsync : ValueTask<IEnumerable\<ChatMessage>>
+		- history : IReadOnlyList\<ChatMessage>
+	- IterationCount : int
+	- MaximumIterationCount : int
+- RoundRobinGroupChatManager : GroupChatManager
+	- ctor
+		- agents : IReadOnlyList\<AIAgent>
+		- shouldTerminateFunc : Func<RoundRobinGroupChatManager, IEnumerable\<ChatMessage>, CancellationToken, ValueTask\<bool>>
+- GroupChatWorkflowBuilder
+	- AddParticipants :
+		- params agents : IEnumerable\<AIAgent>
+		- Build : Workflow
+		- WithDescription(string description)
+		- WithName(string name)
+- HandoffsWorkflowBuilder
+	- WithHandoff
+		- from : AIAgent
+		- to : AIAgent
+		- handoffReason : string
+	- WithHandoffInstructions(string instructions)
+	- WithHandoff
+		- from : AIAgent
+		- to : AIAgent
+	- WithHandoff
+		- from : IEnumerable\<AIAgent>
+		- to : AIAgent
+		- handoffReason : string
+	- WithToolCallFilteringBehavior
+		- behavior : HandoffToolCallFilteringBehavior
+	- HandoffInstructions : string
+	- Build : Workflow
+- HandoffToolCallFilteringBehavior
+	- All
+	- HandoffOnly
+	- None
 - Edge
 	- Data : EdgeData
 	- Kind : EdgeKind

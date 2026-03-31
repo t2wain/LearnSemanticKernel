@@ -16,9 +16,17 @@ namespace AIAgentExample.Example
             Below,
         }
 
+        /// <summary>
+        /// Send out a request to user (RequestInfoEvent event) 
+        /// of type NumberSignal and expect a response of type int
+        /// </summary>
         public static RequestPort<NumberSignal, int> CreateNumberRequestPort() =>
             RequestPort.Create<NumberSignal, int>("GuessNumber");
 
+        /// <summary>
+        /// Receive a message of guess number to evaluate
+        /// then send out a message if guess number is not correct.
+        /// </summary>
         public class JudgeExecutor() : Executor<int>("Judge")
         {
             private readonly int _targetNumber;

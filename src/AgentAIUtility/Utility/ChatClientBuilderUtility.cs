@@ -1,6 +1,7 @@
 ﻿using AgentAIUtility.Middleware;
 using AICommon.Config;
 using Azure.AI.OpenAI;
+using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -45,6 +46,12 @@ namespace AgentAIUtility.Utility
             ChatClientBuilder builder,
             ILoggerFactory? loggerFactory = null) =>
                 builder.UseFunctionInvocation(loggerFactory);
+
+        public static ChatClientBuilder ConfigureAIContextProvider(
+            ChatClientBuilder builder,
+            params AIContextProvider[] providers) =>
+                builder.UseAIContextProviders(providers);
+
 
         #endregion
 
