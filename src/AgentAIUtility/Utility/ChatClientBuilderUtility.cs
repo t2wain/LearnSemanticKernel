@@ -96,26 +96,13 @@ namespace AgentAIUtility.Utility
 
         public static IChatClient CreateAzureOpenAIChatClient(AIModel model)
         {
+            // Assembly : Azure.AI.OpenAI, NS : Azure.AI.OpenAI
             AzureOpenAIClient azureClient = new(new Uri(model.EndPoint), new ApiKeyCredential(model.APIKey));
             OpenAI.Chat.ChatClient azureChatClient = azureClient.GetChatClient(model.Name);
+            // Assembly : Microsoft.Extension.AI.OpenAI, NS : Microsoft.Extension.AI
             IChatClient chatClient = azureChatClient.AsIChatClient();
             return chatClient;
         }
-
-        #pragma warning disable OPENAI001
-        public static IChatClient CreateAzureOpenAIResponseClient(AIModel model)
-        {
-            OpenAI.OpenAIClient client = new(new ApiKeyCredential(model.APIKey),
-                new()
-                {
-                    Endpoint = new(model.EndPoint),
-                });
-            OpenAI.Responses.ResponsesClient responseClient = client.GetResponsesClient();
-            IChatClient chatClient = OpenAIClientExtensions.AsIChatClient(responseClient);
-            //IChatClient chatClient = responseClient.AsIChatClient(model.ModelId);
-            return chatClient;
-        }
-        #pragma warning restore OPENAI001
 
         /// <summary>
         /// Create IChatClient from ChatClientBuilder pipeline
@@ -139,6 +126,57 @@ namespace AgentAIUtility.Utility
             IChatClient chatClient = clientBuilder.Build(serviceProvider);
             return chatClient;
         }
+
+        #endregion
+
+        #region Responses Client
+
+        #pragma warning disable OPENAI001
+
+        public static IChatClient CreateAzureOpenAIResponseClient(AIModel model)
+        {
+            int testNo = 0;
+            if (testNo == 1)
+                return CreateAzureOpenAIResponseClientAlt(model);
+            else if (testNo == 2)
+                return CreateAzureOpenAIResponseClientAlt2(model);
+
+            // Assembly : OpenAI, NS : OpenAI
+            OpenAI.OpenAIClient client = new(new ApiKeyCredential(model.APIKey),
+                new()
+                {
+                    Endpoint = new(model.EndPoint),
+                });
+            OpenAI.Responses.ResponsesClient responseClient = client.GetResponsesClient();
+            // Assembly : Microsoft.Extension.AI.OpenAI, NS : Microsoft.Extension.AI
+            IChatClient chatClient = OpenAIClientExtensions.AsIChatClient(responseClient);
+            return chatClient;
+        }
+
+        static IChatClient CreateAzureOpenAIResponseClientAlt(AIModel model)
+        {
+            // Assembly : Azure.AI.OpenAI, NS : Azure.AI.OpenAI
+            AzureOpenAIClient azureClient = new(new Uri(model.EndPoint), new ApiKeyCredential(model.APIKey));
+            OpenAI.Responses.ResponsesClient azureChatClient = azureClient.GetResponsesClient();
+            // Assembly : Microsoft.Extension.AI.OpenAI, NS : Microsoft.Extension.AI
+            IChatClient chatClient = azureChatClient.AsIChatClient();
+            return chatClient;
+        }
+
+        static IChatClient CreateAzureOpenAIResponseClientAlt2(AIModel model)
+        {
+            // Assembly : Azure.AI.OpenAI, NS : Azure.AI.OpenAI
+            OpenAI.Responses.ResponsesClient responseClient = new(new ApiKeyCredential(model.APIKey),
+                new()
+                {
+                    Endpoint = new(model.EndPoint),
+                });
+            // Assembly : Microsoft.Extension.AI.OpenAI, NS : Microsoft.Extension.AI
+            IChatClient chatClient = OpenAIClientExtensions.AsIChatClient(responseClient);
+            return chatClient;
+        }
+
+        #pragma warning restore OPENAI001
 
         #endregion
     }

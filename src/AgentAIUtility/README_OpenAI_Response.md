@@ -1,0 +1,145 @@
+﻿# Nuget
+
+- Microsoft.Extensions.AI.OpenAI
+	- OpenAI
+		- System.ClientModel
+
+# Response API
+
+## Assembly : OpenAI
+
+### OpenAI.Responses
+
+- CreateResponseOptions
+	- BackgroundModeEnabled 
+	- ConversationOptions 
+	- EndUserId 
+	- IncludedProperties : IList\<IncludedResponseProperty>
+	- **InputItems** : IList\<ResponseItem>
+	- **Instructions** : IList\<ResponseItem>
+	- MaxOutputTokenCount 
+	- MaxToolCallCount 
+	- Metadata 
+	- Model 
+	- ParallelToolCallsEnabled 
+	- **PreviousResponseId** 
+	- ReasoningOptions 
+	- SafetyIdentifier 
+	- ServiceTier 
+	- **StoredOutputEnabled** : bool
+	- StreamingEnabled : bool
+	- Temperature 
+	- TextOptions 
+	- ToolChoice 
+	- Tools : IList\<ResponseTool>
+	- TopLogProbabilityCount 
+	- TopP 
+	- TruncationMode 
+- GetResponseOptions
+- MessageRole
+- MessageStatus
+- ReasoningSummaryPart
+- ReasoningSummaryTextPart : ReasoningSummaryPart
+- **ResponseContentPart**
+	- CreateInputFilePart
+	- CreateInputImagePart
+	- 
+- ResponseContentPartKind
+- ResponseConversationOptions
+- ResponseDeletionResult
+- ResponseError
+- ResponseIncompleteStatusDetails
+- ResponseInputTokenUsageDetails
+- ResponseItem
+	- supertypes
+		- FunctionCallOutputResponseItem 
+		- FunctionCallResponseItem 
+		- ImageGenerationCallResponseItem 
+		- McpToolCallApprovalRequestItem 
+		- McpToolCallApprovalResponseItem 
+		- McpToolCallItem 
+		- McpToolDefinitionListItem 
+		- MessageResponseItem 
+		- ReasoningResponseItem 
+		- ReferenceResponseItem 
+	- CreateAssistantMessageItem
+	- CreateComputerCallItem
+	- CreateComputerCallOutputItem
+	- CreateDeveloperMessageItem
+	- CreateFileSearchCallItem
+	- CreateFunctionCallItem
+	- CreateFunctionCallOutputItem
+	- CreateMcpApprovalRequestItem
+	- CreateMcpToolCallItem
+	- CreateMcpToolDefinitionListItem
+	- CreateReasoningItem
+	- CreateReferenceItem
+	- CreateSystemMessageItem
+	- CreateUserMessageItem
+	- CreateWebSearchCallItem
+	- Id
+- ResponseItemCollectionOptions
+- ResponseItemCollectionPage
+- ResponseResult
+	- BackgroundModeEnabled 
+	- ConversationOptions 
+	- CreatedAt 
+	- EndUserId 
+	- Error 
+	- **Id** 
+	- IncompleteStatusDetails 
+	- Instructions : IList\<ResponseItem>
+	- MaxOutputTokenCount 
+	- MaxToolCallCount 
+	- Metadata 
+	- Model 
+	- OutputItems 
+	- ParallelToolCallsEnabled 
+	- **PreviousResponseId** 
+	- ReasoningOptions 
+	- SafetyIdentifier 
+	- ServiceTier 
+	- Status 
+	- Temperature 
+	- TextOptions 
+	- ToolChoice 
+	- Tools : IList\<ResponseTool>
+	- TopLogProbabilityCount 
+	- TopP 
+	- TruncationMode 
+	- Usage 
+- **ResponsesClient**
+	- CreateResponse : **System.ClientModel.ClientResult**\<ResponseResult>
+		- options : **CreateResponseOptions**
+	- CreateResponse : ClientResult\<ResponseResult>
+		- model : string
+		- userInputText : string
+		- previousResponseId : string
+	- CreateResponse : ClientResult\<ResponseResult>
+		- model : string
+		- inputItems : IEnumerable\<ResponseItem>
+		- previousResponseId : string
+	- CreateResponse : ClientResult
+		- content : System.ClientModel.BinaryContent
+		- options : System.ClientModel.Primitives.RequestOptions
+	- CreateResponseAsync : Task<ClientResult\<ResponseResult>>
+	- CreateResponseStreaming : **System.ClientModel.CollectionResult**\<StreamingResponseUpdate>
+	- DeleteResponse : ClientModel.ClientResult\<ResponseDeletionResult>
+	- DeleteResponseAsync : Task<ClientResult\<ResponseDeletionResult>>
+	- GetInputTokenCount : ClientResult
+	- GetInputTokenCountAsync : Task\<ClientResult>
+	- GetResponse : ClientResult\<ResponseResult>
+	- GetResponseAsync : Task<ClientResult\<ResponseResult>>
+	- GetResponseInputItemCollectionPage : ClientResult\<ResponseItemCollectionPage>
+- ResponseTool
+	- supertypes
+		- FunctionTool
+		- ImageGenerationTool 
+		- McpTool 
+
+## Assembly : System.ClientModel
+
+### System.ClientModel
+
+- ClientResult\<T>
+	- Value : T

@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace AIAgentExample.Example
 {
-    public static class WorkflowExample
+    public static class EmailWorkflow
     {
         #region Data structures
 
@@ -375,6 +375,7 @@ namespace AIAgentExample.Example
             session.WorkflowBuilder = builder;
             session.Title = "Run example - Responding to email workflow";
             session.AIModel = new() { ServiceId = "Local Test Agent" };
+            session.WorkflowEventProcessor = new WorkflowService.EventProcessor(session);
 
             WorkflowService service = new WorkflowService(session);
 

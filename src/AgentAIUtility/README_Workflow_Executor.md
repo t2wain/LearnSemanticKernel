@@ -182,3 +182,6 @@
 		- out RawValue : object
 - AIAgentBinding : ExecutorBinding
 - AIAgentHostOptions
+- RequestPort
+- RequestPort<TRequest, TResponse> : RequestPort
+- RequestPortBinding : ExecutorBinding

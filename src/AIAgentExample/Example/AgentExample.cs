@@ -10,6 +10,7 @@ namespace AIAgentExample.Example
 {
     public class AgentExample
     {
+        #region Other
 
         IServiceProvider serviceProvider;
         AIProviderCollection aiModelCollection;
@@ -24,6 +25,8 @@ namespace AIAgentExample.Example
             aiModel = this.aiModelCollection.GetAIModel();
         }
 
+        #endregion
+
         public Task<object?> RunAsync(int mode = 0)
         {
             return mode switch
@@ -31,14 +34,31 @@ namespace AIAgentExample.Example
                 1 => ChatWithFileSystemTool(),
                 2 => AgentWithTimeTool(),
                 3 => RunTestAgent(),
-                4 => WorkflowExample.TestSpamDetectionAgent(),
-                5 => WorkflowExample.TestEmailAssistantAgent(),
-                6 => WorkflowExample.RunWorkflow(),
+                4 => EmailWorkflow.TestSpamDetectionAgent(),
+                5 => EmailWorkflow.TestEmailAssistantAgent(),
+                6 => EmailWorkflow.RunWorkflow(),
+                7 => ChatWithResponsesClient(),
+                8 => RequestWorkflow.RunWorkflow(),
                 _ => ChatWithTimeTool()
             };
         }
 
         #region Examples
+
+        public async Task<object?> ChatWithResponsesClient()
+        {
+            //aiModel.ModelType = AIModelTypeEnum.OpenAIResponse;
+            ChatSession session = new(serviceProvider, aiModel);
+            session.Title = "Run example - Chat with Responses API";
+            // add middleware
+            session.CreateChatClient(middleware: new ChatClientMiddleWareBase());
+            session.ConfigureChatClient();
+
+            var service = new ChatClientService(session);
+            await service.StartChat();
+
+            return session;
+        }
 
         public async Task<object?> ChatWithTimeTool()
         {

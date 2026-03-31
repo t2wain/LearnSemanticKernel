@@ -12,115 +12,150 @@ namespace AgentAIUtility.Chat
             return InvokeStreamingAsync(messages);
         }
 
-        protected async virtual Task<ChatResponse> InvokeStreamingAsync(ChatMessage messages)
+        protected async virtual Task<ChatResponse> InvokeStreamingAsync<T>(T messages) where T : notnull
         {
+            IWorkflowEventProcessor ep = Session.WorkflowEventProcessor ?? new EventProcessor(Session);
             Workflow workflow = Session.WorkflowBuilder.Build();
+
             // Execute the workflow with sample spam email
-            StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, messages);
+            await using StreamingRun run = await InProcessExecution.RunStreamingAsync(workflow, messages);
             var success = await run.TrySendMessageAsync(new TurnToken(emitEvents: true));
-            int step = 0;
+            ep.WorkflowStarted(workflow);
             await foreach (WorkflowEvent evt in run.WatchStreamAsync().ConfigureAwait(false))
             {
-                step++;
+                ep.ProcessWorkflowEvent(evt, run);
+            }
+            return new ChatResponse(new ChatMessage(ChatRole.Assistant, "Completed"));
+        }
+
+        #region Default Workflow Event Processor
+
+        public interface IWorkflowEventProcessor
+        {
+            void WorkflowStarted(Workflow workflow);
+            void ProcessWorkflowEvent(WorkflowEvent evt, StreamingRun handle);
+        }
+
+        public class EventProcessor : IWorkflowEventProcessor
+        {
+            public EventProcessor(ChatSession session)
+            {
+                ChatSession = session;
+            }
+
+            public int Step { get; set; }
+
+            public ChatSession ChatSession { get; set; }
+
+            public void WorkflowStarted(Workflow workflow)
+            {
+                Step = 0;
+            }
+
+            public virtual void ProcessWorkflowEvent(WorkflowEvent evt, StreamingRun handle)
+            {
+                Step++;
                 if (evt is WorkflowStartedEvent ews)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Workflow Started : {ews.Data}");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Workflow Started : {ews.Data}");
                 }
                 else if (evt is SuperStepStartedEvent ess)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Super Step Started : {ess.StepNumber}");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Super Step Started : {ess.StepNumber}");
                     if (ess.StartInfo is SuperStepStartInfo info)
                     {
                         var executors = string.Join(", ", info.SendingExecutors.ToArray());
-                        Session.TextWriter?.WriteLine($"   - {executors}");
+                        ChatSession.TextWriter?.WriteLine($"   - {executors}");
                     }
                 }
                 else if (evt is ExecutorInvokedEvent es)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Executor invoked");
-                    Session.TextWriter?.WriteLine($"   - {es.Data}");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Executor invoked");
+                    ChatSession.TextWriter?.WriteLine($"   - {es.Data}");
                 }
                 else if (evt is ExecutorCompletedEvent ec)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Executor completed");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Executor completed");
                     if (ec.Data != null)
                     {
-                        Session.TextWriter?.WriteLine($"   - {ec.Data}");
+                        ChatSession.TextWriter?.WriteLine($"   - {ec.Data}");
                     }
                 }
                 else if (evt is ExecutorFailedEvent ef)
                 {
-                    Session.TextWriter?.Write($"{step}. Executor failed: ");
+                    ChatSession.TextWriter?.Write($"{Step}. Executor failed: ");
                     if (ef.Data is Exception ex)
                     {
-                        Session.TextWriter?.Write($"   - {ex.Message}");
+                        ChatSession.TextWriter?.Write($"   - {ex.Message}");
                     }
-                    Session.TextWriter?.WriteLine();
+                    ChatSession.TextWriter?.WriteLine();
                 }
                 else if (evt is AgentResponseEvent ars)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Agent Response: {ars.Data}");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Agent Response: {ars.Data}");
                 }
                 else if (evt is AgentResponseUpdateEvent arus)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Agent Response Update: {arus.Data}");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Agent Response Update: {arus.Data}");
                 }
                 else if (evt is WorkflowOutputEvent ewo)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Workflow output");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Workflow output");
                     if (ewo.Data != null)
                     {
-                        Session.TextWriter?.WriteLine($"   - {ewo.Data}");
+                        ChatSession.TextWriter?.WriteLine($"   - {ewo.Data}");
                     }
                 }
                 else if (evt is SuperStepCompletedEvent ssc)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Super Step Completed");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Super Step Completed");
                     if (ssc.Data is SuperStepCompletionInfo d)
                     {
                         var a = string.Join(", ", d.InstantiatedExecutors.ToArray());
                         if (!string.IsNullOrWhiteSpace(a))
-                            Session.TextWriter?.WriteLine($"   - {a}");
-                        Session.TextWriter?.WriteLine($"   - HasPendingMessages : {d.HasPendingMessages}");
-                        Session.TextWriter?.WriteLine($"   - HasPendingRequests : {d.HasPendingRequests}");
+                            ChatSession.TextWriter?.WriteLine($"   - {a}");
+                        ChatSession.TextWriter?.WriteLine($"   - HasPendingMessages : {d.HasPendingMessages}");
+                        ChatSession.TextWriter?.WriteLine($"   - HasPendingRequests : {d.HasPendingRequests}");
                         if (d.Checkpoint is CheckpointInfo e)
                         {
-                            Session.TextWriter?.WriteLine($"   - Session ID : {e.SessionId} : "
+                            ChatSession.TextWriter?.WriteLine($"   - session ID : {e.SessionId} : "
                                 + "Checkpoint ID : {e.CheckpointId}");
                         }
                     }
-                    Session.TextWriter?.WriteLine();
+                    ChatSession.TextWriter?.WriteLine();
                 }
                 else if (evt is SuperStepEvent e10)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Super Step");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Super Step");
                 }
                 else if (evt is RequestInfoEvent e5)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Request Info");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Request Info");
                 }
                 else if (evt is SubworkflowErrorEvent e6)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Subworkflow Error");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Subworkflow Error");
                 }
                 else if (evt is WorkflowErrorEvent e7)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Executor invoked");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Executor invoked");
                 }
                 else if (evt is SubworkflowWarningEvent e8)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Subworkflow Warning");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Subworkflow Warning");
                 }
                 else if (evt is WorkflowWarningEvent e14)
                 {
-                    Session.TextWriter?.WriteLine($"{step}. Workflow Warning");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. Workflow Warning");
                 }
                 else
                 {
-                    Session.TextWriter?.WriteLine($"{step}. {evt.GetType().Name}");
+                    ChatSession.TextWriter?.WriteLine($"{Step}. {evt.GetType().Name}");
                 }
             }
-            return new ChatResponse(new ChatMessage(ChatRole.Assistant, "Completed"));
+
         }
+
+        #endregion
     }
 }

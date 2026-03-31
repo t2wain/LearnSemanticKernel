@@ -52,6 +52,8 @@ namespace AgentAIUtility.Chat
 
     public record ChatSession : IChatClientSession, IAgentSession
     {
+        #region Other
+
         public ChatSession()
         {
             TextWriter = Console.Out;
@@ -71,6 +73,8 @@ namespace AgentAIUtility.Chat
             TextReader = Console.In;
             GetAIToolsFunc = GetAITools;
         }
+
+        #endregion
 
         #region Agent
 
@@ -148,7 +152,13 @@ namespace AgentAIUtility.Chat
 
         #endregion
 
+        #region Workflow
+
         public WorkflowBuilder WorkflowBuilder { get; set; }
+
+        public WorkflowService.IWorkflowEventProcessor WorkflowEventProcessor { get; set; }
+
+        #endregion
 
         #region CompletionService
 

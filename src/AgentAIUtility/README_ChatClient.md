@@ -30,7 +30,7 @@
 	- ProviderName 
 	- ProviderUri : Uri
 - **ChatOptions**
-	- AdditionalProperties : AdditionalPropertiesDictionary
+	- AdditionalProperties : **AdditionalPropertiesDictionary**
 	- AllowBackgroundResponses : bool
 	- **AllowMultipleToolCalls** : bool
 	- ContinuationToken : ResponseContinuationToken
@@ -55,6 +55,29 @@
 	- GetService
 	- GetStreamingResponseAsync
 	- InnerClient : IChatClient
+- **AdditionalPropertiesDictionary** : AdditionalPropertiesDictionary\<object>
+- AdditionalPropertiesDictionary\<TValue>
+	- implements
+		- ICollection<KeyValuePair<String, TValue>>
+		- IDictionary<String, TValue>
+		- IEnumerable
+		- IEnumerable<KeyValuePair<String, TValue>>
+		- IReadOnlyCollection<KeyValuePair<String, TValue>>
+		- IReadOnlyDictionary<String, TValue>
+	- ctor(IDictionary<string, TValue>)
+	- ctor(IEnumerable<KeyValuePair<string, TValue>>)
+	- Add
+	- Clear
+	- Clone
+	- ContainsKey
+	- Remove
+	- TryAdd
+	- TryGetValue
+	- Count
+	- Keys
+	- this[string]
+	- Values
+
 
 ## Assembly : Microsoft.Extensions.AI
 
@@ -147,17 +170,55 @@
 - **OpenAIClientExtensions**
 	- AsIChatClient : Microsoft.Extensions.AI.**IChatClient**
 		- this OpenAI.Assistants.AssistantClient
-		- this OpenAI.Chat.ChatClient
-		- this OpenAI.Responses.ResponsesClient
+		- this **OpenAI.Chat.ChatClient**
+		- this **OpenAI.Responses.ResponsesClient**
 	- AsIEmbeddingGenerator : IEmbeddingGenerator<string, Embedding\<float>>
 		- this EmbeddingClient
+
+### OpenAI.Assistants
+
+- MicrosoftExtensionsAIAssistantsExtensions
+
+### OpenAI.Chat
+
+- MicrosoftExtensionsAIChatExtensions
+
+### OpenAI.Responses
+
+- MicrosoftExtensionsAIResponsesExtensions
+	- Add
+		- this IList\<AITool>
+		- tool : OpenAI.Responses.ResponseTool
+	- AsAITool : AITool
+		- this OpenAI.Responses.ResponseTool
+	- AsChatMessages : IEnumerable\<ChatMessage>
+		- this IEnumerable<OpenAI.Responses.ResponseItem>
+	- AsChatResponse : ChatResponse
+		- this OpenAI.Responses.ResponseResult
+		- options : OpenAI.Responses.CreateResponseOptions
+	- AsChatResponseUpdatesAsync : IAsyncEnumerable\<ChatResponseUpdate>
+		- this IAsyncEnumerable<OpenAI.Responses.StreamingResponseUpdate>
+		- options : OpenAI.Responses.CreateResponseOptions
+	- AsOpenAIResponseItems : IEnumerable<OpenAI.Responses.ResponseItem>
+		- this IEnumerable\<ChatMessage>
+		- options : ChatOptions
+	- AsOpenAIResponseResult : OpenAI.Responses.ResponseResult
+		- this ChatResponse
+		- options : ChatOptions
+	- AsOpenAIResponseTextFormat : OpenAI.Responses.ResponseTextFormat
+		- this ChatResponseFormat
+		- options : ChatOptions
+	- AsOpenAIResponseTool : OpenAI.Responses.FunctionTool
+		- this AIFunctionDeclaration
+	- AsOpenAIResponseTool : OpenAI.Responses.FunctionTool
+		- this AITool
 
 ## Assembly : Azure.AI.OpenAI
 
 ### Azure.AI.OpenAI
 
 - **AzureOpenAIClient** : OpenAIClient
-	- GetChatClient : OpenAI.Chat.ChatClient
+	- GetChatClient : **OpenAI.Chat.ChatClient**
 		- deploymentName : string
 	- GetAssistantClient : OpenAI.Assistants.AssistantClient
 	- GetAudioClient : OpenAI.Audio.AudioClient
@@ -168,5 +229,5 @@
 	- GetImageClient : OpenAI.Images.ImageClient
 	- GetOpenAIFileClient : OpenAI.Files.OpenAIFileClient
 	- GetRealtimeClient : RealtimeClient
-	- GetResponsesClient : OpenAI.Responses.ResponsesClient
+	- GetResponsesClient : **OpenAI.Responses.ResponsesClient**
 

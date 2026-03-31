@@ -160,7 +160,7 @@
 		- CheckpointManager
 		- sessionId : string
 		- CancellationToken
-	- RunStreamingAsync\<TInput> : ValueTask\<StreamRun>
+	- RunStreamingAsync\<TInput> : ValueTask\<StreamingRun>
 		- Workflow
 		- input : TInput
 		- CheckpointManager
@@ -170,6 +170,14 @@
 	- Default : InProcessExecutionEnvironment
 	- Lockstep : InProcessExecutionEnvironment
 	- OffThread : InProcessExecutionEnvironment
+- StreamingRun : CheckpointableRunBase
+	- CancelRunAsync
+	- GetStatusAsync :ValueTask\<RunStatus>
+	- **SendResponseAsync**
+		- **ExternalResponse**
+	- TrySendMessageAsync\<TMessage> : ValueTask\<bool>
+		- TMessage
+	- WatchStreamAsync : IAsyncEnumerable\<WorkflowEvent>
 - WorkflowEvent
 	- supertypes
 		- ExecutorEvent
@@ -218,8 +226,69 @@
 	- AsResponse : AgentResponse
 - WorkflowEvent
 	- Data : object
+- RequestInfoEvent
+	- Request : **ExternalRequest**
+- ExternalRequest
+	- ctor
+		- PortInfo: RequestPortInfo, 
+		- RequestId: string 
+		- Data: PortableValue
+	- Create : ExternalRequest
+		- port : RequestPortInfo, 
+		- data: PortableValue
+		- requestId: string 
+	- Create\<T> : ExternalRequest
+		- port : RequestPortInfo, 
+		- data: T
+		- requestId: string 
+	- **CreateResponse**(object data) : **ExternalResponse**
+	- CreateResponse\<T>(T data) : ExternalResponse
+	- Deconstruct
+		- out port : RequestPortInfo, 
+		- out requestId: string 
+		- out data: PortableValue
+	- IsDataOfType\<TValue> : bool
+	- TryGetDataAs(System.Type targetType, out object value) : bool
+	- TryGetDataAs\<TValue>(out TValue value) : bool
+	- Data : PortableValue
+	- PortInfo : RequestPortInfo
+	- RequestId : string
+- ExternalResponse
+	- ctor
+		- PortInfo: RequestPortInfo, 
+		- RequestId: string 
+		- Data: PortableValue
+	- Deconstruct
+		- out port : RequestPortInfo, 
+		- out requestId: string 
+		- out data: PortableValue
+	- IsDataOfType\<TValue> : bool
+	- TryGetDataAs(System.Type targetType, out object value) : bool
+	- TryGetDataAs\<TValue>(out TValue value) : bool
+	- Data : PortableValue
+	- PortInfo : RequestPortInfo
+	- RequestId : string
 
+### Workflow Events Summary
 
+**Workflow lifecycle events**
+- WorkflowStartedEvent // Workflow execution begins
+- WorkflowOutputEvent // Workflow outputs data
+- WorkflowErrorEvent // Workflow encounters an error
+- WorkflowWarningEvent // Workflow encountered a warning
 
+**Executor events**
+- ExecutorInvokedEvent // Executor starts processing
+- ExecutorCompletedEvent // Executor finishes processing
+- ExecutorFailedEvent // Executor encounters an error
+- AgentResponseEvent // An agent run produces output
+- AgentResponseUpdateEvent // An agent run produces a streaming update
+
+**Superstep events**
+- SuperStepStartedEvent // Superstep begins
+- SuperStepCompletedEvent // Superstep completes
+
+**Request events**
+- RequestInfoEvent // A request is issued
 
 

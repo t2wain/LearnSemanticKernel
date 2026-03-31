@@ -18,7 +18,7 @@ namespace AgentAIUtility.Chat
         /// <summary>
         /// Start a user interactive chat session via the console
         /// </summary>
-        public async Task StartChat(string? message = null)
+        public virtual async Task StartChat(string? message = null)
         {
             await StartChat(string.IsNullOrWhiteSpace(message) ? [] : [message]);
         }
@@ -26,7 +26,7 @@ namespace AgentAIUtility.Chat
         /// <summary>
         /// Send a series of prompts to the LLM
         /// </summary>
-        public async Task StartChat(IEnumerable<string> messages, bool continueWithUserPrompt = true)
+        public virtual async Task StartChat(IEnumerable<string> messages, bool continueWithUserPrompt = true)
         {
             WriteHeader();
 
@@ -42,7 +42,7 @@ namespace AgentAIUtility.Chat
                 await StartInteractiveChat();
         }
 
-        protected async Task StartInteractiveChat()
+        protected virtual async Task StartInteractiveChat()
         {
             Session.TextWriter?.WriteLine("<<<< User >>>>");
             Session.TextWriter?.WriteLine();
@@ -57,7 +57,7 @@ namespace AgentAIUtility.Chat
             }
         }
 
-        protected void WriteHeader()
+        protected virtual void WriteHeader()
         {
             Session.TextWriter?.WriteLine(Session.Title);
             Session.TextWriter?.WriteLine("Using model - {0}",
@@ -80,13 +80,13 @@ namespace AgentAIUtility.Chat
         /// <summary>
         /// Send a prompt and receive a response
         /// </summary>
-        public async Task<ChatResponse> SendMessage(string message) =>
-                await SendMessage(new ChatMessage(ChatRole.User, message));
+        public virtual async Task<ChatResponse> SendMessage(string message) =>
+            await SendMessage(new ChatMessage(ChatRole.User, message));
 
         /// <summary>
         /// Send a prompt and receive a response
         /// </summary>
-        public async Task<ChatResponse> SendMessage(ChatMessage message)
+        public virtual async Task<ChatResponse> SendMessage(ChatMessage message)
         {
             Session.TextWriter?.WriteLine();
             Session.TextWriter?.WriteLine("<<<< Assistant >>>>");
