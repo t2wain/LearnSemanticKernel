@@ -1,4 +1,5 @@
-﻿using AIAgentExample.Example.MCP;
+﻿using AgentAIUtility.MCP;
+using AIAgentExample.Example.MCP;
 using Microsoft.Extensions.Hosting;
 
 namespace McpServerApp
@@ -15,7 +16,7 @@ namespace McpServerApp
 
             builder
                 .Services
-                .ConfigureMcpStioServer();
+                .ConfigureMcpStioServer(McpTimeTool.GetAssembly());
 
            await builder.Build().RunAsync();
         }

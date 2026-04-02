@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.Agents.Client" Version="1.5.45-beta" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.3.0" />
     <PackageReference Include="ModelContextProtocol" Version="1.1.0" />
+    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>

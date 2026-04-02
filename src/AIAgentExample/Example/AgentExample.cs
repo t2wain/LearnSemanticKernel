@@ -1,11 +1,13 @@
 ﻿using AgentAIUtility.Chat;
 using AgentAIUtility.Entity;
+using AgentAIUtility.MCP;
 using AgentAIUtility.Middleware;
 using AIAgentExample.Example.MCP;
 using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
+using ModelContextProtocol.Client;
 
 namespace AIAgentExample.Example
 {
@@ -41,6 +43,8 @@ namespace AIAgentExample.Example
                 7 => ChatWithResponsesClient(),
                 8 => RequestWorkflow.RunWorkflow(),
                 9 => McpExample.McpStioServerExample(),
+                10 => McpExample.McpHttpServerExample(),
+                11 => ChatWithMcpTimeTool(),
                 _ => ChatWithTimeTool()
             };
         }
@@ -138,6 +142,28 @@ namespace AIAgentExample.Example
             session.AgentSession = session.Agent.CreateSessionAsync().Result;
 
             ChatServiceBase service = new AgentService(session);
+            await service.StartChat();
+
+            return session;
+        }
+
+        public async Task<object?> ChatWithMcpTimeTool()
+        {
+            ChatSession session = new(serviceProvider, aiModel);
+            session.Title = "Run example - Chat with MCP time plugin";
+            session.ConfigurePrompt(@".\Example\Prompt\Time\Message.xml");
+            // add middleware
+            session.CreateChatClient(middleware: new ChatClientMiddleWareBase());
+            session.ConfigureChatClient();
+
+            McpClient client = await McpUtility.GetMcpStioClient(McpExample.ProjectPath, "stdio-coordinate-server");
+            IList<AITool> mcpTools = [.. await McpUtility.ListAITools(client)];
+            if (mcpTools is IList<AITool> tools)
+            {
+                session.ChatOptions.Tools = tools;
+            }
+
+            var service = new ChatClientService(session);
             await service.StartChat();
 
             return session;

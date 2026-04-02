@@ -1,56 +1,58 @@
-﻿# Introduction
+﻿# GenAI Examples
 
-This console application is designed to demonstrate the initialization of an AI Chat application and provides ready to run examples of various AI chat sessions.
+There are several examples implemented in this project. The starting application is the console app implemented in the project **AIConsoleApp**. You can specify which examples to run int the appsettings.jon file.
 
-The initialization of the application is based on the configuration file **appsettings.json** which includes:
-- LLM model configuration
-- Logging configuration
-- Prompt template folder
-- Examples to run
-
-# Example
-
-The examples explores these AI concepts:
-- Use prompts specified in external files
-- Streaming response from LLM
-- Toolcall messaging
-- Maintain chat history
-
-## PluginExample
-
-The **ChatBox** class provides a default initialization of a session with the LLM. System prompts, user prompts, and tools can be specified in an xml file. Once the chatbox has iterated through all the user prompts in the xml file, it will accept further prompts from the user at the console to continue the chat session.
+File name: **ChatExample.cs**
 
 ```csharp
-var cb = new ChatBox(serviceProvider);
-ChatSession session = ChatSession.Create(serviceProvider);
-return cb.StartChat(
-    session,
-    @".\Example\Prompt\Time\Message.xml",
-    "Run example - Chat with time plugin");
+public Task<ChatSession> RunAsync(int mode = 0) =>
+    mode switch
+    {
+        0 => ChatWithLLM(),
+        1 or 5 => new PluginExample(serviceProvider).RunAsync(mode),
+        2 => AutoChatWithLLM(),
+        3 => InvokeStreamingPromptPlugin(),
+        4 => new AgentExample(serviceProvider).RunAsync(mode),
+        6 => new WebPluginExample(serviceProvider).RunAsync(mode),
+        _ => Task.FromResult(new ChatSession())
+    };
 ```
 
-The **ChatBox** is overrided to create the KernelPlugin
+File name: **PluginExample.cs**
 
 ```csharp
-protected override void RegisterPlugins(KernelPluginCollection pluginCollection, IEnumerable<string> plugins)
-{
-    foreach (var p in plugins)
+public Task<ChatSession> RunAsync(int mode = 0) =>
+    mode switch
     {
-        switch(p)
-        {
-            case "timepu":
-                pluginCollection.AddFromType<TimePlugin>(p);
-                break;
-            case "filepu":
-                AppConfig cfg = ServiceProvider.GetRequiredService<IOptions<AppConfig>>().Value;
-                pluginCollection.AddFromObject(new FileSystemPlugin(cfg.RootDirectory!), p);
-                break;
-        }
-    }
+        1 => ChatWithTimePlugin(),
+        5 => ChatWithFileSystemPlugin(),
+        _ => Task.FromResult(new ChatSession())
+    };
+```
+
+File name: **appsetting.json**
+
+```json
+"AppConfig": {
+    // 1 - ChatWithTimePlugin
+    // 5 - ChatWithFileSystemPlugin
+    // 4 - AgentWithTimePlugin
+    "RunExampleNo": [ 5 ],
+    "ExamplePluginDirectory": "",
+    "RootDirectory": "",
+    "MessageXml" : ""
 }
 ```
 
-The **ChatWithTimePlugin** example registers the "**TimePlugin**" which many time-related toolcalls available to the LLM. When a user prompt is related to the current time, LLM will make toolcalls to obtain such data.
+## Plugin Example
+
+Plugins are functions that can be called by the LLM in a chat session. There are 2 plugins used by the examples. First is the **TimePlugin**  which is provided by the Microsoft library. The TimePlugin allows LLM to request local time information to answer user queries. The second plugin is the **FileSystemPlugin** which is a custom implementation that allows LLM to access the local file system.
+
+## Message.xml
+
+The message.xml file contains a list of prompts that can be sent to the LLM sequentially. Examples that use the TimePlugin and FileSystemPlugin will use the message.xml files listed below to demonstated the tool calling feature of LLM.
+
+**Prompts in message.xml for use with TimePlugin**.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -84,7 +86,7 @@ Include time difference to my timezone.
 </chat>
 ```
 
-The **ChatWithFileSystemPlugin** example registers the "**FileSystemPlugin**" which consists of toolcalls that provide the LLM with access to the local file system. You can instruct the LLM to list, create, read, and write directories/files under a configured root folder.
+**Prompts in message.xml for use with FileSystemPlugin**.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -129,41 +131,7 @@ in parenthesis next to each file.
 </chat>
 ```
 
-## AgentExample
-
-The **AgentWithTimePlugin** example is the same as the **ChatWithTimePlugin** example but implemented as an Agent.
-
-```csharp
-var cb = new ChatBox(serviceProvider, useAgentService: true);
-ChatSession session = ChatSession.Create(serviceProvider);
-return cb.StartChat(
-    session,
-    @".\Example\Prompt\Time\Message.xml",
-    "Run example - Agent with time plugin");
-```
-
-```csharp
-virtual protected AgentService CreateAgentService(ChatSession session, string systemPrompt)
-{
-    Agent agent = new ChatCompletionAgent()
-    {
-        Name = "my_agent",
-        Instructions = systemPrompt,
-        InstructionsRole = AuthorRole.System,
-        Kernel = session.Kernel,
-        Arguments = new KernelArguments(session.ExecutionSettings),
-    };
-    session.Agent = agent;
-    // setup the session thread which maitain the history of the conversation
-    session.AgentThreadId = new ChatHistoryAgentThread(session.History);
-
-    // setup the chat conle
-    var service = new AgentService() { Session = session };
-    return service;
-}
-```
-
-## Message.xml
+## Message.xml Template
 
 All the system and user prompts being used by the above examples are stored in an XML file called Message.xml to allow easy update since a user prompt can be quite verbose.
 

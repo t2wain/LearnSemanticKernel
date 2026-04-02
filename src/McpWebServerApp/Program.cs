@@ -1,4 +1,5 @@
-﻿using AIAgentExample.Example.MCP;
+﻿using AgentAIUtility.MCP;
+using AIAgentExample.Example.MCP;
 using Microsoft.AspNetCore.Builder;
 
 namespace McpWebServerApp
@@ -15,7 +16,7 @@ namespace McpWebServerApp
 
             builder
                 .Services
-                .ConfigureMcpWebServer();
+                .ConfigureMcpWebServer(McpTimeTool.GetAssembly());
 
             
             WebApplication app = builder.Build();

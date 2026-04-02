@@ -1,12 +1,15 @@
 ﻿using AICommon.Tools;
 using ModelContextProtocol.Server;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace AIAgentExample.Example.MCP
 {
     [McpServerToolType]
     public class McpTimeTool : TimeTool
     {
+        public static Assembly GetAssembly() => typeof(McpTimeTool).Assembly;
+
         [McpServerTool, Description("Get the current date")]
         public override string Date(IFormatProvider? formatProvider = null) => 
             base.Date(formatProvider);

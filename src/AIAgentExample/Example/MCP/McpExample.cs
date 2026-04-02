@@ -1,60 +1,33 @@
-﻿using Microsoft.Extensions.AI;
-using ModelContextProtocol.Client;
+﻿using AgentAIUtility.MCP;
+using Microsoft.Extensions.AI;
 
 namespace AIAgentExample.Example.MCP
 {
     public static class McpExample
     {
         public static string ProjectPath = "C:\\devgit\\LearnSemanticKernel\\src\\McpServerApp\\McpServerApp.csproj";
-        public static string BaseURL = "https://localhost";
-
-        public static Task<McpClient> GetMcpStioClient(string appPath, string name)
-        {
-            Task<McpClient> localMcpServer = McpClient.CreateAsync(new StdioClientTransport(new()
-            {
-                Command = "dotnet",
-                Arguments = ["run", "--project", appPath],
-                Name = name
-            }));
-
-            return localMcpServer;
-        }
-
-        public static Task<McpClient> GetMcpHttpClient(string baseUrl, string name)
-        {
-            Task<McpClient> remoteMcpServer = McpClient.CreateAsync(new HttpClientTransport(new()
-            {
-                Endpoint = new Uri(baseUrl),
-                Name = name
-            }));
-
-            return remoteMcpServer;
-        }
-
-        public static ValueTask<IList<McpClientTool>> ListTools(McpClient client) =>
-            client.ListToolsAsync();
-
+        public static string BaseURL = "http://localhost:5000";
 
         public static async Task<object?> McpStioServerExample()
         {
 
-            var localMcpServer = await GetMcpStioClient(ProjectPath, "stdio-coordinate-server");
+            var localMcpServer = await McpUtility.GetMcpStioClient(ProjectPath, "stdio-coordinate-server");
 
-            var tools = ListTools(localMcpServer);
-            List<AITool> availableTools = [.. await tools];
+            var tools = await McpUtility.ListTools(localMcpServer);
+            List<AITool> availableTools = [.. tools];
 
-            return null;
+            return availableTools;
         }
 
 
         public static async Task<object?> McpHttpServerExample()
         {
-            var remoteMcpServer = await GetMcpHttpClient(BaseURL, "streamable-http-geocoding-server");
+            var remoteMcpServer = await McpUtility.GetMcpHttpClient(BaseURL, "streamable-http-geocoding-server");
 
-            var tools = ListTools(remoteMcpServer);
-            List<AITool> availableTools = [.. await tools];
+            var tools = await McpUtility.ListTools(remoteMcpServer);
+            List<AITool> availableTools = [.. tools];
 
-            return null;
+            return availableTools;
         }
 
     }
