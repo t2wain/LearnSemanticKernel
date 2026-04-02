@@ -1,6 +1,7 @@
 ﻿using AgentAIUtility.Chat;
 using AgentAIUtility.Entity;
 using AgentAIUtility.Middleware;
+using AIAgentExample.Example.MCP;
 using AICommon.Config;
 using Microsoft.Agents.AI;
 using Microsoft.Extensions.AI;
@@ -39,6 +40,7 @@ namespace AIAgentExample.Example
                 6 => EmailWorkflow.RunWorkflow(),
                 7 => ChatWithResponsesClient(),
                 8 => RequestWorkflow.RunWorkflow(),
+                9 => McpExample.McpStioServerExample(),
                 _ => ChatWithTimeTool()
             };
         }
