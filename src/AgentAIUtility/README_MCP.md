@@ -1,7 +1,9 @@
 ﻿# Nuget
 
-- ModelContextProtocol
 - ModelContextProtocol.AspNetCore
+	- ModelContextProtocol
+		- ModelContextProtocol.Core
+			- Microsoft.Extensions.AI.Abstractions
 
 # MCP Server Configuration
 
@@ -34,8 +36,13 @@
 	- **WithStdioServerTransport**
 	- WithStreamServerTransport
 	- WithSubscribeToResourcesHandler
-	- WithTools
+	- WithTools(IEnumerable\<McpServerTool> tools)
+	- WithTools(IEnumerable<System.Type> toolTypes, JsonSerializerOptions)
+	- WithTools\<TToolType>(JsonSerializerOptions)
+	- WithTools\<TToolType>(TToolType target, JsonSerializerOptions)
 	- **WithToolsFromAssembly**
+		- toolAssembly : Assembly
+		- JsonSerializerOptions 
 	- WithUnsubscribeFromResourcesHandler
 
 ## Assembly : ModelContextProtocol.Core
@@ -59,6 +66,74 @@
 	- ServerInstructions : string
 	- TaskStore : IMcpTaskStore
 	- ToolCollection : McpServerPrimitiveCollection\<**McpServerTool**>
+- **McpServerTool**
+	- Create : McpServerTool
+		- function : AIFunction
+		- options : McpServerToolCreateOptions
+	- Create : McpServerTool
+		- method : System.Delegate
+		- options : McpServerToolCreateOptions
+	- Create : McpServerTool
+		- method : MethodInfo
+		- target : object
+		- options : McpServerToolCreateOptions
+	- Create : McpServerTool
+		- method : MethodInfo
+		- createTargetFunc : Func<RequestContext\<CallToolRequestParams>, object>
+		- options : McpServerToolCreateOptions
+	- InvokeAsync : ValueTask\<CallToolResult>
+		- request : RequestContext\<CallToolRequestParams>
+	- Metadata : IReadOnlyList\<object>
+	- ProtocolTool : ModelContextProtocol.Protocol.Tool
+- **McpServerToolAttribute** : System.Attribute
+	- Destructive : bool
+	- IconSource : string
+	- Idempotent : bool
+	- Name : string
+	- OpenWorld : bool
+	- ReadOnly : bool
+	- TaskSupport
+	- Title : string
+	- UseStructuredContent : bool
+- **McpServerToolTypeAttribute** : System.Attribute
+- McpServerToolCreateOptions
+	- Description 
+	- Destructive : bool
+	- Execution : ToolExecution
+	- Icons 
+	- Idempotent : bool
+	- Meta : JsonObject
+	- Metadata : IReadOnlyList\<object>
+	- Name : string
+	- OpenWorld : bool
+	- ReadOnly : bool
+	- SchemaCreateOptions : AIJsonSchemaCreateOptions
+	- SerializerOptions : JsonSerializerOptions
+	- Services : IServiceProvider
+	- Title : string
+	- UseStructuredContent : bool
+- IMcpServerPrimitive
+	- Id : string
+	- Metadata : IReadOnlyList\<object>
+- McpServerPrimitiveCollection\<T> where T : IMcpServerPrimitive
+	- implements
+		- ICollection\<T>
+		- IEnumerable
+		- IEnumerable\<T>
+		- IReadOnlyCollection\<T>
+- MessageContext
+	- ctor(McpServer server, JsonRpcMessage jsonRpcMessage)
+	- Items : IDictionary<string, object>
+	- JsonRpcMessage
+	- Server : McpServer
+	- Services : IServiceProvider
+	- User : ClaimsPrincipal
+- RequestContext\<TParams> : MessageContext
+	- ctor(McpServer server, JsonRpcRequest jsonRpcRequest)
+	- EnablePollingAsync
+	- JsonRpcRequest 
+	- MatchedPrimitive : IMcpServerPrimitive
+	- Params : TParams
 
 ## Assembly : ModelContextProtocol.AspNetCore
 
@@ -140,7 +215,7 @@
 
 ### ModelContextProtocol.Client
 
-- McpClient : McpSession
+- McpClient : **McpSession**
 	- CreateAsync : **McpClient**
 		- clientTransport : **IClientTransport**
 		- clientOptions : McpClientOptions
@@ -159,19 +234,19 @@
 		- CancellationToken
 	- CancelTaskAsync
 	- CompleteAsync
-	- GetPromptAsync
+	- **GetPromptAsync**
 	- GetTaskAsync
 	- GetTaskResultAsync
-	- ListPromptsAsync
-	- ListResourceTemplatesAsync
+	- **ListPromptsAsync**
+	- **ListResourceTemplatesAsync**
 	- ListTasksAsync
-	- ListToolsAsync : ValueTask\<ListToolsResult>
+	- ListToolsAsync : ValueTask\<**ListToolsResult**>
 		- requestParams : ListToolsRequestParams
-	- ListToolsAsync : ValueTask<IList\<McpClientTool>>>
+	- **ListToolsAsync** : ValueTask<IList\<**McpClientTool**>>>
 		- options : RequestOptions
 	- PingAsync
 	- PollTaskUntilCompleteAsync
-	- ReadResourceAsync
+	- **ReadResourceAsync**
 	- ResumeSessionAsync
 	- SetLoggingLevelAsync
 	- SubscribeToResourceAsync
@@ -212,7 +287,7 @@
 	- AutoDetect
 	- Sse
 	- StreamableHttp
-- McpClientTool : Microsoft.Extensions.AI.AIFunction
+- **McpClientTool** : Microsoft.Extensions.AI.AIFunction
 	- CallAsync : ValueTask\<CallToolResult>
 		- arguments : IReadOnlyDictionary<string, object>
 		- progress : IProgress\<ProgressNotificationValue>
@@ -226,14 +301,28 @@
 	- ReturnJsonSchema : JsonElement
 	- Title : string
 
+# Protocol
+
+## Assembly : ModelContextProtocol.Core
+
 ### ModelContextProtocol.Protocol
 
+- CallToolRequestParams : RequestParams
+	- Arguments : IDictionary<string, JsonElement>
+	- Name : string
+	- Task : McpTaskMetadata
 - CallToolResult : Result
 	- Content : IList\<**ContentBlock**>
 	- IsError : bool
 	- StructuredContent : JsonElement
 	- Task : McpTask
 - **ContentBlock**
+	- supertypes
+		- TextContentBlock 
+		- ImageContentBlock
+		- ResourceLinkBlock 
+		- ToolResultContentBlock 
+		- ToolUseContentBlock 
 	- Annotations 
 	- Meta : JsonObject
 	- Type : string

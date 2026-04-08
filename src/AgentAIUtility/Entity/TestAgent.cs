@@ -5,10 +5,18 @@ using System.Text.Json;
 
 namespace AgentAIUtility.Entity
 {
+    /// <summary>
+    /// This agent is intended for testing. It will
+    /// return a pre-determined responses.
+    /// </summary>
     public class TestAgent : AIAgent
     {
         #region Create response
 
+        /// <summary>
+        /// Return a pre-determined response based
+        /// on a request message
+        /// </summary>
         public Func<IEnumerable<ChatMessage>, ChatMessage> GetContent = null!;
 
         virtual protected Task<AgentResponse> CreateAgentResponse(

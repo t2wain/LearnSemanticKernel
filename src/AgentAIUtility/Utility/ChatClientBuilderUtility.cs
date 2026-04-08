@@ -16,13 +16,13 @@ namespace AgentAIUtility.Utility
         /// <summary>
         /// Create ChatClientBuilder pipeline and configure IChatClient
         /// </summary>
-        public static ChatClientBuilder CreateBuilder(AIModel aIModel)
+        public static ChatClientBuilder CreateBuilder(AIModel aIModel, bool includeMonitor = false)
         {
             ChatClientBuilder builder = new(
                 (serviceProvider) =>
                 {
                     IChatClient chatClient = aIModel.ModelType == AIModelTypeEnum.ChatCompletion ?
-                        CreateAzureOpenAIChatClient(aIModel) : CreateAzureOpenAIResponseClient(aIModel);
+                        CreateAzureOpenAIChatClient(aIModel, includeMonitor) : CreateAzureOpenAIResponseClient(aIModel);
                     return chatClient;
                 });
             return builder;
@@ -101,13 +101,28 @@ namespace AgentAIUtility.Utility
 
         #region Create IChatClient
 
-        public static IChatClient CreateAzureOpenAIChatClient(AIModel model)
+        public static IChatClient CreateAzureOpenAIChatClient(AIModel model, bool includeMonitor = false)
+        {
+            AzureOpenAIClientOptions? options = null;
+            if (includeMonitor)
+                options = HttpClientUtility.CreatezureOpenAIClientOptions();
+            return CreateAzureOpenAIChatClient(model, options);
+        }
+
+        public static IChatClient CreateAzureOpenAIChatClient(
+            AIModel model, 
+            AzureOpenAIClientOptions? clientOptions)
         {
             // Assembly : Azure.AI.OpenAI, NS : Azure.AI.OpenAI
-            AzureOpenAIClient azureClient = new(new Uri(model.EndPoint), new ApiKeyCredential(model.APIKey));
+            AzureOpenAIClient azureClient = new(
+                new Uri(model.EndPoint), 
+                new ApiKeyCredential(model.APIKey), 
+                clientOptions);
             OpenAI.Chat.ChatClient azureChatClient = azureClient.GetChatClient(model.Name);
+
             // Assembly : Microsoft.Extension.AI.OpenAI, NS : Microsoft.Extension.AI
             IChatClient chatClient = azureChatClient.AsIChatClient();
+
             return chatClient;
         }
 

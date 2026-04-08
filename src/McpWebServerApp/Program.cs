@@ -1,6 +1,7 @@
 ﻿using AgentAIUtility.MCP;
-using AIAgentExample.Example.MCP;
+using AICommon.Tools;
 using Microsoft.AspNetCore.Builder;
+using ModelContextProtocol.Server;
 
 namespace McpWebServerApp
 {
@@ -14,9 +15,11 @@ namespace McpWebServerApp
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            IEnumerable<McpServerTool> tools = McpUtility.CreateTools(new TimeTool());
+
             builder
                 .Services
-                .ConfigureMcpWebServer(McpTimeTool.GetAssembly());
+                .ConfigureMcpWebServer(tools);
 
             
             WebApplication app = builder.Build();

@@ -1,6 +1,7 @@
 ﻿using AgentAIUtility.MCP;
-using AIAgentExample.Example.MCP;
+using AICommon.Tools;
 using Microsoft.Extensions.Hosting;
+using ModelContextProtocol.Server;
 
 namespace McpServerApp
 {
@@ -14,9 +15,11 @@ namespace McpServerApp
         {
             var builder = Host.CreateApplicationBuilder(args);
 
+            IEnumerable<McpServerTool> tools = McpUtility.CreateTools(new TimeTool());
+
             builder
                 .Services
-                .ConfigureMcpStioServer(McpTimeTool.GetAssembly());
+                .ConfigureMcpStioServer(tools);
 
            await builder.Build().RunAsync();
         }

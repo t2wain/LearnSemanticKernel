@@ -3,10 +3,19 @@ using System.Runtime.CompilerServices;
 
 namespace AgentAIUtility.Entity
 {
+    /// <summary>
+    /// This chat client is for testing only. It will
+    /// return a pre-determined responses for
+    /// a given prompt message.
+    /// </summary>
     public class TestChatClient : IChatClient
     {
         virtual public void Dispose() { }
 
+        /// <summary>
+        /// Generate a pre-determined response
+        /// for a given prompt message.
+        /// </summary>
         public Func<IEnumerable<ChatMessage>, ChatMessage> GetContent = null!;
 
         virtual protected Task<ChatResponse> CreateChatResponse(

@@ -1,36 +1,71 @@
 ﻿using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol.Client;
+using ModelContextProtocol.Server;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace AgentAIUtility.MCP
 {
     public static class McpUtility
     {
-        public static IServiceCollection ConfigureMcpStioServer(this IServiceCollection services, Assembly toolAssembly)
+        #region Server Configuration
+
+        public static IMcpServerBuilder ConfigureMcpStioServer(
+            this IServiceCollection services, 
+            IEnumerable<McpServerTool> tools)
         {
             IMcpServerBuilder mb = services
              .AddMcpServer()
              .WithStdioServerTransport()
-             .WithResourcesFromAssembly(toolAssembly)
-             .WithPromptsFromAssembly(toolAssembly)
-             .WithToolsFromAssembly(toolAssembly);
+             .WithResourcesFromAssembly()
+             .WithPromptsFromAssembly()
+             .WithTools(tools);
 
-            return services;
+            return mb;
         }
 
-        public static IServiceCollection ConfigureMcpWebServer(this IServiceCollection services, Assembly toolAssembly)
+        public static IMcpServerBuilder ConfigureMcpWebServer(
+            this IServiceCollection services, 
+            IEnumerable<McpServerTool> tools)
         {
             IMcpServerBuilder mb = services
              .AddMcpServer()
              .WithHttpTransport()
-             .WithResourcesFromAssembly(toolAssembly)
-             .WithPromptsFromAssembly(toolAssembly)
-             .WithToolsFromAssembly(toolAssembly);
+             .WithResourcesFromAssembly()
+             .WithPromptsFromAssembly()
+             .WithTools(tools);
 
-            return services;
+            return mb;
         }
 
+        public static IEnumerable<McpServerTool> CreateTools(object objectInstance)
+        {
+            // Get the object's type
+            Type type = objectInstance.GetType();
+
+            // Get all methods (public, instance only, inherited included)
+            IEnumerable<MethodInfo> methods =
+                type.GetMethods(
+                    BindingFlags.Public |
+                    BindingFlags.Instance
+                )
+                .Where(m => m.GetCustomAttribute<DescriptionAttribute>() != null)
+                .ToList();
+
+            return CreateTools(objectInstance, methods);
+        }
+
+        public static IEnumerable<McpServerTool> CreateTools(
+            object objectInstance,
+            IEnumerable<MethodInfo> methodInfos) =>
+                methodInfos
+                    .Select(m => McpServerTool.Create(m, objectInstance))
+                    .ToList();
+
+        #endregion
+
+        #region Client
 
         public static Task<McpClient> GetMcpStioClient(string appPath, string name)
         {
@@ -64,5 +99,6 @@ namespace AgentAIUtility.MCP
             return [.. tools];
         }
 
+        #endregion
     }
 }

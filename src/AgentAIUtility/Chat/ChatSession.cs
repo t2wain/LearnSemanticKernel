@@ -162,12 +162,15 @@ namespace AgentAIUtility.Chat
 
         #region CompletionService
 
-        public void CreateChatClient(AIModel? aiModel = null, ChatClientMiddleWareBase? middleware = null)
+        public void CreateChatClient(
+            AIModel? aiModel = null, 
+            ChatClientMiddleWareBase? middleware = null, 
+            bool includeMonitor = false)
         {
             if (ChatClient == null)
             {
                 AIModel = aiModel ?? AIModel;
-                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel);
+                ChatClientBuilder clientBuilder = ChatClientBuilderUtility.CreateBuilder(AIModel, includeMonitor);
                 clientBuilder = ChatClientBuilderUtility.ConfigureAutoTooCall(clientBuilder);
                 if (middleware != null)
                     clientBuilder = ChatClientBuilderUtility.ConfigureMiddleWare(clientBuilder, middleware);
