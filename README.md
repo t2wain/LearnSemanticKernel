@@ -16,7 +16,7 @@ I started my AI development learning with the Python libraries LangChain and Lan
 
 # Semantic Kernel
 
-I am a dotNET developer and so I prefer to do development in C# and Visual Studio IDE. I began my AI development in dotNET with the use of the Microsoft Semantic Kernel library. A sense of familiarity about the Microsoft library APIs since it is somewhat similar to the Python libraries.
+I am a dotNET developer and so I prefer to do development in C# and Visual Studio IDE. I began my AI development in dotNET with the use of the Microsoft Semantic Kernel library. Immediately, I can sense the simlarity between the Microsoft library APIs and the Python libraries.
 
 # Microsoft Agent Framework
 
