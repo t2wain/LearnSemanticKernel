@@ -3,6 +3,7 @@ using Microsoft.Extensions.AI;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 
+#pragma warning disable MAAI001
 namespace AgentAIUtility.Entity
 {
     /// <summary>
@@ -155,3 +156,4 @@ namespace AgentAIUtility.Entity
         }
     }
 }
+#pragma warning restore MAAI001
